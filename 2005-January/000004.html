@@ -1,0 +1,202 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf letzter klopft jetzt auf die letzten 4 karten
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-January/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20letzter%20klopft%20jetzt%20auf%20die%20letzten%204%20karten&In-Reply-To=%3C200501031247.j03ClZbN018266%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000003.html">
+   <LINK REL="Next"  HREF="000005.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf letzter klopft jetzt auf die letzten 4 karten</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20letzter%20klopft%20jetzt%20auf%20die%20letzten%204%20karten&In-Reply-To=%3C200501031247.j03ClZbN018266%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf letzter klopft jetzt auf die letzten 4 karten">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Mon Jan  3 13:47:35 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000003.html">[Schafkopf-devel] Commit Report - Schafkopf der computer kann jetzt klopfen, es fehlt noch
+</A></li>
+        <LI>Next message: <A HREF="000005.html">[Schafkopf-devel] Commit Report - Schafkopf ramsch in den regeldialog eingefuegt (noch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+letzter klopft jetzt auf die letzten 4 karten
+
+Modified Files:
+--------------
+    schafkopf/src:
+        canvasplayer.cpp
+        computerplayer.cpp
+        game.cpp
+        player.cpp
+        player.h
+
+-------------- next part --------------
+Index: computerplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.cpp,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -Lsrc/computerplayer.cpp -Lsrc/computerplayer.cpp -u -r1.26 -r1.27
+--- src/computerplayer.cpp
++++ src/computerplayer.cpp
+@@ -53,7 +53,7 @@
+ {
+     int i;
+     const int anz = NUMCARDS/2;
+-    int start = 0; // if geber = anz
++    int start = ( isLast() ? anz : 0 );
+     int ende = start + anz;
+     int count = 0;
+     GameInfo* info;
+Index: canvasplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.cpp,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -Lsrc/canvasplayer.cpp -Lsrc/canvasplayer.cpp -u -r1.17 -r1.18
+--- src/canvasplayer.cpp
++++ src/canvasplayer.cpp
+@@ -160,7 +160,17 @@
+             c-&gt;setFrontVisible( true );
+     #else            
+             if( m_player-&gt;rtti() == Player::HUMAN )
+-                c-&gt;setFrontVisible( (z &lt; 4 || m_player-&gt;hasDoubled() ) );
++            {
++                if( m_player-&gt;hasDoubled() )
++                    c-&gt;setFrontVisible( true );
++                else
++                {
++                    if( m_player-&gt;isLast() )
++                        c-&gt;setFrontVisible( z &gt;= 4 );
++                    else
++                        c-&gt;setFrontVisible( z &lt; 4 );
++                }
++            }
+             else
+                 c-&gt;setFrontVisible( false );
+     #endif
+Index: player.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.cpp,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -Lsrc/player.cpp -Lsrc/player.cpp -u -r1.26 -r1.27
+--- src/player.cpp
++++ src/player.cpp
+@@ -20,6 +20,7 @@
+     
+     m_has_doubled = false;
+     m_geklopft = false;
++    m_last = false;
+ }
+ 
+ Player::~ Player()
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.61
+retrieving revision 1.62
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.61 -r1.62
+--- src/game.cpp
++++ src/game.cpp
+@@ -103,9 +103,18 @@
+     
+ 	while(!terminated)
+ 	{
+-		start();
+ 		for(i=0;i&lt;PLAYERS;i++)
++        {
+ 			tmp[i]=m_players[(i+gamecnt)%PLAYERS];
++            tmp[i]-&gt;setLast( (i==PLAYERS-1) );
++        }
++		// setLast() has to be done before start(),
++        // so that CanvasPlayer draws cards correctly for
++        // doubling when gameStarted is emited.
++        // otherwise we had to emit gameStarted twice which would 
++        // result in an ugly UI rebuild
++        start();
++        
+ 		for(i=0;i&lt;PLAYERS;i++)
+     	{
+ 	        tmp[i]-&gt;klopfen();
+Index: player.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.h,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -Lsrc/player.h -Lsrc/player.h -u -r1.19 -r1.20
+--- src/player.h
++++ src/player.h
+@@ -21,6 +21,9 @@
+ 		virtual ~Player();
+ 
+ 		virtual void init() {};
++        /** set m_geklopft to true in this function if the player wants to double
++          * and to false if not. 
++          */
+ 		virtual void klopfen();
+         virtual Card *play() = 0;
+         /** if @p force is true the player has to play wether he wants or not
+@@ -38,7 +41,9 @@
+         void setCards( CardList *cards);
+         CardList* stiche() const;
+         void addStich( CardList stich );
+-
++        inline bool isLast() const { return m_last; }
++        inline void setLast( bool b ) { m_last = b; }
++        
+         double points() const { return m_points; }
+         void setPoints( double p ) { m_points = p; }
+         
+@@ -62,6 +67,10 @@
+ 
+         QString m_name;
+ 
++        // is this the last player in the current round
++        // needed to make sure that this player sees the last
++        // four cards to double
++        bool m_last;
+         bool m_geklopft;
+         // is set to true as soon as klopfed()
+         // was called
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000003.html">[Schafkopf-devel] Commit Report - Schafkopf der computer kann jetzt klopfen, es fehlt noch
+</A></li>
+	<LI>Next message: <A HREF="000005.html">[Schafkopf-devel] Commit Report - Schafkopf ramsch in den regeldialog eingefuegt (noch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

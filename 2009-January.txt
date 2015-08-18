@@ -1,0 +1,57 @@
+From domseichter at web.de  Sat Jan 31 00:12:43 2009
+From: domseichter at web.de (Dominik Seichter)
+Date: Sat, 31 Jan 2009 00:12:43 +0100
+Subject: [Schafkopf-devel] Schafkopfprogramm
+In-Reply-To: <200901302350.53611.reinhold@pschierer.eu>
+References: <200901302350.53611.reinhold@pschierer.eu>
+Message-ID: <200901310012.49753.domseichter@web.de>
+
+Hallo Reinhold,
+
+Ist das eine Anfrage aus Franken? Soweit ich wei? wird mit 6-Karten nur in 
+Franken gespielt :)
+
+Wenn Du Schafkopf selbst kompilierst kannst Du einfach die Datei 
+schafkopfdef.h ?ffnen und dort die Zeile 
+#define SCHAFKOPF_LANG 
+entfernen.
+
+Danach make und make install ausf?hren und Schafkopf sollte mit 24 Karten 
+laufen.
+
+Sch?ne Gr??e und viel Spa? beim Zocken,
+	Dom
+
+Am Freitag, 30. Januar 2009 schrieb Reinhold Pschierer:
+> Hallo Dominik,
+> Hallo liebes SchafKopf-Team,
+>
+> ich freue mich sehr, da? ihr euch die M?he gemacht habt, ein
+> Schafkopfprogramm f?r Linux zu entwickeln. Leider spiele ich aber nur
+> kurzes Blatt.
+> Deshalb meine Frage: Ist es angedacht, die 24-Blatt-Regeln zu
+> implementieren? Wenn ja, k?nnt ihr hierzu schon einen ungef?hren Zeitrahmen
+> nennen?
+>
+> Viele Gr??e,
+> Reinhold Pschierer
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: This is a digitally signed message part.
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20090131/d31fc359/attachment.pgp>
+

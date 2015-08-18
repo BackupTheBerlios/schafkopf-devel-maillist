@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf fix compilation on Qt &lt; 3.2.0
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-January/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20fix%20compilation%20on%20Qt%20%3C%203.2.0&In-Reply-To=%3C200501081904.j08J4QLV014528%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000032.html">
+   <LINK REL="Next"  HREF="000034.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf fix compilation on Qt &lt; 3.2.0</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20fix%20compilation%20on%20Qt%20%3C%203.2.0&In-Reply-To=%3C200501081904.j08J4QLV014528%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf fix compilation on Qt &lt; 3.2.0">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Sat Jan  8 20:04:26 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000032.html">[Schafkopf-devel] Commit Report - Schafkopf the computer should not play game the player
+</A></li>
+        <LI>Next message: <A HREF="000034.html">[Schafkopf-devel] Commit Report - Schafkopf beim ersten start ist nun unser kartenset
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#33">[ date ]</a>
+              <a href="thread.html#33">[ thread ]</a>
+              <a href="subject.html#33">[ subject ]</a>
+              <a href="author.html#33">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+fix compilation on Qt &lt; 3.2.0
+
+Modified Files:
+--------------
+    schafkopf/src:
+        schafkopf.cpp
+
+-------------- next part --------------
+Index: schafkopf.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopf.cpp,v
+retrieving revision 1.32
+retrieving revision 1.33
+diff -Lsrc/schafkopf.cpp -Lsrc/schafkopf.cpp -u -r1.32 -r1.33
+--- src/schafkopf.cpp
++++ src/schafkopf.cpp
+@@ -55,7 +55,10 @@
+         : KMainWindow( 0, &quot;SchafKopf&quot; )
+ {
+     split = new QSplitter( QSplitter::Horizontal, this );
++#if QT_VERSION &gt;= 0x030200
+     split-&gt;setChildrenCollapsible( true );
++#endif // QT_VERSION
++
+     setCentralWidget( split );
+     // save window size automatically
+     setAutoSaveSettings( &quot;SchafKopf&quot;, true );
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000032.html">[Schafkopf-devel] Commit Report - Schafkopf the computer should not play game the player
+</A></li>
+	<LI>Next message: <A HREF="000034.html">[Schafkopf-devel] Commit Report - Schafkopf beim ersten start ist nun unser kartenset
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#33">[ date ]</a>
+              <a href="thread.html#33">[ thread ]</a>
+              <a href="subject.html#33">[ subject ]</a>
+              <a href="author.html#33">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

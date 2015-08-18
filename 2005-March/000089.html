@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf karten bewegen sich beim resizen jetzt
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20karten%20bewegen%20sich%20beim%20resizen%20jetzt&In-Reply-To=%3C200503071427.j27ERfcn027338%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000091.html">
+   <LINK REL="Next"  HREF="000092.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf karten bewegen sich beim resizen jetzt</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20karten%20bewegen%20sich%20beim%20resizen%20jetzt&In-Reply-To=%3C200503071427.j27ERfcn027338%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf karten bewegen sich beim resizen jetzt">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Mon Mar  7 15:27:41 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000091.html">[Schafkopf-devel] SchafKopf Debian Paket
+</A></li>
+        <LI>Next message: <A HREF="000092.html">[Schafkopf-devel] IRC-Channel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#89">[ date ]</a>
+              <a href="thread.html#89">[ thread ]</a>
+              <a href="subject.html#89">[ subject ]</a>
+              <a href="author.html#89">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+karten bewegen sich beim resizen jetzt schneller (wenn animation aktiviert ist)
+
+Modified Files:
+--------------
+    schafkopf/src:
+        canvascard.cpp
+        gamecanvas.cpp
+
+-------------- next part --------------
+Index: canvascard.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvascard.cpp,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -Lsrc/canvascard.cpp -Lsrc/canvascard.cpp -u -r1.18 -r1.19
+--- src/canvascard.cpp
++++ src/canvascard.cpp
+@@ -124,14 +124,17 @@
+ 
+ void CanvasCard::moveLoop()
+ {
++	int speedx=1, speedy=1;
++	if( tox-x()&gt;60 || x()-tox&gt;60 ) speedx=20;
++	if( toy-y()&gt;60 || y()-toy&gt;60 ) speedy=20;
+ 	if(tox&gt;x())
+-		moveBy( 1, 0 );
++		moveBy( speedx, 0 );
+ 	else if(tox!=x())
+-		moveBy( -1, 0 );
++		moveBy( -speedx, 0 );
+ 	if(toy&gt;y())
+-		moveBy( 0, 1 );
++		moveBy( 0, speedy );
+ 	else if(toy!=y())
+-		moveBy( 0, -1 );
++		moveBy( 0, -speedy );
+ 	if(tox==x() &amp;&amp; toy==y())
+ 	{
+ 		timer-&gt;stop();
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.46
+retrieving revision 1.47
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.46 -r1.47
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -86,7 +86,7 @@
+     canvas()-&gt;setBackgroundColor( Qt::darkGreen );
+     
+     loadOK = ImgBack.load( Settings::instance()-&gt;backgroundImage() );
+-    canvas()-&gt;setAdvancePeriod( 20 );
++    canvas()-&gt;setAdvancePeriod( 30 );
+     update();
+     
+     connect( Settings::instance(), SIGNAL(cardChanged()), this, SLOT(positionObjects()));
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000091.html">[Schafkopf-devel] SchafKopf Debian Paket
+</A></li>
+	<LI>Next message: <A HREF="000092.html">[Schafkopf-devel] IRC-Channel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#89">[ date ]</a>
+              <a href="thread.html#89">[ thread ]</a>
+              <a href="subject.html#89">[ subject ]</a>
+              <a href="author.html#89">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

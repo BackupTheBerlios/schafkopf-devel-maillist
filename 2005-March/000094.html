@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf patch by Dominik Kuhlen
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20patch%20by%20Dominik%20Kuhlen&In-Reply-To=%3C200503221900.j2MJ0cG1002236%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000093.html">
+   <LINK REL="Next"  HREF="000095.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf patch by Dominik Kuhlen</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20patch%20by%20Dominik%20Kuhlen&In-Reply-To=%3C200503221900.j2MJ0cG1002236%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf patch by Dominik Kuhlen">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Tue Mar 22 20:00:38 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000093.html">[Schafkopf-devel] IRC - Channel 2.
+</A></li>
+        <LI>Next message: <A HREF="000095.html">[Schafkopf-devel] Commit Report - Schafkopf updated admin dir
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#94">[ date ]</a>
+              <a href="thread.html#94">[ thread ]</a>
+              <a href="subject.html#94">[ subject ]</a>
+              <a href="author.html#94">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+patch by Dominik Kuhlen
+
+Modified Files:
+--------------
+    schafkopf/src:
+        results.cpp
+
+-------------- next part --------------
+Index: results.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/results.cpp,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lsrc/results.cpp -Lsrc/results.cpp -u -r1.11 -r1.12
+--- src/results.cpp
++++ src/results.cpp
+@@ -123,7 +123,7 @@
+        
+         m_points = stiche.points();
+         m_schwarz = ( stiche.isEmpty() || stiche.count() == NUMCARDS * PLAYERS );
+-        m_schneider = (m_points &lt; 31 || m_points &gt; 90 );
++        m_schneider = (m_points &lt; 31 || m_points &gt;= 90 );
+     
+         if( m_points &gt; 60 )
+         {
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000093.html">[Schafkopf-devel] IRC - Channel 2.
+</A></li>
+	<LI>Next message: <A HREF="000095.html">[Schafkopf-devel] Commit Report - Schafkopf updated admin dir
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#94">[ date ]</a>
+              <a href="thread.html#94">[ thread ]</a>
+              <a href="subject.html#94">[ subject ]</a>
+              <a href="author.html#94">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

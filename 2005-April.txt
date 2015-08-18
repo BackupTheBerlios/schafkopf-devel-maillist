@@ -1,0 +1,255 @@
+From schafkopf-devel at berlios.de  Thu Apr  7 23:32:46 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Thu, 7 Apr 2005 23:32:46 +0200
+Subject: [Schafkopf-devel] lenz
+Message-ID: <200504072132.j37LWkEA007838@sheep.berlios.de>
+
+Log Message:
+-----------
+Testcommit zum schaun, ob der username jetz im commit-subject steht...
+
+Modified Files:
+--------------
+    schafkopf:
+        ChangeLog
+
+-------------- next part --------------
+Index: ChangeLog
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/ChangeLog,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -LChangeLog -LChangeLog -u -r1.1.1.1 -r1.2
+--- ChangeLog
++++ ChangeLog
+@@ -1 +1 @@
+- 
+\ No newline at end of file
++ 
+
+From schafkopf-devel at berlios.de  Thu Apr  7 23:50:33 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Thu, 7 Apr 2005 23:50:33 +0200
+Subject: [Schafkopf-devel] Commit report from lenz
+Message-ID: <200504072150.j37LoXS0009438@sheep.berlios.de>
+
+Log Message:
+-----------
+Mein fehler ;)
+War blo? nen syntaxfehler im mail-script...
+
+Modified Files:
+--------------
+    schafkopf:
+        ChangeLog
+
+
+From schafkopf-devel at berlios.de  Fri Apr  8 13:31:20 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Fri, 8 Apr 2005 13:31:20 +0200
+Subject: [Schafkopf-devel] 0
+Message-ID: <200504081131.j38BVKRk032694@sheep.berlios.de>
+
+Log Message:
+-----------
+und nochmal test....
+
+Modified Files:
+--------------
+    schafkopf:
+        ChangeLog
+
+-------------- next part --------------
+Index: ChangeLog
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/ChangeLog,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -LChangeLog -LChangeLog -u -r1.3 -r1.4
+--- ChangeLog
++++ ChangeLog
+@@ -0,0 +1 @@
++
+
+From schafkopf-devel at berlios.de  Fri Apr  8 13:41:11 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Fri, 8 Apr 2005 13:41:11 +0200
+Subject: [Schafkopf-devel] Commit Report - Schafkopf test...
+Message-ID: <200504081141.j38BfB5f005610@sheep.berlios.de>
+
+Log Message:
+-----------
+test...
+
+Modified Files:
+--------------
+    schafkopf:
+        README
+
+-------------- next part --------------
+Index: README
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/README,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -LREADME -LREADME -u -r1.1.1.1 -r1.2
+--- README
++++ README
+@@ -1 +1 @@
+-
++bla
+
+From schafkopf-devel at berlios.de  Fri Apr  8 13:42:03 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Fri, 8 Apr 2005 13:42:03 +0200
+Subject: [Schafkopf-devel] lenz: Commit Report - Schafkopf so.
+Message-ID: <200504081142.j38Bg3e4005886@sheep.berlios.de>
+
+Log Message:
+-----------
+so. jetz sollte alles hinhaun...
+
+Modified Files:
+--------------
+    schafkopf:
+        README
+
+
+From moesenle at in.tum.de  Fri Apr  8 19:05:49 2005
+From: moesenle at in.tum.de (=?ISO-8859-1?Q?Lorenz_M=F6senlechner?=)
+Date: Fri, 8 Apr 2005 19:05:49 +0200 (CEST)
+Subject: [Schafkopf-devel] cvs-ebuild
+Message-ID: <Pine.LNX.4.62.0504081901010.8563@ich>
+
+Hi Schafkopfer!
+Ich hab mal nen cvs-ebuild von schafkopf gemacht. Damit k?nnt ihr euch 
+unter gentoo immer die aktuellste entwicklerversion installieren.
+Zur installation:
+
+1. Am besten aktiviert ihr das 
+portage-overlay in der date 
+/etc/make.conf. Einfach folgende zeile 
+reinschreiben: PORTDIR_OVERLAY="/usr/local/portage"
+
+2. cd /usr/local/portage
+
+3. tar xvjf <pfad_zu_ebuild_archiv>/schafkopf-cvs-ebuild.tar.bz2
+
+4. emerge schafkopf-cvs
+
+5. schafkopfen ;)
+
+@Dom oder benni oder gitschei: Bitte ?berpr?ft das ebuild nochmal, ob vor 
+allem die dependencies passen. Und bitte auch auf die homepage stellen ;)
+
+Gruss Lenz
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: schafkopf-cvs-ebuild.tar.bz2
+Type: application/octet-stream
+Size: 760 bytes
+Desc: schafkopf cvs ebuild
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20050408/74d6368c/attachment.obj>
+
+From moesenle at in.tum.de  Fri Apr  8 20:13:44 2005
+From: moesenle at in.tum.de (=?ISO-8859-1?Q?Lorenz_M=F6senlechner?=)
+Date: Fri, 8 Apr 2005 20:13:44 +0200 (CEST)
+Subject: [Schafkopf-devel] update cvs-ebuild
+Message-ID: <Pine.LNX.4.62.0504082012230.10628@ich>
+
+Kleines update. Die dependencies passen jetz auch f?r kdegames-meta. Dank 
+an benni.
+Irgend wer sollte die dependencies auch im bestehenden ebuild ?ndern.
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: schafkopf-cvs-ebuild.tar.bz2
+Type: application/octet-stream
+Size: 779 bytes
+Desc: 
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20050408/a5f720fd/attachment.obj>
+
+From moesenle at in.tum.de  Sat Apr  9 13:08:56 2005
+From: moesenle at in.tum.de (=?ISO-8859-1?Q?Lorenz_M=F6senlechner?=)
+Date: Sat, 9 Apr 2005 13:08:56 +0200 (CEST)
+Subject: [Schafkopf-devel] ebuild update again
+Message-ID: <Pine.LNX.4.62.0504091306580.21688@ich>
+
+Ich musste das ebuild nochmal updaten, ums dem benni recht zu machen ;)
+Der installationspfad ist jetz /usr/kde/<version>/
+Viel spass damit. Bitte wer online stellen....
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: schafkopf-cvs-ebuild.tar.bz2
+Type: application/octet-stream
+Size: 788 bytes
+Desc: 
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20050409/dfffee61/attachment.obj>
+
+From moesenle at in.tum.de  Sat Apr  9 13:09:22 2005
+From: moesenle at in.tum.de (=?ISO-8859-1?Q?Lorenz_M=F6senlechner?=)
+Date: Sat, 9 Apr 2005 13:09:22 +0200 (CEST)
+Subject: [Schafkopf-devel] ebuild update again
+Message-ID: <Pine.LNX.4.62.0504091308580.21688@ich>
+
+Ich musste das ebuild nochmal updaten, ums dem benni recht zu machen ;)
+Der installationspfad ist jetz /usr/kde/<version>/
+Viel spass damit. Bitte wer online stellen....
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: schafkopf-cvs-ebuild.tar.bz2
+Type: application/octet-stream
+Size: 788 bytes
+Desc: 
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20050409/ef1de796/attachment.obj>
+
+From domseichter at web.de  Sun Apr 10 03:02:37 2005
+From: domseichter at web.de (Dominik Seichter)
+Date: Sun, 10 Apr 2005 03:02:37 +0200
+Subject: [Schafkopf-devel] ebuild update again
+In-Reply-To: <Pine.LNX.4.62.0504091308580.21688@ich>
+References: <Pine.LNX.4.62.0504091308580.21688@ich>
+Message-ID: <200504100302.38638.domseichter@web.de>
+
+Am Saturday, 9. April 2005 13:09 schrieb Lorenz M?senlechner:
+> Ich musste das ebuild nochmal updaten, ums dem benni recht zu machen ;)
+> Der installationspfad ist jetz /usr/kde/<version>/
+> Viel spass damit. Bitte wer online stellen....
+
+Ohne es probiert oder angeschaut zu haben (bin viel zu kaputt grad):
+Mit der installation nach /usr/kde/<version>/ machst Du es zwar mir und dem 
+Benni recht, allerdings dem Gentoo leuten nicht. Das war auch einer der 
+Kritik Punkte an meinem ebuild von 0.5, dass ich an Gentoo submitted habe. 
+Die Gentoo  leute wollen, dass schafkopf nach /usr/ installiert wird.
+
+CU Dom
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+KDE Mass Mailer - http://www.kmassmailer.net - Mass mailing for KDE
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+**********************************************************************
+
+
+From moesenle at in.tum.de  Sun Apr 10 10:42:38 2005
+From: moesenle at in.tum.de (=?ISO-8859-1?Q?Lorenz_M=F6senlechner?=)
+Date: Sun, 10 Apr 2005 10:42:38 +0200 (CEST)
+Subject: [Schafkopf-devel] ebuild update again
+In-Reply-To: <200504100302.38638.domseichter@web.de>
+References: <Pine.LNX.4.62.0504091308580.21688@ich> <200504100302.38638.domseichter@web.de>
+Message-ID: <Pine.LNX.4.62.0504101039590.13571@ich>
+
+> Ohne es probiert oder angeschaut zu haben (bin viel zu kaputt grad):
+> Mit der installation nach /usr/kde/<version>/ machst Du es zwar mir und dem
+> Benni recht, allerdings dem Gentoo leuten nicht. Das war auch einer der
+> Kritik Punkte an meinem ebuild von 0.5, dass ich an Gentoo submitted habe.
+> Die Gentoo  leute wollen, dass schafkopf nach /usr/ installiert wird.
+>
+> CU Dom
+
+Naja. Das is ja auch nen cvs-ebuild und nicht f?r den
+gentoo-portage-tree gedacht, sondern nur f?r leute, die sich im
+gentoo-system immer die cvs-sourcen ziehen wollen. Also passt des denk
+ich schon so.
+

@@ -1,0 +1,96 @@
+From domseichter at web.de  Wed Jun 22 11:48:06 2005
+From: domseichter at web.de (Dominik Seichter)
+Date: Wed, 22 Jun 2005 11:48:06 +0200
+Subject: [Schafkopf-devel] Re: schafkopf: kritik und anregungen
+In-Reply-To: <200506201451.54283.tp@traktorpilot.de>
+References: <200506201451.54283.tp@traktorpilot.de>
+Message-ID: <200506221148.06529.domseichter@web.de>
+
+Hallo Uli,
+
+
+Am Monday, 20. June 2005 14:51 schrieben Sie:
+> hallo!
+>
+> erstmal ein gro?es lob, dass du ein schafkopf-programm f?r linux
+> programmiert hast!
+Danke :-)
+
+> ein paar sachen sind mir aufgefallen, womit man in dem entwicklungsstadium
+> aber wahrscheinlich rechnen und leben muss. also hier meine kritiken und
+> anregungen:
+> - das programm z?hlt in der abrechnung keine laufenden, obwohl die in den
+> optionen mit 0,10euros eingestellt sind
+Das mit den laufenden ist in der Tat noch ziemlich Buggy. Wir versuchen das so 
+schnell wie m?glich zu beheben (so schnell wie m?glich heisst aber wohl 
+leider August :( )
+
+> - mit 30 augen gilt man als geschneidert; ich kenn das so, dass man mit 30
+> schneiderfrei ist. kl?r mich bitte auf, wenn meine ansicht nicht mit den
+> offiziellen regeln ?bereinstimmt
+So wie ich es kenne ist man erst mit 31 Punkten schneider frei. Allerdings 
+haben wir (laut Wikipedia) beide Recht. Ich zitiere:
+
+<quote>
+Mit 31 Augen ist die Spielerpartei Schneider frei. F?r die Nichtspielerpartei 
+hingegen ist entsprechend des Spiel mit 60 Augen gewonnen und mit 90 Augen 
+mit Schneider gewonnen sowie mit 30 Augen Schneider frei.
+</quote>
+
+Das muss nat?rlich auch noch richtiggestellt werden.
+
+> - es w?r sch?n, wenn beim geben und spiel ansagen angezeigt w?rde, wer der
+> erste in der runde ist
+Stimmt, das w?rde die ?bersicht verbessern.
+
+> - taktik der computerspieler: die spielen fast nur solospiele, kaum mal ein
+> sauspiel. und sie schmieren des ?fteren mal den gegner, auch wenn der stich
+> schon dem gegner geh?rt und keine offensichtliche notwenigkeit besteht
+> (z.b. weil die farbe das erste mal gespielt wird)
+Die bessere KI ist in Arbeit. Aber wir haben leider nicht so viel Zeit daf?r 
+wie wir es uns w?nschen w?rden.
+
+> - die zeitabst?nde beim karten ausspielen k?nnten "praxisgerechter" sein,
+> d.h. der mensch-spieler sollte sofort ausspielen k?nnen, wenn der
+> computer-spieler vor ihm ausgespielt hat. daf?r w?re eine l?ngere wartezeit
+> sch?n, bevor der stich wegger?umt wird, etwa durch einen klick auf eine
+> taste oder ein enter, falls man mit der tastatur spielt
+Das k?nnte man konfigurierbar machen.
+
+> - wenn die spielergebnisse bzw. abrechnung bei einem neustart des programms
+> erhalten blieben, w?r das ganz nett
+Speichern der Ergebnisse ist geplant.
+
+> - die rufsau geht ziemlich oft durch, d.h. jeder spieler hat eine karte mit
+> der farbe. t?uscht mich da mein gef?hl oder kann das am misch- bzw.
+> verteil-algorithmus liegen?
+Unser Mischalgorithmus ist sicher besser als jedes echte Mischen. Das kann 
+nat?rlich ein Problem sein. Wir verwenden zum nischen (so gut wie) echte 
+Zufalls Zahlen, in echt ist es aber so dass beim mischen alte Stiche oft 
+zusammen kleben, was dann daf?r sorgt dass man ?fters Farbfrei ist. Ich habe 
+allerdings gerade auch keine Idee wie man "schlechteres" mischen simulieren 
+sollte.
+
+>
+> soweit mal f?rs erste, was mir so aufgefallen is. werd dann mal bissl
+> weiter"testen"  ;)
+Danke f?r die R?ckmeldung! Wir versuchen das alles zu ber?cksichtigen und 
+freuen uns nat?rlich ?ber weiteres Feedback!
+
+> p.s.: die mail direkt aus dem programm zu senden hat bei mir nicht
+> funktioniert
+Das ist ein KDE Feature... Hast Du den Mailserver im KDE Kontrollzentrum 
+konfiguriert gehabt? Das ist denke ich notwendig damit das geht.
+
+
+CU Dom
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+
+

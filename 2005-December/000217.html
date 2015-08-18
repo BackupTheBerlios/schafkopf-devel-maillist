@@ -1,0 +1,367 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] domseichter: Commit Report - Schafkopf Patch by Harald Fernengel
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20Patch%20by%20Harald%20Fernengel&In-Reply-To=%3C200512201532.jBKFWJLt029128%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000218.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] domseichter: Commit Report - Schafkopf Patch by Harald Fernengel</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20Patch%20by%20Harald%20Fernengel&In-Reply-To=%3C200512201532.jBKFWJLt029128%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] domseichter: Commit Report - Schafkopf Patch by Harald Fernengel">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Tue Dec 20 16:32:19 CET 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000218.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf Positionierung der Karten korrigiert und etwas
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#217">[ date ]</a>
+              <a href="thread.html#217">[ thread ]</a>
+              <a href="subject.html#217">[ subject ]</a>
+              <a href="author.html#217">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+Patch by Harald Fernengel &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">harry at kdevelop.org</A>&gt;:
+-Clean up parts of the source code (Card::toString())
+-Fixed detection of highest trump in game
+
+Modified Files:
+--------------
+    schafkopf/src:
+        card.cpp
+        card.h
+        computerplayer.cpp
+        game.cpp
+        gamecanvas.cpp
+        openbook.cpp
+        player.cpp
+        player.h
+        selectgamecolorbox.cpp
+
+-------------- next part --------------
+Index: openbook.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/openbook.cpp,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -Lsrc/openbook.cpp -Lsrc/openbook.cpp -u -r1.13 -r1.14
+--- src/openbook.cpp
++++ src/openbook.cpp
+@@ -91,7 +91,7 @@
+     s_rule rules[] =
+     {
+         { player1, true },
+-        { player1, true },
++        { player2, true },
+         { rule1, false },
+         { rule2, false },
+         { rule3, false }
+Index: selectgamecolorbox.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/selectgamecolorbox.cpp,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -Lsrc/selectgamecolorbox.cpp -Lsrc/selectgamecolorbox.cpp -u -r1.3 -r1.4
+--- src/selectgamecolorbox.cpp
++++ src/selectgamecolorbox.cpp
+@@ -91,7 +91,7 @@
+ 	else if(checkGras-&gt;isChecked()) return (Card::GRAS);
+ 	else if(checkHerz-&gt;isChecked()) return (Card::HERZ);
+ 	else if(checkSchellen-&gt;isChecked()) return (Card::SCHELLEN);
+-	else if(checkFarblos-&gt;isChecked()) return (Card::NOCOLOR);
++	return (Card::NOCOLOR);
+ }
+ 
+ 
+Index: player.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.h,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -Lsrc/player.h -Lsrc/player.h -u -r1.25 -r1.26
+--- src/player.h
++++ src/player.h
+@@ -63,7 +63,6 @@
+         CardList *allowedCards();
+         void removeTrumpf(CardList* liste);
+         bool hasTrumpf(CardList* liste);
+-        void DebugCardOutput(Card* card);
+ 
+     protected:
+         CardList *m_cards;
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.50
+retrieving revision 1.51
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.50 -r1.51
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -268,12 +268,13 @@
+     unsigned int i=0;
+     CanvasCard* card = 0;
+            
+-    for(i=0;i&lt;PLAYERS;i++)
++    for(i=0;i&lt;PLAYERS;i++) {
+         if( m_players[i]-&gt;id() == player )
+         {
+             card = m_players[i]-&gt;hasCard( cardid );
+             break;
+         }
++    }
+     
+     if( card )
+     {
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.81
+retrieving revision 1.82
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.81 -r1.82
+--- src/game.cpp
++++ src/game.cpp
+@@ -100,6 +100,8 @@
+         m_players[i]-&gt;stiche()-&gt;clear();
+     }
+ 
++    m_playedcards.clear();
++
+     postEvent( GameStarted );
+     //emit gameStarted();
+ }
+@@ -191,6 +193,7 @@
+                 int* cards = new int[2];
+                 cards[0] = c-&gt;id();
+                 cards[1] = 0;
++                m_playedcards.append(c);
+                 postEvent( CardPlayed, tmp[a]-&gt;id(), cards, QString::null, true );
+             	//emit playerPlayedCard(tmp[a]-&gt;id(),c);
+ 
+@@ -243,6 +246,7 @@
+ {
+     terminated=true;
+     postEvent( GameEnded );
++
+     //emit gameEnded();
+     //EXIT_LOOP();
+ }
+Index: card.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/card.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -Lsrc/card.h -Lsrc/card.h -u -r1.9 -r1.10
+--- src/card.h
++++ src/card.h
+@@ -22,6 +22,7 @@
+ 
+ class QPixmap;
+ class Player;
++class QString;
+ 
+ /**
+ This class represents one card.
+@@ -95,6 +96,11 @@
+           */
+         void cardDeckChanged();
+         
++        /** Returns a non-localized textual representation of the card,
++         *  for example &quot;Herz Ass&quot;
++         */
++        QString toString() const;
++
+     private:
+         void init( const enum EType t, const enum EColor c  );
+         
+Index: player.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.cpp,v
+retrieving revision 1.33
+retrieving revision 1.34
+diff -Lsrc/player.cpp -Lsrc/player.cpp -u -r1.33 -r1.34
+--- src/player.cpp
++++ src/player.cpp
+@@ -77,59 +77,6 @@
+         return false;
+ }
+ 
+-void Player::DebugCardOutput(Card* card)
+-{
+-// DS: disabled to fix compiler warnings
+-/*
+-	char* c;
+-	char* s;
+-
+-	switch (card-&gt;color())
+-	{
+-		case Card::SCHELLEN:
+-			c=&quot;Schellen&quot;;
+-			break;
+-		case Card::HERZ:
+-			c=&quot;Herz&quot;;
+-			break;
+-		case Card::EICHEL:
+-			c=&quot;Eichel&quot;;
+-			break;
+-		case Card::GRAS:
+-			c=&quot;Gras&quot;;
+-			break;
+-	}
+-	switch (card-&gt;card())
+-	{
+-		case Card::SAU:
+-			s=&quot;SAU&quot;;
+-			break;
+-		case Card::ZEHN:
+-			s=&quot;ZEHN&quot;;
+-			break;
+-		case Card::KOENIG:
+-			s=&quot;KOENIG&quot;;
+-			break;
+-		case Card::OBER:
+-			s=&quot;OBER&quot;;
+-			break;
+-		case Card::UNTER:
+-			s=&quot;UNTER&quot;;
+-			break;
+-		case Card::NEUN:
+-			s=&quot;NEUN&quot;;
+-			break;
+-		case Card::ACHT:
+-			s=&quot;ACHT&quot;;
+-			break;
+-		case Card::SIEBEN:
+-			s=&quot;SIEBEN&quot;;
+-			break;
+-	}
+-	 qDebug(&quot;Entferne: %s, %s&quot;, c, s);     
+-*/
+-}
+-
+ CardList* Player::stiche() const
+ {
+     return m_stiche;
+Index: computerplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.cpp,v
+retrieving revision 1.37
+retrieving revision 1.38
+diff -Lsrc/computerplayer.cpp -Lsrc/computerplayer.cpp -u -r1.37 -r1.38
+--- src/computerplayer.cpp
++++ src/computerplayer.cpp
+@@ -25,6 +25,7 @@
+ #include &quot;gameinfo.h&quot;
+ #include &quot;openbook.h&quot;
+ 
++#include &lt;qstring.h&gt;
+ #include &lt;kapplication.h&gt;
+ 
+ ComputerPlayer::ComputerPlayer(unsigned int id,Game* game)
+@@ -455,14 +456,13 @@
+     int i;
+ 	
+     for(c=m_game-&gt;allCards()-&gt;first();c;c=m_game-&gt;allCards()-&gt;next())
+-        if(m_game-&gt;gameInfo()-&gt;istTrumpf(c))
++        if(m_game-&gt;gameInfo()-&gt;istTrumpf(c)) {
+             trumpfs-&gt;append(c);
++        }
+ 
+-    for(i=0;i&lt;PLAYERS;i++)
+-    {
+-        for(c=trumpfs-&gt;first();c;c=trumpfs-&gt;next())
+-            if(m_playedCards[i]-&gt;containsRef(c))
+-                trumpfs-&gt;removeRef(c);
++    for (Card *playedCard = m_game-&gt;playedCards()-&gt;first(); playedCard;
++            playedCard = m_game-&gt;playedCards()-&gt;next()) {
++        trumpfs-&gt;removeRef(playedCard);
+     }
+ 
+     for(c=m_cards-&gt;first();c;c=m_cards-&gt;next())
+@@ -505,6 +505,8 @@
+ 
+ void ComputerPlayer::cardPlayed(unsigned int player, Card *c)
+ {
++    qDebug(&quot;********* cardPlayed (%s)&quot;, c-&gt;toString().ascii());
++
+     // TODO: was called by signal before the thread change
+     // has to be implemented in another way
+ 	m_playedCards[player]-&gt;append(c);
+Index: card.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/card.cpp,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -Lsrc/card.cpp -Lsrc/card.cpp -u -r1.12 -r1.13
+--- src/card.cpp
++++ src/card.cpp
+@@ -147,3 +147,33 @@
+ {
+     return m_card + m_color;
+ }
++
++
++QString Card::toString() const
++{
++    QString res;
++
++    switch (m_color) {
++    case EICHEL: res += &quot;Eichel&quot;; break;
++    case GRAS: res += &quot;Gras&quot;; break;
++    case HERZ: res += &quot;Herz&quot;; break;
++    case SCHELLEN: res += &quot;Schellen&quot;; break;
++    default: res += &quot;Nocolor&quot;; break;
++    }
++
++    res += ' ';
++
++    switch (m_card) {
++    case SAU: res += &quot;Sau&quot;; break;
++    case ZEHN: res += &quot;Zehn&quot;; break;
++    case KOENIG: res += &quot;Koenig&quot;; break;
++    case OBER: res += &quot;Ober&quot;; break;
++    case UNTER: res += &quot;Unter&quot;; break;
++    case NEUN: res += &quot;Neun&quot;; break;
++    case ACHT: res += &quot;Acht&quot;; break;
++    case SIEBEN: res += &quot;Sieben&quot;; break;
++    default: res += &quot;Unknown&quot;; break;
++    }
++
++    return res;
++}
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000218.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf Positionierung der Karten korrigiert und etwas
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#217">[ date ]</a>
+              <a href="thread.html#217">[ thread ]</a>
+              <a href="subject.html#217">[ subject ]</a>
+              <a href="author.html#217">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

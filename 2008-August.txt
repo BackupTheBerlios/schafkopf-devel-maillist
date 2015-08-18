@@ -1,0 +1,72 @@
+From domseichter at web.de  Mon Aug 18 15:19:31 2008
+From: domseichter at web.de (Dominik Seichter)
+Date: Mon, 18 Aug 2008 15:19:31 +0200
+Subject: [Schafkopf-devel] Schafkopf bug report: changing player names
+In-Reply-To: <BAY103-W3D1B4A9D90FB26156C86DC0720@phx.gbl>
+References: <BAY103-W3D1B4A9D90FB26156C86DC0720@phx.gbl>
+Message-ID: <200808181519.36853.domseichter@web.de>
+
+Hello Parker,
+
+Thank you very much for your nice words. We will try to incorporate your 
+request into the next version. Unfortunately we do not yet have a schedule 
+when the next version is to be expected as we are all busy with real world 
+jobs at the moment.
+
+
+
+Am Donnerstag, 14. August 2008 schrieb Parker Jones:
+> Thanks for an excellent game!  I used to play when I was young and this
+> brings back many good memories.
+>
+> Here is some feedback for Schafkopf v0.6 packaged for Ubuntu 8.04.  Perhaps
+> these issues are already fixed in v0.7.
+>
+> Bug:  Changing player names in Settings -> Configure SchafKopf only
+> partially works.  The names in the Results section are changed but not on
+> the card table and not in game information.
+Good catch, that's the problem when I always play with the default names ...
+
+
+> Suggestion:  With the Bavarian Old card deck the card colour is a little
+> too small to see for unter/ober.  It would help to have it a little larger.
+>  Perhaps the card size could be made a little bigger?
+Yeah, I would prefer SVG cards for the next version which can be scaled 
+arbitrarily.
+
+best regards,
+	Dom
+
+>
+> Mit freundlichen Gruessen,
+> Parker
+>
+>
+>
+>
+> _________________________________________________________________
+> SEEK New Zealand's #1 jobsite
+> http://a.ninemsn.com.au/b.aspx?URL=http%3A%2F%2Fmsn%2Eseek%2Eco%2Enz%2FID%5
+>FSEEKNZMAIN%5FUSR%2FPages%2Falliance%5Fhomepage%2Eascx%3FComeFrom%3Dmsnnz%26
+>tracking%3Dsk%3Asptlmini%3Ask%3Amsnnz%3A0%3Awindowslive%3A%231&_t=757263783&
+>_r=Seek_NZ_tagline_no1&_m=EXT
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: This is a digitally signed message part.
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20080818/fd4df56e/attachment.pgp>
+

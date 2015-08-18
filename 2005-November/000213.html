@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] bloewe: Commit Report - Schafkopf ueberarbeitetes ebuild fuer den gentoo portage
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-November/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20bloewe%3A%20Commit%20Report%20-%20Schafkopf%20ueberarbeitetes%20ebuild%20fuer%20den%20gentoo%20portage&In-Reply-To=%3C200511151230.jAFCU4Yp021335%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000212.html">
+   <LINK REL="Next"  HREF="000214.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] bloewe: Commit Report - Schafkopf ueberarbeitetes ebuild fuer den gentoo portage</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20bloewe%3A%20Commit%20Report%20-%20Schafkopf%20ueberarbeitetes%20ebuild%20fuer%20den%20gentoo%20portage&In-Reply-To=%3C200511151230.jAFCU4Yp021335%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] bloewe: Commit Report - Schafkopf ueberarbeitetes ebuild fuer den gentoo portage">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Tue Nov 15 13:30:04 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000212.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf +aktuelle ebuilds
+</A></li>
+        <LI>Next message: <A HREF="000214.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf arghh.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#213">[ date ]</a>
+              <a href="thread.html#213">[ thread ]</a>
+              <a href="subject.html#213">[ subject ]</a>
+              <a href="author.html#213">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+ueberarbeitetes ebuild fuer den gentoo portage tree
+
+Added Files:
+-----------
+    schafkopf/gentoo:
+        schafkopf-0.6-r1.ebuild
+
+-------------- next part --------------
+--- /dev/null
++++ gentoo/schafkopf-0.6-r1.ebuild
+@@ -0,0 +1,17 @@
++# Copyright 1999-2005 Gentoo Foundation
++# Distributed under the terms of the GNU General Public License v2
++
++inherit kde
++
++DESCRIPTION=&quot;The KDE version of a popular Bavarian card game.&quot;
++HOMEPAGE=&quot;<A HREF="http://schafkopf.berlios.de">http://schafkopf.berlios.de</A>&quot;
++SRC_URI=&quot;<A HREF="http://download.berlios.de/schafkopf/${P">http://download.berlios.de/schafkopf/${P</A>}.tar.gz&quot;
++
++LICENSE=&quot;GPL-2&quot;
++SLOT=0
++KEYWORDS=&quot;~amd64 ~x86&quot;
++IUSE=&quot;&quot;
++
++DEPEND=&quot;|| ( kde-base/libkdegames &gt;=kde-base/kdegames-3.2.0 )&quot;
++
++need-kde 3
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000212.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf +aktuelle ebuilds
+</A></li>
+	<LI>Next message: <A HREF="000214.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf arghh.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#213">[ date ]</a>
+              <a href="thread.html#213">[ thread ]</a>
+              <a href="subject.html#213">[ subject ]</a>
+              <a href="author.html#213">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] [PATCH] Threading Patch
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20%5BPATCH%5D%20Threading%20Patch&In-Reply-To=%3C200502121626.34419.domseichter%40web.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000063.html">
+   <LINK REL="Next"  HREF="000065.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] [PATCH] Threading Patch</H1>
+    <B>Dominik Seichter</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20%5BPATCH%5D%20Threading%20Patch&In-Reply-To=%3C200502121626.34419.domseichter%40web.de%3E"
+       TITLE="[Schafkopf-devel] [PATCH] Threading Patch">domseichter at web.de
+       </A><BR>
+    <I>Sat Feb 12 16:26:34 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000063.html">[Schafkopf-devel] Commit Report - Schafkopf doms vorschlag + uebersetzung
+</A></li>
+        <LI>Next message: <A HREF="000065.html">[Schafkopf-devel] Commit Report - Schafkopf Keiner hat sich beschwert, also stell ich den
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#64">[ date ]</a>
+              <a href="thread.html#64">[ thread ]</a>
+              <a href="subject.html#64">[ subject ]</a>
+              <a href="author.html#64">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi all,
+
+Die aktuelle Version meines Threading Patches. 
+Hab weiter im Code rumgew&#252;tet:
+Die Core-Game-Klassen (Game, Player, Card) sind keine QObjects mehr.
+GameCanvas und CanvasPlayer kommen ohne Game und Player Objekte aus.
+Und es gibt bei mir keine Deadlocks und &quot;Verklemmungen&quot; (&lt;- neues wort, heute 
+erst gelernt :) ) mehr.
+
+Ich denke das ist mittlerweile Reif f&#252;rs CVS. Ihr habt bis morgen Abend zeit 
+mir zu wieder sprechen, sonst wirds commited.
+
+Wer den Patch vorher probieren will holt sich CVS HEAD und dann:
+cd schafkopf
+cd src
+patch &lt; schafkopf_thread_2.diff
+
+CU Dom
+-- 
+**********************************************************************
+Dominik Seichter - <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>
+KRename  - <A HREF="http://www.krename.net">http://www.krename.net</A>  - Powerful batch renamer for KDE
+KBarcode - <A HREF="http://www.kbarcode.net">http://www.kbarcode.net</A> - Barcode and label printing
+KDE Mass Mailer - <A HREF="http://www.kmassmailer.net">http://www.kmassmailer.net</A> - Mass mailing for KDE
+SchafKopf - <A HREF="http://schafkopf.berlios.de">http://schafkopf.berlios.de</A> - Schafkopf, a card game,  for KDE
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: schafkopf_thread_2.diff.bz2
+Type: application/x-bzip2
+Size: 15135 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20050212/b73e9b8d/attachment.bin">https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20050212/b73e9b8d/attachment.bin</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000063.html">[Schafkopf-devel] Commit Report - Schafkopf doms vorschlag + uebersetzung
+</A></li>
+	<LI>Next message: <A HREF="000065.html">[Schafkopf-devel] Commit Report - Schafkopf Keiner hat sich beschwert, also stell ich den
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#64">[ date ]</a>
+              <a href="thread.html#64">[ thread ]</a>
+              <a href="subject.html#64">[ subject ]</a>
+              <a href="author.html#64">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

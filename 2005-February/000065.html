@@ -1,0 +1,2774 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf Keiner hat sich beschwert, also stell ich den
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20Keiner%20hat%20sich%20beschwert%2C%20also%20stell%20ich%20den&In-Reply-To=%3C200502131319.j1DDJiJA014620%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000064.html">
+   <LINK REL="Next"  HREF="000066.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf Keiner hat sich beschwert, also stell ich den</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20Keiner%20hat%20sich%20beschwert%2C%20also%20stell%20ich%20den&In-Reply-To=%3C200502131319.j1DDJiJA014620%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf Keiner hat sich beschwert, also stell ich den">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Sun Feb 13 14:19:44 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000064.html">[Schafkopf-devel] [PATCH] Threading Patch
+</A></li>
+        <LI>Next message: <A HREF="000066.html">[Schafkopf-devel] Commit Report - Schafkopf kleiner bugix
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#65">[ date ]</a>
+              <a href="thread.html#65">[ thread ]</a>
+              <a href="subject.html#65">[ subject ]</a>
+              <a href="author.html#65">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+Keiner hat sich beschwert, also stell ich den Patch ins CVS.
+Seit dem letzten Patch nehmen ich jetzt POSIX Semaphoren her 
+(QSemaphore stinkt wirklich). L&#228;uft jetzt _denke_ ich ganz gut
+aber testet selbst.
+
+Modified Files:
+--------------
+    schafkopf/src:
+        canvascard.cpp
+        canvascard.h
+        canvasplayer.cpp
+        canvasplayer.h
+        card.cpp
+        card.h
+        cardlist.cpp
+        cardlist.h
+        computerplayer.cpp
+        computerplayer.h
+        game.cpp
+        game.h
+        gamecanvas.cpp
+        gamecanvas.h
+        gameinfo.h
+        humanplayer.cpp
+        humanplayer.h
+        player.cpp
+        player.h
+        pointresults.cpp
+        schafkopf.cpp
+        schafkopf.h
+        schafkopfdef.h
+        selectgametypebox.cpp
+        settings.cpp
+        settings.h
+        stichdlg.cpp
+        stichdlg.h
+
+-------------- next part --------------
+Index: schafkopfdef.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopfdef.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -Lsrc/schafkopfdef.h -Lsrc/schafkopfdef.h -u -r1.6 -r1.7
+--- src/schafkopfdef.h
++++ src/schafkopfdef.h
+@@ -26,6 +26,39 @@
+ #define TURNS     8
+ #define CARD_CNT  32
+ 
++/** Identify events from schafkopf in the Qt event loop
++  * using this ID.
++  */
++#define SCHAFKOPF_EVENT 1984
++
++#include &lt;qstring.h&gt;
++
++class Card;
++class QSemaphore;
++class QStringList;
++
++enum { YES, NO };
++    
++typedef enum EAction { NoAction, GameStarted, GameEnded, PlayerDoubled, 
++                       PlayerHasDoubled, PlayerIsLast, PlayerNameChanged, PlayerGotCards,
++                       CardPlayed, PlayerMadeStich, PlayerResults, GameInfoSetup,
++                       RedrawPlayers, InfoMessage, QuestionYesNo, 
++                       HumanPlayerGetCard, ForbiddenCard, SelectGame,
++                       ForcedSelectGame };
++
++typedef struct t_EventData {
++    EAction type;
++    
++    unsigned int playerid;
++    void* returncode;
++    int* cardids;
++
++    bool wait;
++    bool quitgame;
++    
++    QStringList* playernames;
++    QString data;
++};
+ 
+ /** Uncomment this line to make all cards
+   * user visible, this is useful for debugging
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.41
+retrieving revision 1.42
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.41 -r1.42
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -39,10 +39,9 @@
+     for(;i&lt;PLAYERS;i++)
+     {
+         m_stich[i]=new CanvasCard( c );
+-        m_players[i]=new CanvasPlayer( c );
++        m_players[i]=new CanvasPlayer( i, c );
+     }
+     
+-    m_game = NULL;
+     m_item = NULL;
+         
+     QFont f( &quot;Helvetica&quot;, 24 );
+@@ -75,7 +74,6 @@
+     
+     connect( Settings::instance(), SIGNAL(cardChanged()), this, SLOT(redrawPlayers()));
+     connect( Settings::instance(), SIGNAL(cardChanged()), this, SLOT(positionObjects()));
+-    connect( this, SIGNAL(clicked( QCanvasItem* )), this, SLOT(cardClicked(QCanvasItem*)));
+     connect( this, SIGNAL(clicked( QCanvasItem* )), this, SLOT(yesNoClicked(QCanvasItem*)));
+ }    
+ 
+@@ -83,29 +81,19 @@
+ {
+     for( unsigned int i = 0; i &lt; PLAYERS; i++ )
+     {
++        if( m_stich[i]-&gt;card() )
++            delete m_stich[i]-&gt;card();
++            
+         delete m_stich[i];
+         delete m_players[i];
+     }
+ }
+ 
+-void GameCanvas::setGame( Game* game )
+-{
+-    connect( game, SIGNAL(playerPlayedCard(unsigned int,Card*)), this,SLOT(slotPlayerPlayedCard(unsigned int,Card*)));       
+-        
+-    connect( game, SIGNAL(playerMadeStich(unsigned int)), this,SLOT(slotPlayerMadeStich(unsigned int)));
+-    
+-    connect( game, SIGNAL(gameStarted()), this, SLOT(redrawPlayers()));
+-    connect( game, SIGNAL(gameEnded()), this, SLOT(redrawPlayers()));
+-    
+-    m_game = game;
+-    createObjects();
+-}
+-
+-void GameCanvas::cardForbidden(Card* card)
++void GameCanvas::cardForbidden( int cardid )
+ {
+     for(unsigned int z=0;z&lt;PLAYERS;z++)
+ 	{
+-        CanvasCard* c = m_players[z]-&gt;hasCard( card );
++        CanvasCard* c = m_players[z]-&gt;hasCard( cardid );
+         if( c )            
+         {
+             c-&gt;forbidden();
+@@ -114,42 +102,10 @@
+     }      
+ }
+ 
+-void GameCanvas::createObjects()
+-{
+-    if( !m_game )
+-        return;
+-    
+-    unsigned int i = 0;
+-    unsigned int h = 0;
+-    unsigned int z = 0;
+-	
+-    /** We have to make sure that the human player == m_player[0] !
+-      */
+-    for( h=0;h&lt;PLAYERS;h++ )    
+-	{
+-		if( m_game-&gt;findIndex( h )-&gt;rtti() == Player::HUMAN )
+-        {
+-			m_players[0]-&gt;setPlayer( 0, m_game-&gt;findIndex( h ) );
+-            break;
+-        }
+-	}
+-		
+-    for( i=h+1;i&lt;PLAYERS;i++ )
+-        m_players[i-h]-&gt;setPlayer( i-h, m_game-&gt;findIndex( i ) );            
+-	
+-    for( z=0;z&lt;h;z++)    
+-        m_players[i-h+z]-&gt;setPlayer( i-h+z, m_game-&gt;findIndex( z ) );
+-	
+-    positionObjects();
+-}
+-
+ void GameCanvas::positionObjects(bool redraw)
+ {
+-    if( !m_players[0] || !m_game || !m_stich )
+-        return;
+-
+     for( unsigned int i = 0; i &lt; PLAYERS; i++ )
+-        m_players[i]-&gt;position( i );
++        m_players[i]-&gt;position();
+     
+     for( unsigned int i = 0; i &lt; PLAYERS; i++ ) 
+     {
+@@ -235,6 +191,14 @@
+     return r;
+ }
+ 
++int GameCanvas::getCard()
++{
++    connect( this, SIGNAL(clicked( QCanvasItem* )), this, SLOT(cardClicked(QCanvasItem*)));
++    m_result = -1;
++    ENTER_LOOP();
++    
++    return m_result;
++}
+ 
+ void GameCanvas::cardClicked( QCanvasItem* item )
+ {
+@@ -244,40 +208,41 @@
+         
+         for( unsigned int i = 0; i &lt; PLAYERS; i++ ) 
+         {
+-            Player* player = m_players[i]-&gt;player();
+-            if( m_players[i]-&gt;hasCard( card-&gt;card() ) &amp;&amp; player-&gt;rtti() == Player::HUMAN )
++            if( m_players[i]-&gt;isHuman() &amp;&amp; m_players[i]-&gt;hasCard( card-&gt;card()-&gt;id() ) )
+             {
+-                qDebug(&quot;card=%i color=%i&quot;, card-&gt;card()-&gt;card(), card-&gt;card()-&gt;color() );
+-                emit playCard( card-&gt;card() );
++                m_result = card-&gt;card()-&gt;id();
++                disconnect( this, SIGNAL(clicked( QCanvasItem* )), this, SLOT(cardClicked(QCanvasItem*)));
++                EXIT_LOOP();
+             }
+         }
+     }
+ }
+ 
+-void GameCanvas::slotPlayerPlayedCard( unsigned int player, Card *c )
++void GameCanvas::slotPlayerPlayedCard( unsigned int player, int cardid )
+ {
+     QPoint point;
+     unsigned int i=0;
+     CanvasCard* card = 0;
+-    if( !m_players[0] || !m_game || !m_stich )
+-        return;    
+            
+     for(i=0;i&lt;PLAYERS;i++)
+-        if( m_players[i]-&gt;player()-&gt;id() == player )
++        if( m_players[i]-&gt;id() == player )
+         {
+-            card = m_players[i]-&gt;hasCard( c );
++            card = m_players[i]-&gt;hasCard( cardid );
+             break;
+         }
+     
+     if( card )
+     {
+         m_players[player]-&gt;cardPlayed( card-&gt;card() );
+-	if(Settings::instance()-&gt;rearrangeCards())
+-		m_players[player]-&gt;position( player );
++        if(Settings::instance()-&gt;rearrangeCards())
++            m_players[player]-&gt;position();
+   
+         CanvasCard* stich = m_stich[player];
+-        stich-&gt;setCard( card-&gt;card() );
+-	int r = getStichRotation(player);
++        if( stich-&gt;card() )
++            delete stich-&gt;card();
++        stich-&gt;setCard( new Card( card-&gt;card()-&gt;id() ) );
++        
++        int r = getStichRotation(player);
+         stich-&gt;setRotation( r );
+ 
+         // find out the correct z value of this card so that
+@@ -336,7 +301,7 @@
+ 	
+     for(i=0;i&lt;PLAYERS;i++)
+     {
+-		m_players[i]-&gt;init(i);
++		m_players[i]-&gt;init();
+         m_stich[i]-&gt;hide();
+     }
+ }
+@@ -437,6 +402,68 @@
+     canvas()-&gt;update();
+         
+     return;
++}
++
++void GameCanvas::playerHasDoubled( unsigned int id, bool value )
++{
++    int i;
++    for(i=0;i&lt;PLAYERS;i++)
++        if( m_players[i]-&gt;id() == id )
++        {
++            m_players[i]-&gt;setHasDoubled( value );
++        }
++}
++
++void GameCanvas::playerIsLast( unsigned int id )
++{
++    int i;
++    for(i=0;i&lt;PLAYERS;i++)
++        if( m_players[i]-&gt;id() == id )
++        {
++            m_players[i]-&gt;setLast( true );
++            // TODO: init is not a good name for this function...
++            m_players[i]-&gt;init();
++        }
++}
++
++void GameCanvas::setPlayerName( unsigned int id, const QString &amp; name )
++{
++    int i;
++    for(i=0;i&lt;PLAYERS;i++)
++        if( m_players[i]-&gt;id() == id )
++            m_players[i]-&gt;setName( name );
++
++}
++
++void GameCanvas::resetPlayers()
++{
++    int i;
++    
++    for(i=0;i&lt;PLAYERS;i++)
++    {
++        m_players[i]-&gt;setHasDoubled( false );
++        m_players[i]-&gt;setLast( false );
++    }
++}
++
++void GameCanvas::resetPlayerCards()
++{
++    int i;
++    CardList list;
++        
++    for(i=0;i&lt;PLAYERS;i++)    
++        m_players[i]-&gt;setCards( &amp;list );
++}
++
++void GameCanvas::setPlayerCards( unsigned int id, int* cards )
++{
++    int i;
++    CardList list( cards );
++    list.setAutoDelete( false );
++    
++    for(i=0;i&lt;PLAYERS;i++)
++        if( m_players[i]-&gt;id() == id )
++            m_players[i]-&gt;setCards( &amp;list );
+ }
+ 
+ #include &quot;gamecanvas.moc&quot;
+Index: card.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/card.cpp,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lsrc/card.cpp -Lsrc/card.cpp -u -r1.11 -r1.12
+--- src/card.cpp
++++ src/card.cpp
+@@ -25,12 +25,39 @@
+ 
+ #include &lt;kapplication.h&gt;
+ #include &lt;kcarddialog.h&gt;
+-#include &lt;kconfig.h&gt;
+ 
+ QPixmap* Card::m_background = 0;
+ 
+-Card::Card( const enum type t, const enum color c )
+-    : QObject()
++Card::Card( const int id )
++{
++    enum EType t;
++    enum EColor c;
++    int i;
++    
++    // try to calculate the type and color from the id
++    for( i=Card::EICHEL; i &lt;= Card::SCHELLEN; i++ )
++        if( (id - i - 1) % 4 == 0 )
++        {
++            t = (Card::EType)(id - i);
++            c = (Card::EColor)i;
++            
++            break;
++        }
++    
++    init( t, c );
++}
++
++Card::Card( const enum EType t, const enum EColor c )
++{
++    init( t, c );
++}
++
++Card::~Card()
++{
++    delete m_pixmap;
++}
++
++void Card::init( const enum EType t, const enum EColor c  )
+ {
+     m_pixmap = NULL;
+     m_owner = NULL;
+@@ -55,14 +82,6 @@
+             m_points = 0;
+             break;
+     };
+-    
+-    connect( Settings::instance(), SIGNAL( cardChanged() ), this, SLOT( cardChanged() ));
+-}
+-
+-
+-Card::~Card()
+-{
+-    delete m_pixmap;
+ }
+ 
+ QPixmap* Card::pixmap()
+@@ -92,11 +111,13 @@
+ 		return false;
+ }
+ 
+-void Card::cardChanged()
++void Card::cardDeckChanged()
+ {
+     delete m_pixmap;
+     m_pixmap = NULL;
+-    if( m_background ) {
++    
++    if( m_background ) 
++    {
+         delete m_background;
+         m_background = NULL;
+     }
+@@ -122,3 +143,7 @@
+     return false;
+ }
+ 
++int Card::id() const
++{
++    return m_card + m_color;
++}
+Index: gamecanvas.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.h,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -Lsrc/gamecanvas.h -Lsrc/gamecanvas.h -u -r1.24 -r1.25
+--- src/gamecanvas.h
++++ src/gamecanvas.h
+@@ -39,18 +39,18 @@
+ {
+     Q_OBJECT
+     
+-    enum { YES, NO };
+-    
+     public:
+         GameCanvas(QCanvas* c,QWidget *parent = 0, const char *name = 0);
+         ~GameCanvas();
+         
+-        void setGame( Game* game );
+-   
++        /** the user has to click a card to play
++          */
++        int getCard();
++        
+         /** the user played card, which
+           * is forbidden to play!
+           */
+-        void cardForbidden( Card* card );
++        void cardForbidden( int cardid );
+ 
+         /** ask the user a question and allow him to make a decision
+           */
+@@ -59,11 +59,30 @@
+         /** display an information message to the user
+           */
+         void information( const QString &amp; message );
++
++        /** set the canvas player with the @p id to have doubled in this game
++          */
++        void playerHasDoubled( unsigned int id, bool value );
++        
++        /** Reset all data of the canvas players to default values 
++          */
++        void resetPlayers();
++        /** remove all cards from the canvas player cardlists
++          * so that they are going to hide themselves
++          */
++        void resetPlayerCards();
++        
++        void playerIsLast( unsigned int id );
++        void setPlayerName( unsigned int id, const QString &amp; name );
++        void setPlayerCards( unsigned int id, int* cards );
++        
+         void updateBackground();
+           
+     public slots:
+         void redrawPlayers();
+-        
++        void slotPlayerPlayedCard( unsigned int player, int cardid );
++        void slotPlayerMadeStich(unsigned int);
++                
+     signals:
+         void clicked( QCanvasItem* item );
+         void playCard( Card* card );
+@@ -76,9 +95,6 @@
+         void cardClicked( QCanvasItem* item );
+         void yesNoClicked( QCanvasItem* item );
+         
+-        void slotPlayerPlayedCard( unsigned int player, Card *c );
+-        void slotPlayerMadeStich(unsigned int);
+-        
+     protected:
+         void resizeEvent( QResizeEvent *r );
+         void resizeBackground();
+@@ -87,9 +103,6 @@
+         void contentsMouseReleaseEvent(QMouseEvent*);
+                 
+     private:
+-        /** Create QCanvasItem's for all Cards 
+-          */
+-        void createObjects();
+         int m_result;
+         QPoint getStichPosition( int player );
+         int getStichRotation( int player );
+@@ -97,14 +110,13 @@
+         
+         CanvasPlayer* m_players[PLAYERS];
+         CanvasCard* m_stich[PLAYERS];
++        
+         QCanvasItem* m_item; // currently clicked item
+ 
+         QCanvasText* m_message;
+         QCanvasText* m_yes;
+         QCanvasText* m_no;
+         QCanvasText* m_ok;
+-                
+-        Game* m_game;
+ 
+         QImage ImgBack;
+         bool loadOK;
+Index: card.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/card.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -Lsrc/card.h -Lsrc/card.h -u -r1.7 -r1.8
+--- src/card.h
++++ src/card.h
+@@ -20,9 +20,6 @@
+ #ifndef CARD_H
+ #define CARD_H
+ 
+-#include &lt;qobject.h&gt;
+-#include &lt;qstring.h&gt;
+-
+ class QPixmap;
+ class Player;
+ 
+@@ -31,14 +28,15 @@
+ 
+ @author Dominik Seichter
+ */
+-class Card : public QObject {
+-    Q_OBJECT
++class Card {
+     public:
+         // TODO: find better names, Edit bei lenz: done =;-)
+-        enum type { /*ASS*/NOSTICH=-1, SAU = 1, ZEHN = 17, KOENIG = 5, OBER = 9, UNTER = 13, NEUN = 21, ACHT = 25, SIEBEN = 29 };
+-        enum color { NOCOLOR = -1, EICHEL = 0, GRAS = 1, HERZ = 2, SCHELLEN = 3 };
++        // DS: renamed to avoid name clashes
++        enum EType { /*ASS*/NOSTICH=-1, SAU = 1, ZEHN = 17, KOENIG = 5, OBER = 9, UNTER = 13, NEUN = 21, ACHT = 25, SIEBEN = 29 };
++        enum EColor { NOCOLOR = -1, EICHEL = 0, GRAS = 1, HERZ = 2, SCHELLEN = 3 };
+ 
+-        Card( const enum type t, const enum color c );
++        Card( const int id );
++        Card( const enum EType t, const enum EColor c );
+         ~Card();
+ 
+         /** return a pixmap of the card 
+@@ -84,10 +82,20 @@
+           */
+         bool operator&lt;( Card* c );
+ 
+-	bool isEqual(Card* othercard);
++        bool isEqual(Card* othercard);
+ 
+-    private slots:
+-        void cardChanged();
++        /** a id(). Using this id the card can be quickly identified
++          * as the id() is calculated using color and type.
++          */
++        int id() const;
++        
++        /** Call this whenever the carddeck has changed and
++          * the internal pixmap should be reloaded.
++          */
++        void cardDeckChanged();
++        
++    private:
++        void init( const enum EType t, const enum EColor c  );
+         
+     private:
+         Player* m_owner;
+Index: computerplayer.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.h,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -Lsrc/computerplayer.h -Lsrc/computerplayer.h -u -r1.13 -r1.14
+--- src/computerplayer.h
++++ src/computerplayer.h
+@@ -20,8 +20,6 @@
+ #ifndef COMPUTERPLAYER_H
+ #define COMPUTERPLAYER_H
+ 
+-#include &lt;qobject.h&gt;
+-
+ #include &quot;player.h&quot;
+ #include &quot;card.h&quot;
+ #include &quot;gameinfo.h&quot;
+@@ -29,9 +27,8 @@
+ class OpenBook;
+ class CardList;
+ 
+-class ComputerPlayer : public QObject,  public Player
++class ComputerPlayer : public Player
+ {
+-	Q_OBJECT
+     public:
+         ComputerPlayer(Game* game);
+         ~ComputerPlayer();
+@@ -82,7 +79,7 @@
+ 		int myTrumpfs();
+ 		int trumpfsInGame();
+ 				
+-	private slots:
++	//private slots:
+ 		void cardPlayed(unsigned int player, Card *c);
+ };
+ 
+Index: settings.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.h,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -Lsrc/settings.h -Lsrc/settings.h -u -r1.14 -r1.15
+--- src/settings.h
++++ src/settings.h
+@@ -56,6 +56,7 @@
+ 
+ 
+ class Results;
++class QMutex;
+ class QWidget;
+ 
+ /**
+@@ -72,7 +73,6 @@
+         
+         const QString cardDeck() const;
+         const QString cardBackground() const;
+-        QString getCardDir() const;
+         
+         const QStringList playerNames() const;
+         void setPlayerNames( const QStringList &amp; names );
+@@ -129,7 +129,9 @@
+         ~Settings();
+         
+         static Settings* m_instance;
+-
++        QString getCardDir() const;
++        
++        QMutex* m_mutex;
+ };
+ 
+ #endif
+Index: gameinfo.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gameinfo.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lsrc/gameinfo.h -Lsrc/gameinfo.h -u -r1.11 -r1.12
+--- src/gameinfo.h
++++ src/gameinfo.h
+@@ -24,6 +24,7 @@
+ class CardList;
+ class Player;
+ class QString;
++
+ /**
+ Keeps all information on the current game (e.g. wenz or rufspiel)
+ 
+Index: humanplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/humanplayer.cpp,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -Lsrc/humanplayer.cpp -Lsrc/humanplayer.cpp -u -r1.25 -r1.26
+--- src/humanplayer.cpp
++++ src/humanplayer.cpp
+@@ -25,12 +25,11 @@
+ #include &quot;gamecanvas.h&quot;
+ #include &quot;gameinfo.h&quot;
+ #include &quot;timer.h&quot;
+-#include &quot;selectgamewizard.h&quot;
+ 
+ #include &lt;klocale.h&gt;
+ 
+ HumanPlayer::HumanPlayer(Game* game)
+- : QObject( 0, 0 ), Player(game)
++ : Player(game)
+ {
+     m_allowed = NULL;
+     m_card = NULL;
+@@ -43,48 +42,70 @@
+ 
+ void HumanPlayer::klopfen()
+ {
+-    m_geklopft = m_game-&gt;canvas()-&gt;questionYesNo( i18n(&quot;Do you want to double?&quot;) );
++    int* ret = (int*)m_game-&gt;postEvent( QuestionYesNo, id(), 0, i18n(&quot;Do you want to double?&quot;), true );
++    m_geklopft = ( *ret == YES );
++    delete ret;
++    
+     Player::klopfen();
+ }
+ 
+ Card *HumanPlayer::play()
+ {
+-   	m_allowed = allowedCards();
+-	m_card=NULL;
+-    connect( m_game-&gt;canvas(), SIGNAL(playCard(Card*)), this, SLOT(getCard(Card*)));
+-    ENTER_LOOP();
+-	delete m_allowed;
++    int* ret;
++    int cpy;
++    int* cpylist;
++    unsigned int i;
++    
++    m_allowed = allowedCards();
++    m_card=NULL;
++    
++    ret=(int*)m_game-&gt;postEvent( HumanPlayerGetCard, id(), NULL, QString::null, true );
++    cpy = *ret;
++    delete ret;
++    
++    while( cpy != -1 &amp;&amp; !m_allowed-&gt;contains( cpy ) )
++    {
++        cpylist = new int[2];
++        cpylist[0] = cpy;
++        cpylist[1] = 0;
++        m_game-&gt;postEvent( ForbiddenCard, id(), cpylist, QString::null, true );
++
++        ret=(int*)m_game-&gt;postEvent( HumanPlayerGetCard, id(), NULL, QString::null, true );
++        cpy = *ret;
++        delete ret;
++    }
++    
++    for( i=0;i&lt;m_allowed-&gt;count();i++ )
++        if( m_allowed-&gt;at(i)-&gt;id() == cpy )
++        {
++            m_card = m_allowed-&gt;at(i);
++            break;
++        }
++           
++    delete m_allowed;
+     m_allowed = NULL;
+-    disconnect(m_game-&gt;canvas(), SIGNAL(playCard(Card*)), this, SLOT(getCard(Card*)));
+     return m_card;
+ }
+ 
+ GameInfo* HumanPlayer::gameInfo( bool force )
+ {
+-    if( force || m_game-&gt;canvas()-&gt;questionYesNo( i18n(&quot;Do you want to play?&quot;) ) )
++    if( force )
++    {
++        return (GameInfo*)m_game-&gt;postEvent( ForcedSelectGame, id(), m_cards-&gt;toIntList(), QString::null, true );
++    }
++    else
+     {
+-   
+-        SelectGameWizard sgw( force, m_cards );
+-        if( sgw.exec() == QDialog::Accepted )
+-            return sgw.gameInfo();
++        int* ret = (int*)m_game-&gt;postEvent( QuestionYesNo, id(), NULL, i18n(&quot;Do you want to play?&quot;), true );
++        if( *ret == YES )
++        {
++            delete ret;
++            return (GameInfo*)m_game-&gt;postEvent( SelectGame, id(), m_cards-&gt;toIntList(), QString::null, true );
++        }
++        else
++            delete ret;
+     }
+     
+     return NULL;
+-}
+-
+-void HumanPlayer::getCard(Card* card)
+-{
+-    if(!m_game)
+-		return;
+-	if( m_allowed-&gt;containsRef( card ) )
+-    {
+-        m_card = card;
+-        EXIT_LOOP();
+-    } 
+-	else
+-	{
+-		m_game-&gt;canvas()-&gt;cardForbidden(card);
+-	}
+ }
+ 
+ 
+Index: computerplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.cpp,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -Lsrc/computerplayer.cpp -Lsrc/computerplayer.cpp -u -r1.27 -r1.28
+--- src/computerplayer.cpp
++++ src/computerplayer.cpp
+@@ -28,7 +28,7 @@
+ #include &lt;kapplication.h&gt;
+ 
+ ComputerPlayer::ComputerPlayer(Game* game)
+-	: QObject(0, 0), Player(game)
++	: Player(game)
+ {
+ 	int i;
+ 	
+@@ -36,7 +36,6 @@
+ 	for(i=0;i&lt;PLAYERS;i++)
+ 		m_playedCards[i]=new CardList();
+ 	m_angespielt=new CardList();
+-	connect( m_game, SIGNAL( playerPlayedCard( unsigned int, Card* ) ), this, SLOT( cardPlayed(unsigned int, Card*) ) );
+ }
+ 
+ ComputerPlayer::~ComputerPlayer()
+@@ -460,6 +459,8 @@
+ 
+ void ComputerPlayer::cardPlayed(unsigned int player, Card *c)
+ {
++    // TODO: was called by signal before the thread change
++    // has to be implemented in another way
+ 	m_playedCards[player]-&gt;append(c);
+ 	if(mitspieler!=-1)
+ 		return;
+@@ -512,4 +513,4 @@
+     
+     return n2 - n;
+ }
+-    
+\ No newline at end of file
++
+Index: cardlist.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/cardlist.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lsrc/cardlist.h -Lsrc/cardlist.h -u -r1.11 -r1.12
+--- src/cardlist.h
++++ src/cardlist.h
+@@ -36,7 +36,12 @@
+ {
+     public:
+         CardList();
+-
++        
++        /** Creates a card list from a zero terminated list of integers 
++          * as you can create it using toIntList()
++          */
++        CardList( int* cards );
++        
+         /** initialize this card list with a default card
+           * deck of 32 cards.
+           * The CardList does now own all elements, i.e. they
+@@ -60,14 +65,17 @@
+           * is in the list
+           */
+         bool contains( int color, int type );
++        bool contains( int cardid );
+         
+ 		CardList* FindCards(int color, int type);
+ 		void RemoveCards(CardList* itemsToRem);
+ 	
+ 		void sort(eval_func eval, void *param);
+ 
+-	signals:
+-		void changeEvent(void);
++        /** creates a zero terminated list of integers, every 
++          * int has the id of one card assigned.
++          */
++        int* toIntList();
+ };
+ 
+ #endif
+Index: stichdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/stichdlg.cpp,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -Lsrc/stichdlg.cpp -Lsrc/stichdlg.cpp -u -r1.6 -r1.7
+--- src/stichdlg.cpp
++++ src/stichdlg.cpp
+@@ -28,10 +28,9 @@
+ 
+ #include &lt;klocale.h&gt;
+ 
+-StichDlg::StichDlg(Game* g,QWidget *parent, const char *name)
++StichDlg::StichDlg(QWidget *parent, const char *name)
+     : KDialogBase( KDialogBase::Plain, i18n(&quot;Last Trick&quot;),
+-      KDialogBase::Close, KDialogBase::Close, parent,name, false),
+-      m_game( g)
++      KDialogBase::Close, KDialogBase::Close, parent,name, false)
+ {
+     QGridLayout* layout = new QGridLayout( plainPage(), 4, 2 );
+     trick = new QLabel( plainPage() );
+@@ -45,10 +44,7 @@
+         layout-&gt;addWidget( players[i], 2, i );
+     }
+     
+-    changed( m_game-&gt;findIndex( 0 )-&gt;id() );
+-    
+-    connect( m_game, SIGNAL( playerMadeStich(unsigned int)), this, SLOT(changed(unsigned int)));
+-    connect( m_game, SIGNAL( gameStarted() ), this, SLOT( reset() ) );
++    reset();
+ }
+ 
+ 
+@@ -56,36 +52,33 @@
+ {
+ }
+ 
+-void StichDlg::changed( unsigned int id )
++void StichDlg::changed( const QString &amp; name, int* list, QStringList* playerlist )
+ {
+-    Player* player = m_game-&gt;findId( id );
+-    CardList* stich = player-&gt;stiche();
++    CardList stich( list );
+     
+-    if( stich &amp;&amp; stich-&gt;count() )
+-        trick-&gt;setText( i18n(&quot;Trick was made by: &lt;b&gt;&quot;) + player-&gt;name() + &quot;&lt;/b&gt;&quot; );
++    if( stich.count() )
++        trick-&gt;setText( i18n(&quot;Trick was made by: &lt;b&gt;&quot;) + name + &quot;&lt;/b&gt;&quot; );
+     else
+         trick-&gt;setText( i18n(&quot;No trick was made.&quot;) );
+         
+     for( unsigned int i = 0; i &lt; PLAYERS; i++ )
+     {
+-        if( stich )
++        if( stich.count() &gt; i ) 
+         {
+-            if( stich-&gt;count() &gt; i ) 
+-                cards[i]-&gt;setPixmap( *(stich-&gt;at( stich-&gt;count() - PLAYERS + i )-&gt;pixmap()) );
+-            else
+-                cards[i]-&gt;setPixmap( *Card::backgroundPixmap() );
+-
+-            if( stich-&gt;count() &gt; i )
+-                players[i]-&gt;setText( &quot;&lt;qt&gt;&lt;b&gt;&quot;+stich-&gt;at( stich-&gt;count() - PLAYERS + i )-&gt;owner()-&gt;name()+&quot;&lt;/b&gt;&lt;/qt&gt;&quot; );
+-            else
+-                players[i]-&gt;setText( m_game-&gt;findIndex(i)-&gt;name() );
++            cards[i]-&gt;setPixmap( *(stich.at( stich.count() - PLAYERS + i )-&gt;pixmap()) );
++            players[i]-&gt;setText( &quot;&lt;qt&gt;&lt;b&gt;&quot;+(*playerlist)[i]+&quot;&lt;/b&gt;&lt;/qt&gt;&quot; );
++        }   
++        else
++        {
++            cards[i]-&gt;setPixmap( *Card::backgroundPixmap() );
++            players[i]-&gt;setText( QString::null );
+         }
+     }
+ }
+ 
+ void StichDlg::reset()
+ {
+-    changed( m_game-&gt;findIndex( 0 )-&gt;id() );
++    changed( 0, NULL, NULL );
+ }
+ 
+ #include &quot;stichdlg.moc&quot;
+Index: player.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.cpp,v
+retrieving revision 1.28
+retrieving revision 1.29
+diff -Lsrc/player.cpp -Lsrc/player.cpp -u -r1.28 -r1.29
+--- src/player.cpp
++++ src/player.cpp
+@@ -44,28 +44,31 @@
+     return m_cards;
+ }
+ 
+-void Player::setCards( CardList *cards)
++void Player::setCards( CardList *cards )
+ {
+     unsigned int i = 0;
++    
+     delete m_cards;
+     
+-    m_has_doubled = false;
+     m_geklopft = false;
+     
+     m_cards=cards;
+     // tell the card WHO owns them and WHOM they should serve! ;-)
+-    for(i=0;i&lt;cards-&gt;count();i++)
++    for(i=0;i&lt;m_cards-&gt;count();i++)
+         m_cards-&gt;at(i)-&gt;setOwner( this );
++    
++    m_game-&gt;postEvent( PlayerGotCards, id(), m_cards-&gt;toIntList() );
+ }
+ 
+ void Player::sortCards()
+ {
+     m_cards-&gt;sort((eval_func)m_game-&gt;gameInfo()-&gt;evalCard, (void *)m_game-&gt;gameInfo());
++    m_game-&gt;postEvent( PlayerGotCards, id(), m_cards-&gt;toIntList() );
+ }
+ 
+ void Player::klopfen()
+ {
+-    m_has_doubled = true;
++    m_game-&gt;postEvent( PlayerHasDoubled, id() );
+ }
+ 
+ void Player::DebugCardOutput(Card* card)
+Index: game.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.h,v
+retrieving revision 1.34
+retrieving revision 1.35
+diff -Lsrc/game.h -Lsrc/game.h -u -r1.34 -r1.35
+--- src/game.h
++++ src/game.h
+@@ -25,7 +25,8 @@
+ #include &quot;cardlist.h&quot;
+ #include &quot;gameinfo.h&quot;
+ 
+-#include &lt;qobject.h&gt;
++#include &lt;semaphore.h&gt;
++#include &lt;qthread.h&gt;
+ 
+ class Player;
+ class GameCanvas;
+@@ -33,11 +34,10 @@
+ /**
+ @author Dominik Seichter
+ */
+-class Game : public QObject
++class Game : public QThread
+ {
+-    Q_OBJECT
+     public:
+-        Game(QObject *parent = 0, const char *name = 0);
++        Game(sem_t* sem, QObject *parent);
+         ~Game();
+         void gameLoop();
+ 		CardList *currStich();
+@@ -45,9 +45,6 @@
+         inline CardList *playedCards() { return &amp;m_playedcards; }
+ 		GameInfo *gameInfo();
+         
+-        void setCanvas( GameCanvas* c );
+-        GameCanvas* canvas() const { return m_canvas; }
+-        
+         Player* findId( unsigned int id ) const;
+         Player* findIndex( unsigned int index ) const;
+ 		bool isTerminated() const { return terminated; }
+@@ -58,22 +55,15 @@
+           */
+         int timesDoubled();
+         int timesThrownTogether();
+-
+-    signals:        
+-        void gameStarted();
+-        void gameEnded();
+-    
+-        void playerPlayedCard( unsigned int player, Card* );
+-        void playerMadeStich( unsigned int player );
+-        void playerResult( const QString &amp; name, const QString &amp; result );
+         
+-        void signalSetupGameInfo();
+-        void signalDoubled();
++        /** post a event to the parent object
++          */
++        void* postEvent( EAction action, unsigned int playerid = 0, int* cardids = NULL, 
++                        QString data = QString::null, bool wait = false, QStringList* names = NULL );
+         
+-    public slots:
+         void endGame(void);
+ 
+-    private slots:
++    private:
+         /** set the results of all players to 0. This is necessary
+           * if for example the class for the results calculation was changed
+           * or when a new game is started.
+@@ -88,7 +78,7 @@
+     private:
+ 		/** give cards to the player and begin a new gameinfo
+ 		 */
+-		void start();
++		void startGame();
+         /** Display the results of the game (winner/loser)
+           * to the user. Called after each game.
+           */
+@@ -108,8 +98,14 @@
+          * to the users settings.
+          */
+        bool setupGameInfoForced();
+-        
++     
++    protected:
++        /** inherited from QThread, calls gameLoop();
++          */
++        void run();
++
+     private:
++        sem_t* m_sem;
+         bool terminated;
+         Player *m_players[PLAYERS];
+         CardList m_allcards;
+@@ -118,9 +114,8 @@
+         GameInfo m_gameinfo;
+         int m_laufende;
+         int m_timesThrownTogether;
+-                
+-        GameCanvas *m_canvas;
+         
++        QObject* m_parent;
+ };
+ 
+ #endif
+Index: canvasplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.cpp,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -Lsrc/canvasplayer.cpp -Lsrc/canvasplayer.cpp -u -r1.20 -r1.21
+--- src/canvasplayer.cpp
++++ src/canvasplayer.cpp
+@@ -29,51 +29,50 @@
+ #include &lt;qcanvas.h&gt;
+ #include &lt;qfont.h&gt;
+ 
+-CanvasPlayer::CanvasPlayer( QCanvas* canvas )
+-    :m_canvas( canvas )
+-{
+-    create();
+-}
+-
+-CanvasPlayer::CanvasPlayer( int i, Player* player, QCanvas* canvas )
+-    : m_player( player ), m_canvas( canvas )
++CanvasPlayer::CanvasPlayer( int i, QCanvas* canvas )
++    : m_canvas( canvas )
+ {
+     create();
+     
+-    setPlayer( i, player );
++    m_position = i;
++    // TODO: get a correct id! especially important for networking!
++    m_id = i;
++    m_is_human = (m_id == 0);
+ }
+ 
+ CanvasPlayer::~CanvasPlayer()
+ {
+     unsigned int i = 0;
++    // delete m_items before m_cards
++    // as m_items has references to cards in
++    // m_cards.
+     for(i=0;i&lt;NUMCARDS;i++)
+         delete m_items[i];
+     
++    delete m_cards;
+     delete m_name;
+ }
+ 
+ void CanvasPlayer::create()
+ {
+     unsigned int z = 0;
+-	for(z=0;z&lt;NUMCARDS;z++)
+-	    m_items[z] = new CanvasCard( m_canvas );
++    for(z=0;z&lt;NUMCARDS;z++)
++        m_items[z] = new CanvasCard( m_canvas );
+ 
+-    m_player = NULL;
++    m_cards = new CardList;
++    m_cards-&gt;setAutoDelete( true );
++    
+     m_name = new QCanvasText( m_canvas );
+     m_name-&gt;setColor( Qt::white );
+     m_name-&gt;setFont( QFont( &quot;Helvetica&quot;, 24 ) );
+     m_name-&gt;hide();
+-}
+-
+-void CanvasPlayer::setPlayer( int i, Player* player )
+-{
+-    m_player = player;
+     
+-    if( m_player )
+-        init(i);    
++    m_is_last = false;
++    m_has_doubled = false;
++    m_player_name = QString::null;
+ }
+ 
+-void CanvasPlayer::position( int i )
++void CanvasPlayer::position()
+ {
+     int x = 0, y = 0;
+     int num = 0;
+@@ -86,17 +85,18 @@
+     
+     for( unsigned int z = 0; z &lt; NUMCARDS; z++ )
+     {
+-    	CanvasCard* card = m_items[z];
++        CanvasCard* card = m_items[z];
+         if(card-&gt;isVisible())
+-		num++;
++            num++;
+     }
++    
+     if(!Settings::instance()-&gt;rearrangeCards())
+     	num=NUMCARDS;
+     
+-    if(i==1||i==3)
++    if(m_position==1||m_position==3)
+         qSwap( cardw, cardh );
+         
+-    switch( i ) 
++    switch( m_position ) 
+     {
+         case 0:
+             if(availw&gt;num*cardw+(num-1))
+@@ -141,14 +141,14 @@
+ 	    card-&gt;setDestination( x, y );
+ 	    card-&gt;animatedMove();
+ 	} 
+-        if(i==0)
++        if(m_position==0)
+ 	{
+ 	    if(availw&gt;num*cardw+(num-1))
+             	x += cardw+1;
+ 	    else
+ 	    	x += (availw-cardw)/(num-1);
+ 	}
+-        else if(i==2)
++        else if(m_position==2)
+             x += (cardw/6);
+         else
+             y += (cardh/6);
+@@ -156,36 +156,37 @@
+     }
+         
+     // swap them back
+-    if(i==1||i==3)
++    if(m_position==1||m_position==3)
+         qSwap( cardw, cardh );
+ }
+ 
+-void CanvasPlayer::init(int i)
++void CanvasPlayer::init()
+ {
+-    m_name-&gt;setText( m_player-&gt;name() );
+-    if( !m_player-&gt;game()-&gt;isTerminated() )
++    m_name-&gt;setText( m_player_name );
++
++    if( m_cards-&gt;count() )
+     {
+-        for( unsigned int z = 0; z &lt; m_player-&gt;cards()-&gt;count(); z++ ) 
++        for( unsigned int z = 0; z &lt; m_cards-&gt;count(); z++ ) 
+         {
+             CanvasCard *c = m_items[z];
+-            c-&gt;setCard( m_player-&gt;cards()-&gt;at( z ) );
++            c-&gt;setCard( m_cards-&gt;at( z ) );
+             c-&gt;setZ( double(-1 - z) );
+             c-&gt;show();
+             
+-            if(i==1)
++            if(m_position==1)
+                 c-&gt;setRotation(270);
+-            else if(i==3)
++            else if(m_position==3)
+                 c-&gt;setRotation(90);
+     #ifdef CHEAT
+             c-&gt;setFrontVisible( true );
+     #else            
+-            if( m_player-&gt;rtti() == Player::HUMAN )
++            if( m_is_human )
+             {
+-                if( m_player-&gt;hasDoubled() )
++                if( m_has_doubled )
+                     c-&gt;setFrontVisible( true );
+                 else
+                 {
+-                    if( m_player-&gt;isLast() )
++                    if( m_is_last )
+                         c-&gt;setFrontVisible( z &gt;= 4 );
+                     else
+                         c-&gt;setFrontVisible( z &lt; 4 );
+@@ -206,23 +207,58 @@
+     }
+ }
+ 
+-CanvasCard* CanvasPlayer::hasCard( Card* c ) const
++CanvasCard* CanvasPlayer::hasCard( int cardid ) const
+ {
+     for(unsigned int i=0;i&lt;NUMCARDS;i++)
+     {
+         CanvasCard* card = m_items[i];
+-        if(card-&gt;card() == c)
++        if(card-&gt;card()-&gt;id() == cardid )
+             return card;
+     }
+-    return 0;
++    return NULL;
+ }
+         
+ void CanvasPlayer::cardPlayed( Card* c )
+ {
+-    CanvasCard* card = hasCard( c );
++    CanvasCard* card = hasCard( c-&gt;id() );
+     if( card )
+     {
+         card-&gt;hide();
+     }
++}
++
++void CanvasPlayer::setCards( CardList* cards )
++{
++    int i;
++    for( i = 0; i &lt; NUMCARDS; i++ ) 
++        m_items[i]-&gt;setCard( NULL );
++
++    m_cards-&gt;clear();
++    m_cards-&gt;appendList( cards );
++}
++
++void CanvasPlayer::setHasDoubled( bool h )
++{
++    m_has_doubled = h;
++}
++
++void CanvasPlayer::setLast( bool l )
++{
++    m_is_last = l;
++}
++
++void CanvasPlayer::setName( const QString &amp; name )
++{
++    m_player_name = name;
++}
++
++bool CanvasPlayer::isHuman() const
++{
++    return m_is_human;
++}
++
++unsigned int CanvasPlayer::id() const
++{
++    return m_id;
+ }
+ 
+Index: pointresults.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/pointresults.cpp,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/pointresults.cpp -Lsrc/pointresults.cpp -u -r1.8 -r1.9
+--- src/pointresults.cpp
++++ src/pointresults.cpp
+@@ -46,7 +46,7 @@
+     m += m_schneider ? (int)r-&gt;schneider : 0;
+     m += m_schwarz ? (int)r-&gt;schwarz : 0;
+     m += m_laufende * (int)r-&gt;laufende;
+-    m = klopfen( player-&gt;game()-&gt;timesDoubled(), m );
++    m = (int)klopfen( player-&gt;game()-&gt;timesDoubled(), m );
+     
+     if( player == m_gameinfo-&gt;spieler() || player == m_gameinfo-&gt;mitspieler() )
+         m = (m_points &gt; 60 ? m : m * -1);
+Index: cardlist.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/cardlist.cpp,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -Lsrc/cardlist.cpp -Lsrc/cardlist.cpp -u -r1.16 -r1.17
+--- src/cardlist.cpp
++++ src/cardlist.cpp
+@@ -30,6 +30,18 @@
+     setAutoDelete( false );
+ }
+ 
++CardList::CardList( int* cards )
++{
++    setAutoDelete( false );
++
++    if( cards )
++        while( *cards != 0 )
++        {
++            append( new Card( *cards ) );
++            ++cards;
++        }
++}
++
+ void CardList::init()
+ {
+     setAutoDelete( true );
+@@ -37,7 +49,7 @@
+ 
+     for( int i = 0; i &lt; CARD_CNT ; i += 4  )
+         for( int z = Card::EICHEL; z &lt;= Card::SCHELLEN; z++ )
+-            append( new Card( (enum Card::type)(i+1), (enum Card::color)z ) );
++            append( new Card( (Card::EType)(i+1), (Card::EColor)z ) );
+ }
+ 
+ int CardList::points()
+@@ -104,9 +116,14 @@
+ 
+ bool CardList::contains( int color, int type )
+ {
++    return contains( color + type );
++}
++
++bool CardList::contains( int cardid )
++{
+     for( unsigned int i = 0; i &lt; this-&gt;count(); i++ )
+     {
+-        if( at(i)-&gt;color()==color &amp;&amp; at(i)-&gt;card()==type )
++        if( at(i)-&gt;id() == cardid )
+             return true;
+     }
+     return false;
+@@ -150,3 +167,16 @@
+ 		}
+ 	}
+ }
++
++int* CardList::toIntList()
++{
++    int* list = new int[count()+1];
++    int i;
++    
++    for(i=0;i&lt;count();i++)
++        list[i] = at(i)-&gt;id();
++    list[i] = 0;
++    
++    return list;
++}
++
+Index: canvasplayer.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -Lsrc/canvasplayer.h -Lsrc/canvasplayer.h -u -r1.6 -r1.7
+--- src/canvasplayer.h
++++ src/canvasplayer.h
+@@ -20,7 +20,12 @@
+ #ifndef CANVASPLAYER_H
+ #define CANVASPLAYER_H
+ 
++#include &quot;schafkopfdef.h&quot;
++
++#include &lt;qstring.h&gt;
++
+ class Card;
++class CardList;
+ class CanvasCard;
+ class Player;
+ class QCanvas;
+@@ -33,27 +38,37 @@
+ */
+ class CanvasPlayer{
+     public:
+-        CanvasPlayer( QCanvas* canvas );
+-        CanvasPlayer( int i, Player* player, QCanvas* canvas );
++        CanvasPlayer( int i, QCanvas* canvas );
+         ~CanvasPlayer();
+         
+-        void position( int i );
+-		void init(int i);
++        void position();
++        void init();
++        
++        unsigned int id() const;
++        bool isHuman() const;
+         
+-        void setPlayer( int, Player* player );
++        void setHasDoubled( bool h );
++        void setLast( bool l );
++        void setName( const QString &amp; name );
++        void setCards( CardList* cards );
+         
+         void cardPlayed( Card* c );
+-        CanvasCard* hasCard( Card* c ) const; 
+-        Player* player() const { return m_player; }
++        CanvasCard* hasCard( int cardid ) const; 
+         
+     private:
+         void create();
+         
+-		QCanvas* m_canvas;
+-        QCanvasText* m_name;
+-        CanvasCard* m_items[8];
++        unsigned int m_id;
++        int m_position;
++        bool m_has_doubled;
++        bool m_is_last;
++        bool m_is_human;
++        QString m_player_name;
+         
+-        Player* m_player;
++        QCanvas* m_canvas;
++        QCanvasText* m_name;
++        CanvasCard* m_items[NUMCARDS];
++        CardList* m_cards;
+ };
+ 
+ #endif
+Index: player.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.h,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -Lsrc/player.h -Lsrc/player.h -u -r1.22 -r1.23
+--- src/player.h
++++ src/player.h
+@@ -54,12 +54,6 @@
+           * count twice or not
+           */
+         bool geklopft() const { return m_geklopft; }
+-        /** required by the user interface to know if all cards
+-          * maybe shown or already the first four ones. 
+-          * Returns true if the players klopfen() member 
+-          * function was already called.
+-          */
+-        bool hasDoubled() const { return m_has_doubled; }
+ 
+         CardList *allowedCards();
+         void removeTrumpf(CardList* liste);
+@@ -86,6 +80,7 @@
+ 		CardList* cardsOfSameType(Card* card);
+ 		Card* firstPlayedCard();
+ 		bool istTrumpf(Card* card);
++        
+     private:
+         static unsigned int def_id;
+         double m_points;
+Index: schafkopf.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopf.cpp,v
+retrieving revision 1.34
+retrieving revision 1.35
+diff -Lsrc/schafkopf.cpp -Lsrc/schafkopf.cpp -u -r1.34 -r1.35
+--- src/schafkopf.cpp
++++ src/schafkopf.cpp
+@@ -25,6 +25,8 @@
+ #include &quot;player.h&quot;
+ #include &quot;newgamewizard.h&quot;
+ #include &quot;preferencesdlg.h&quot;
++#include &quot;selectgamewizard.h&quot;
++#include &quot;timer.h&quot;
+ 
+ // for pow()
+ #include &lt;math.h&gt;
+@@ -33,6 +35,7 @@
+ #include &lt;qheader.h&gt;
+ #include &lt;qlabel.h&gt;
+ #include &lt;qpixmap.h&gt;
++#include &lt;qsemaphore.h&gt;
+ #include &lt;qsplitter.h&gt;
+ #include &lt;qtable.h&gt;
+ #include &lt;qtimer.h&gt;
+@@ -54,6 +57,8 @@
+ SchafKopf::SchafKopf()
+         : KMainWindow( 0, &quot;SchafKopf&quot; )
+ {
++    sem_init( &amp;m_sem, 0, 0 );
++    
+     split = new QSplitter( QSplitter::Horizontal, this );
+ #if QT_VERSION &gt;= 0x030200
+     split-&gt;setChildrenCollapsible( true );
+@@ -66,9 +71,7 @@
+     m_canvas = new QCanvas( this, &quot;canvas&quot; );
+     m_canvasview = new GameCanvas( m_canvas, split, &quot;canvasview&quot; );
+ 
+-    m_game = new Game();
+-    m_game-&gt;setCanvas( m_canvasview );
+-    m_canvasview-&gt;setGame( m_game );
++    m_game = new Game( &amp;m_sem, this );
+     m_canvasview-&gt;setHScrollBarMode(QScrollView::AlwaysOff);
+     m_canvasview-&gt;setVScrollBarMode(QScrollView::AlwaysOff);
+     
+@@ -94,7 +97,6 @@
+     lblDoubled = new QLabel( groupInfo );
+ 
+     btnLastTrick = new KPushButton( groupInfo );
+-    btnLastTrick-&gt;setPixmap( *(Card::backgroundPixmap()) );
+     btnLastTrick-&gt;setFlat( true );
+ 
+     split-&gt;setSizes( Settings::instance()-&gt;splitterSizes( width() ) );
+@@ -105,32 +107,153 @@
+     //connect(kapp, SIGNAL(aboutToQuit()), this, SLOT(endGame()));
+ 
+     connect(btnLastTrick,SIGNAL(clicked()),this,SLOT(showStich()));
+-    connect(m_game,SIGNAL(gameStarted()),this,SLOT(enableControls()));
+-    connect(m_game,SIGNAL(gameEnded()),this,SLOT(enableControls()));
+-    connect(m_game,SIGNAL(signalSetupGameInfo()),this,SLOT(updateInfo()));
+-    connect(m_game,SIGNAL(signalDoubled()),this,SLOT(updateInfo()));
+-
+     connect(Settings::instance(),SIGNAL(resultsTypeChanged()),this,SLOT(clearTable()));
+     connect(Settings::instance(),SIGNAL(playerNamesChanged()),this,SLOT(updateTableNames()));
++    connect( Settings::instance(), SIGNAL( cardChanged() ), this, SLOT( updateInfo() ) );
++    
+     QToolTip::add
+         ( btnLastTrick, i18n(&quot;Show the last trick that was made.&quot;) );
+ 
+-    m_stichdlg = new StichDlg( m_game, this );            
++    m_stichdlg = new StichDlg( this );            
+     
++    m_terminated = true;
++
+     updateInfo();
+ }
+ 
+ SchafKopf::~SchafKopf()
+ {
+     saveConfig();
++    // make sure the thread is really not running
++    // and does not wait for the semaphore
++    endGame();
++    sem_destroy( &amp;m_sem );
+ 
+-    //if( m_game )
+-    //    endGame();
++    delete m_stichdlg;
++}
+ 
+-    if( m_stichdlg )
+-        delete m_stichdlg;
++void SchafKopf::customEvent( QCustomEvent* e )
++{
++    if( e-&gt;type() == SCHAFKOPF_EVENT )
++    {
++        int* a;
++        bool force_select = false;
++        
++        t_EventData* data = (t_EventData*)e-&gt;data();
++        switch( data-&gt;type )
++        {
++            case GameEnded:
++                //EXIT_LOOP();
++                m_canvasview-&gt;resetPlayerCards();
++                // fall through!
++
++            case RedrawPlayers:
++                m_canvasview-&gt;redrawPlayers();
++                enableControls();
++                break;
++            
++            case GameStarted:
++                m_canvasview-&gt;resetPlayers();
++                m_canvasview-&gt;redrawPlayers();
++                enableControls();
++                break;
++                        
++            case GameInfoSetup:
++                updateInfo();
++                break;
++                
++            case PlayerIsLast:
++                m_canvasview-&gt;playerIsLast( data-&gt;playerid );
++                break;
++                
++            case PlayerDoubled:
++                updateInfo();
++                m_canvasview-&gt;information( data-&gt;data );
++                break;
++                
++            case PlayerHasDoubled:
++                m_canvasview-&gt;playerHasDoubled( data-&gt;playerid, true );
++                break;
++                
++            case CardPlayed:
++                m_canvasview-&gt;slotPlayerPlayedCard( data-&gt;playerid, *(data-&gt;cardids) );
++                break;
++            
++            case PlayerMadeStich:
++                m_canvasview-&gt;slotPlayerMadeStich( data-&gt;playerid );
++                m_stichdlg-&gt;changed( data-&gt;data, data-&gt;cardids, data-&gt;playernames );
++                break;
++            
++            case PlayerResults:
++                this-&gt;slotPlayerResult( data-&gt;playerid, data-&gt;data );
++                break;
++                
++            case InfoMessage:
++                m_canvasview-&gt;information( data-&gt;data );
++                break;
++                
++            case QuestionYesNo:
++                a = new int;
++                *a = m_canvasview-&gt;questionYesNo( data-&gt;data ) ? YES : NO;
++                data-&gt;returncode = (void*)a;
++                break;
++            
++            case HumanPlayerGetCard:
++                a = new int;
++                *a = m_canvasview-&gt;getCard();
++                data-&gt;returncode = (void*)a;
++                break;
++            
++            case ForbiddenCard:
++                m_canvasview-&gt;cardForbidden( *(data-&gt;cardids) );
++                break;
++            
++            case ForcedSelectGame:
++                force_select = true;
++                // fall through!
++            case SelectGame:
++                data-&gt;returncode = (void*)selectGame( force_select, data-&gt;cardids );
++                break;
++                
++            case PlayerNameChanged:
++                m_canvasview-&gt;setPlayerName( data-&gt;playerid, data-&gt;data );
++                break;
++                
++            case PlayerGotCards:
++                m_canvasview-&gt;setPlayerCards( data-&gt;playerid, data-&gt;cardids );
++                break;
++                
++            default:
++                break;
++        }
++        
++        data-&gt;quitgame = m_terminated;
++        
++        if( data-&gt;wait )
++        {
++            sem_post( &amp;m_sem );
++        }
++        else        
++        {
++            // compiler warns that deleting void is undefined....
++            // data-&gt;returncode should be NULL anyways...
++            // so why is it there???
++            // stupid comments...
++            if( data-&gt;returncode )
++                delete data-&gt;returncode;
++                
++            if( data-&gt;cardids )
++                delete [] data-&gt;cardids;
++
++            if( data-&gt;playernames )
++                delete data-&gt;playernames;
++                
++            delete data;
++        }
++    }
+ }
+ 
++
+ void SchafKopf::saveConfig()
+ {
+     Settings::instance()-&gt;setSplitterSizes( split-&gt;sizes() );
+@@ -196,26 +319,35 @@
+ 
+ void SchafKopf::realNewGame()
+ {
+-    connect(m_game,SIGNAL(playerResult(const QString &amp;,const QString &amp;)),this,SLOT(slotPlayerResult(const QString &amp;,const QString &amp;)));
++    //connect(m_game,SIGNAL(playerResult(const QString &amp;,const QString &amp;)),this,SLOT(slotPlayerResult(const QString &amp;,const QString &amp;)));
+ 
+     // entering the game loop is the last thing
+     // we want to do!
+-    m_game-&gt;gameLoop();
+-    endGame();    
++    m_terminated = false;
++    m_game-&gt;start();
++    //m_game-&gt;gameLoop();
++    //endGame();    
+ }
+ 
+ void SchafKopf::endGame()
+ {
+-    disconnect(m_game,SIGNAL(playerResult(const QString &amp;,const QString &amp;)),this,SLOT(slotPlayerResult(const QString &amp;,const QString &amp;)));
++    //disconnect(m_game,SIGNAL(playerResult(const QString &amp;,const QString &amp;)),this,SLOT(slotPlayerResult(const QString &amp;,const QString &amp;)));
+ 
+-    m_game-&gt;endGame();
++    //m_game-&gt;endGame();
++    if( !m_terminated )
++    {
++        m_terminated = true;
++        EXIT_LOOP();
++        //KApplication::postEvent( m_game, new QCustomEvent( (QEvent::Type)SCHAFKOPF_EVENT_QUIT ) );
++    }
++    
+     clearTable();
+     updateInfo();
+ }
+ 
+ void SchafKopf::showStich()
+ {
+-    if( m_game-&gt;isTerminated() )
++    if( m_terminated )
+         return;
+ 
+     m_stichdlg-&gt;show();
+@@ -228,18 +360,8 @@
+     btnLastTrick-&gt;setEnabled( !m_game-&gt;isTerminated() );
+ }
+ 
+-void SchafKopf::slotPlayerResult( const QString &amp; name, const QString &amp; result )
++void SchafKopf::slotPlayerResult( unsigned int col, const QString &amp; result )
+ {
+-    int col = 0;
+-    unsigned int i = 0;
+-    QHeader* header = m_table-&gt;horizontalHeader();
+-    for(;i&lt;(unsigned int)header-&gt;count();i++)
+-        if(header-&gt;label(i) == name )
+-        {
+-            col = i;
+-            break;
+-        }
+-
+     if( !m_table-&gt;numRows() || !m_table-&gt;text( m_table-&gt;numRows()-1, col ).isEmpty() )
+         m_table-&gt;insertRows( m_table-&gt;numRows() );
+ 
+@@ -252,7 +374,9 @@
+     int timesDoubled = 0, timesThrownTogether = 0;
+     int valuation;
+     
+-    if( !m_game-&gt;isTerminated() &amp;&amp; m_game-&gt;gameInfo()-&gt;isValid() )
++    btnLastTrick-&gt;setPixmap( *(Card::backgroundPixmap()) );
++        
++    if( !m_terminated &amp;&amp; m_game-&gt;gameInfo()-&gt;isValid() )
+         lblCurGame-&gt;setText( i18n(&quot;&lt;qt&gt;Current Game:&lt;br&gt;&lt;b&gt;&quot;) + m_game-&gt;gameInfo()-&gt;toString() + &quot;&lt;/b&gt;&lt;/qt&gt;&quot; );
+     else
+     {
+@@ -274,9 +398,9 @@
+     timesThrownTogether = m_game-&gt;timesThrownTogether();
+     if(timesThrownTogether&gt;0)
+         sDoubled.append( i18n(&quot;&lt;qt&gt;Times thrown together: &lt;b&gt;%1&lt;/b&gt;&lt;/qt&gt;&quot;).arg(timesThrownTogether) );
+-    valuation=pow(2, timesDoubled);
++    valuation=(int)pow(2, timesDoubled);
+     if( Settings::instance()-&gt;doubleNextGame() )
+-        valuation = valuation * pow(2, timesThrownTogether );
++        valuation = valuation * (int)pow(2, timesThrownTogether );
+     sDoubled.append( i18n(&quot;&lt;qt&gt;Game counts &lt;b&gt;%1-fold&lt;/b&gt;.&lt;/qt&gt;&quot;).arg(valuation) );
+     
+     lblDoubled-&gt;setText( sDoubled );
+@@ -297,13 +421,25 @@
+     PreferencesDlg prefs( this, &quot;prefs&quot;);
+     if( prefs.exec() == QDialog::Accepted )
+     {
+-    m_canvasview-&gt;updateBackground();
++        m_canvasview-&gt;updateBackground();
+     }
+ }
+ 
+ void SchafKopf::updateTableNames()
+ {
+     m_table-&gt;setColumnLabels( Settings::instance()-&gt;playerNames() );
++}
++
++GameInfo* SchafKopf::selectGame( bool force, int* cardids )
++{
++    CardList list( cardids );
++    list.setAutoDelete( true );
++    
++    SelectGameWizard sgw( force, &amp;list );    
++    if( sgw.exec() == QDialog::Accepted )
++        return sgw.gameInfo();
++    else
++        return NULL;
+ }
+ 
+ #include &quot;schafkopf.moc&quot;
+Index: humanplayer.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/humanplayer.h,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -Lsrc/humanplayer.h -Lsrc/humanplayer.h -u -r1.12 -r1.13
+--- src/humanplayer.h
++++ src/humanplayer.h
+@@ -20,24 +20,19 @@
+ #ifndef HUMANPLAYER_H
+ #define HUMANPLAYER_H
+ 
+-#include &lt;qobject.h&gt;
+ #include &quot;player.h&quot;
+ 
+-class HumanPlayer : public QObject, public Player
++class HumanPlayer : public Player
+ {
+-    Q_OBJECT
+-	public:
++    public:
+         HumanPlayer(Game* game);
+         ~HumanPlayer();
+         
+-		void klopfen();
++        void klopfen();
+         Card *play();
+         GameInfo* gameInfo( bool force = false );
+         
+-		int rtti() const { return HUMAN; }        
+-
+-    private slots:
+-        void getCard( Card* card );
++        int rtti() const { return HUMAN; }        
+         
+     private:
+         Card* m_card;
+Index: canvascard.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvascard.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lsrc/canvascard.h -Lsrc/canvascard.h -u -r1.11 -r1.12
+--- src/canvascard.h
++++ src/canvascard.h
+@@ -32,7 +32,6 @@
+ 	Q_OBJECT
+     public:
+         CanvasCard(QCanvas*c);
+-        CanvasCard(Card* card,QCanvas*c);
+         ~CanvasCard();
+ 
+         void setCard(Card* card);
+@@ -71,6 +70,7 @@
+ 	private slots:
+ 		void disableForbidden();
+ 		void moveLoop();
++        void cardDeckChanged();
+ };
+ 
+ #endif
+Index: stichdlg.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/stichdlg.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -Lsrc/stichdlg.h -Lsrc/stichdlg.h -u -r1.5 -r1.6
+--- src/stichdlg.h
++++ src/stichdlg.h
+@@ -24,7 +24,6 @@
+ 
+ #include &lt;kdialogbase.h&gt;
+ 
+-class Game;
+ class QLabel;
+ /**
+ Show the last trick which was made
+@@ -38,19 +37,18 @@
+ {
+     Q_OBJECT
+     public:
+-        StichDlg(Game* g, QWidget *parent = 0, const char *name = 0);
++        StichDlg(QWidget *parent = 0, const char *name = 0);
+         ~StichDlg();
+         
+-    private slots:
+-        void changed(unsigned int id);
++        void changed( const QString &amp; name, int* list, QStringList* players );
++        
++    private:
+         void reset();
+         
+     private:
+         QLabel* trick;
+         QLabel* cards[PLAYERS];
+         QLabel* players[PLAYERS];
+-            
+-        Game* m_game;
+ };
+ 
+ #endif
+Index: settings.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.cpp,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -Lsrc/settings.cpp -Lsrc/settings.cpp -u -r1.18 -r1.19
+--- src/settings.cpp
++++ src/settings.cpp
+@@ -29,6 +29,8 @@
+ #include &lt;kuser.h&gt;
+ #include &lt;kstandarddirs.h&gt;
+ 
++#include &lt;qmutex.h&gt;
++
+ Settings* Settings::m_instance = 0;
+ 
+ Settings* Settings::instance() 
+@@ -42,16 +44,21 @@
+ Settings::Settings(QObject *parent, const char *name)
+  : QObject(parent, name)
+ {
++    // the mutex causes more problems right now than be useful...
++    m_mutex = NULL; // new QMutex();
+ }
+ 
+ 
+ Settings::~Settings()
+ {
++    delete m_mutex;
+     delete m_instance;
+ }
+ 
+ const QString Settings::cardDeck() const
+ {
++    QMutexLocker locker( m_mutex );
++    
+     QString cardDir = getCardDir()+&quot;cards-bavarian-old/&quot;;
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;CardDeck&quot;);
+@@ -62,6 +69,8 @@
+ 
+ const QString Settings::cardBackground() const
+ {
++    QMutexLocker locker( m_mutex );
++
+     QString deckCard = getCardDir()+&quot;decks/bavaria_tux.png&quot;;
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;CardDeck&quot;);
+@@ -72,6 +81,8 @@
+ 
+ QString Settings::getCardDir() const
+ {
++    // do not lock private members
++    
+     QString dir = KCardDialog::getDefaultCardDir();
+     int k;
+     dir = dir.remove( dir.length()-1, 1 );
+@@ -82,23 +93,28 @@
+ 
+ void Settings::configureCardDecks( QWidget* parent )
+ {
++    // no mutex locker here as we would lock cardDeck and cardBackground
++    
+     QString dir = cardDeck();
+     QString deck = cardBackground();
+         
+     if (KCardDialog::getCardDeck(deck, dir, parent, KCardDialog::Both ) == QDialog::Accepted)
+     {
++        //m_mutex-&gt;lock();
+         KConfig* config = kapp-&gt;config();
+         config-&gt;setGroup(&quot;CardDeck&quot;);
+         config-&gt;writeEntry( &quot;Cards&quot;, dir );
+         config-&gt;writeEntry( &quot;Deck&quot;, deck );
+         kapp-&gt;config()-&gt;sync();
+-        
++        //m_mutex-&gt;unlock();
+         emit cardChanged();
+     }
+ }
+ 
+ const QStringList Settings::playerNames() const
+ {
++    QMutexLocker locker( m_mutex );
++    
+     QStringList list;
+     KUser user;
+     KConfig* config = kapp-&gt;config();
+@@ -112,6 +128,8 @@
+ 
+ void Settings::setPlayerNames( const QStringList &amp; names )
+ {
++    QMutexLocker locker( m_mutex );
++
+     int i;
+     KConfig* config = kapp-&gt;config();
+     QStringList old = this-&gt;playerNames();
+@@ -126,6 +144,8 @@
+ 
+ QValueList&lt;int&gt; Settings::splitterSizes( int width )
+ {
++    QMutexLocker locker( m_mutex );
++    
+     KConfig* config = kapp-&gt;config();
+     QValueList&lt;int&gt; list;
+     
+@@ -142,6 +162,8 @@
+ 
+ void Settings::setSplitterSizes( QValueList&lt;int&gt; list )
+ {
++    QMutexLocker locker( m_mutex );
++    
+     KConfig* config = kapp-&gt;config();
+     config-&gt;writeEntry( &quot;Splitter&quot;, list );
+     config-&gt;sync();
+@@ -149,6 +171,8 @@
+ 
+ void Settings::setResultsType( int r )
+ {
++    QMutexLocker locker( m_mutex );
++    
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup( &quot;SchafKopf&quot; );
+     config-&gt;writeEntry(&quot;ResultMode&quot;, r );
+@@ -159,6 +183,8 @@
+ 
+ int Settings::resultsType() const
+ {
++    QMutexLocker locker( m_mutex );
++    
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup( &quot;SchafKopf&quot; );
+     return config-&gt;readNumEntry(&quot;ResultMode&quot;, MONEY );
+@@ -166,6 +192,8 @@
+ 
+ Results* Settings::results() const
+ {
++    QMutexLocker locker( m_mutex );
++    
+     int r = resultsType();
+     if( r == MONEY )
+         return new MoneyResults();
+@@ -177,6 +205,8 @@
+ 
+ void Settings::setMoneyResults( const t_ResultValues* r )
+ {
++    QMutexLocker locker( m_mutex );
++    
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup( &quot;MoneyValues&quot; );
+     config-&gt;writeEntry( &quot;Solo&quot;, r-&gt;solo );
+@@ -189,6 +219,8 @@
+ 
+ void Settings::setPointResults( const t_ResultValues* r )
+ {
++    QMutexLocker locker( m_mutex );
++    
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup( &quot;PointValues&quot; );
+     config-&gt;writeEntry( &quot;Solo&quot;, (int)r-&gt;solo );
+@@ -201,6 +233,8 @@
+ 
+ t_ResultValues* Settings::moneyResults() const
+ {
++    QMutexLocker locker( m_mutex );
++    
+     t_ResultValues* r = new t_ResultValues;
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup( &quot;MoneyValues&quot; );
+@@ -214,6 +248,8 @@
+ 
+ t_ResultValues* Settings::pointResults() const
+ {
++    QMutexLocker locker( m_mutex );
++
+     t_ResultValues* r = new t_ResultValues;
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup( &quot;PointValues&quot; );
+@@ -227,6 +263,8 @@
+ 
+ void Settings::setNoGame( int e )
+ {
++    QMutexLocker locker( m_mutex );
++    
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;SchafKopf&quot;);
+     config-&gt;writeEntry( &quot;KeinSpiel&quot;, e );
+@@ -235,6 +273,8 @@
+ 
+ int Settings::noGame() const
+ {
++    QMutexLocker locker( m_mutex );
++    
+     int e = NOGAME_NEUGEBEN;
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;SchafKopf&quot;);
+@@ -245,6 +285,8 @@
+ 
+ void Settings::setDoublerHasToPlay( bool b )
+ {
++    QMutexLocker locker( m_mutex );
++    
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;SchafKopf&quot;);
+     config-&gt;writeEntry( &quot;DoublerHasToPlay&quot;, b );
+@@ -253,6 +295,8 @@
+ 
+ bool Settings::doublerHasToPlay() const
+ {
++    QMutexLocker locker( m_mutex );
++    
+     bool b = true;
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;SchafKopf&quot;);
+@@ -262,6 +306,8 @@
+ 
+ void Settings::setDoubleNextGame( bool b )
+ {
++    QMutexLocker locker( m_mutex );
++    
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;SchafKopf&quot;);
+     config-&gt;writeEntry( &quot;DoubleNextGame&quot;, b );
+@@ -270,6 +316,8 @@
+ 
+ bool Settings::doubleNextGame() const
+ {
++    QMutexLocker locker( m_mutex );
++    
+     bool b = true;
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;SchafKopf&quot;);
+@@ -279,6 +327,8 @@
+ 
+ void Settings::setRearrangeCards( bool b)
+ {
++    QMutexLocker locker( m_mutex );
++    
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;SchafKopf&quot;);
+     config-&gt;writeEntry( &quot;RearrangeCards&quot;, b );
+@@ -287,6 +337,8 @@
+ 
+ bool Settings::rearrangeCards() const
+ {
++    QMutexLocker locker( m_mutex );
++    
+     bool b = true;
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;SchafKopf&quot;);
+@@ -296,6 +348,8 @@
+ 
+ void Settings::setBackgroundImage( QString b)
+ {
++    QMutexLocker locker( m_mutex );
++    
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;SchafKopf&quot;);
+     config-&gt;writeEntry( &quot;backgroundImage&quot;, b );
+@@ -305,6 +359,7 @@
+ 
+ QString Settings::backgroundImage() const
+ {
++    QMutexLocker locker( m_mutex );
+     QString b=&quot;&quot;;
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;SchafKopf&quot;);
+@@ -315,6 +370,7 @@
+ 
+ t_AllowedGames* Settings::allowedGames() const
+ {
++    QMutexLocker locker( m_mutex );
+     t_AllowedGames* a = new t_AllowedGames;
+     
+     KConfig* config = kapp-&gt;config();
+@@ -330,6 +386,7 @@
+ 
+ void Settings::setAllowedGames( const t_AllowedGames* allowed )
+ {
++    QMutexLocker locker( m_mutex );
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup( &quot;Games&quot; );
+     config-&gt;writeEntry( &quot;AllowWenz&quot;, allowed-&gt;wenz );
+Index: schafkopf.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopf.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -Lsrc/schafkopf.h -Lsrc/schafkopf.h -u -r1.10 -r1.11
+--- src/schafkopf.h
++++ src/schafkopf.h
+@@ -28,15 +28,19 @@
+ #include &lt;kmainwindow.h&gt;
+ #include &lt;qguardedptr.h&gt; 
+ 
+-class StichDlg;
++#include &lt;semaphore.h&gt;
++
++class CardList;
+ class GameCanvas;
+ class Game;
++class GameInfo;
+ class KAction;
+ class KPushButton;
+ class QCanvas;
+ class QLabel;
+ class QSplitter;
+ class QTable;
++class StichDlg;
+ 
+ /**
+  * @short Application Main Window
+@@ -77,7 +81,7 @@
+         
+ 		void realNewGame();
+         
+-        void slotPlayerResult( const QString &amp; name, const QString &amp; result );
++        void slotPlayerResult( unsigned int id, const QString &amp; result );
+         
+         void saveConfig();
+         
+@@ -91,8 +95,18 @@
+           * in the preferences
+           */
+         void updateTableNames();
++        
++    protected:
++        /** Event handler to receive thread events
++          */
++        void customEvent( QCustomEvent* e );
++        
+     private:
+         void setupActions();
++        GameInfo* selectGame( bool force, int* cardids );
++
++        bool m_terminated;
++        sem_t m_sem;
+         
+         Game* m_game;
+         GameCanvas* m_canvasview;
+Index: canvascard.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvascard.cpp,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -Lsrc/canvascard.cpp -Lsrc/canvascard.cpp -u -r1.14 -r1.15
+--- src/canvascard.cpp
++++ src/canvascard.cpp
+@@ -33,21 +33,14 @@
+ CanvasCard::CanvasCard(QCanvas*c)
+  : QCanvasRectangle(c), m_rotation(0)
+ {
+-    m_card = 0;
++    m_card = NULL;
+     m_forbidden = false;
+     show();
+     timer = new QTimer( this );
+     loadOK1 = Shadow.load( Settings::instance()-&gt;cardDeck() + &quot;alpha1.png&quot; );
+     loadOK2 = Shadow2.load( Settings::instance()-&gt;cardDeck() + &quot;alpha2.png&quot; );
+-}
+-
+-CanvasCard::CanvasCard(Card* card,QCanvas*c)
+- : QCanvasRectangle(c), m_rotation(0)
+-{
+-    setCard( card );
+-    m_forbidden = false;
+-    show();
+-    //timer = new QTimer( this );
++    
++    connect( Settings::instance(), SIGNAL( cardChanged() ), this, SLOT( cardDeckChanged() ) );
+ }
+ 
+ CanvasCard::~CanvasCard()
+@@ -138,4 +131,13 @@
+ 		timer-&gt;stop();
+ 		disconnect( timer, SIGNAL(timeout()), this, SLOT(moveLoop()) );
+ 	}
++}
++
++void CanvasCard::cardDeckChanged()
++{
++    if( m_card )
++    {
++        m_card-&gt;cardDeckChanged();
++        QCanvasItem::update();
++    }
+ }
+Index: selectgametypebox.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/selectgametypebox.cpp,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -Lsrc/selectgametypebox.cpp -Lsrc/selectgametypebox.cpp -u -r1.9 -r1.10
+--- src/selectgametypebox.cpp
++++ src/selectgametypebox.cpp
+@@ -132,7 +132,7 @@
+ 	GameInfo* info = gameInfo();
+ 
+ 	list.init();
+-	for(i=0;i&lt;list.count();i++)
++	for(i=0;i&lt;(int)list.count();i++)
+ 		if( info-&gt;istTrumpf( list.at(i) ) )
+ 			trumpf.append( list.at(i) );
+ 	delete info;
+@@ -143,7 +143,7 @@
+ 	x=c.pixmap()-&gt;width()/2*(trumpf.count()-1);
+ 	pix.fill( Qt::darkGreen );
+ 	QPainter p( &amp;pix );
+-	for(i=0;i&lt;=trumpf.count()-1;i++)
++	for(i=0;i&lt;=(int)trumpf.count()-1;i++)
+ 	{
+ 		QPixmap* pixmap = trumpf.at(i)-&gt;pixmap();
+ 		p.drawPixmap( x, y, *pixmap );
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.68
+retrieving revision 1.69
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.68 -r1.69
+--- src/game.cpp
++++ src/game.cpp
+@@ -29,19 +29,20 @@
+ #include &quot;pointresults.h&quot;
+ 
+ #include &quot;settings.h&quot;
+-#include &quot;timer.h&quot;
+ 
++#include &lt;kapplication.h&gt;
+ #include &lt;klocale.h&gt;
+ #include &lt;kmessagebox.h&gt;
+ #include &lt;string.h&gt;
+ 
+-Game::Game(QObject *parent, const char *name)
+- : QObject(parent, name)
++Game::Game(sem_t* sem, QObject *parent )
++ : QThread()
+ {
+     unsigned int i;
+     terminated = true;
++    m_sem = sem;
+     
+-    m_canvas = NULL;
++    m_parent = parent;
+     m_laufende = 0;
+     m_timesThrownTogether = 0;
+     
+@@ -54,8 +55,10 @@
+     updatePlayerNames();
+     
+     // make sure that results get cleaned up, when the results type is changed
++    /*
+     connect( Settings::instance(), SIGNAL( resultsTypeChanged() ), this, SLOT( resetGameResults() ) );
+     connect( Settings::instance(), SIGNAL( playerNamesChanged() ), this, SLOT( updatePlayerNames() ) );
++    */
+ }
+ 
+ Game::~Game()
+@@ -70,7 +73,12 @@
+ 	}
+ }
+ 
+-void Game::start()
++void Game::run()
++{
++    gameLoop();
++}
++
++void Game::startGame()
+ {
+     unsigned int i = 0;
+     CardList *playercards[PLAYERS];
+@@ -86,7 +94,9 @@
+         m_players[i]-&gt;setCards( playercards[i] );
+         m_players[i]-&gt;stiche()-&gt;clear();
+     }
+-	emit gameStarted();
++
++    postEvent( GameStarted );
++    //emit gameStarted();
+ }
+ 
+ // Wer hat den ganzen rekursiven code in gameLoop zu veantworten? Bitter sofort erschie???n :)
+@@ -95,8 +105,8 @@
+     int i, a, index, realindex;
+     Player *tmp[PLAYERS];
+ 	Card *c=NULL;
+-    Timer timer;
+ 	int gamecnt=0;
++    QStringList* playernames = NULL;
+     
+ 	terminated = false;
+ 
+@@ -104,17 +114,18 @@
+     
+ 	while(!terminated)
+ 	{
++        startGame();
++		
++        // setLast() has to be done after startGame(),
++        // so that CanvasPlayer draws cards correctly for
++        // doubling when gameStarted is emited.
+ 		for(i=0;i&lt;PLAYERS;i++)
+         {
+ 			tmp[i]=m_players[(i+gamecnt)%PLAYERS];
+-            tmp[i]-&gt;setLast( (i==PLAYERS-1) );
++            if( (i==PLAYERS-1) )
++                postEvent( PlayerIsLast, tmp[i]-&gt;id() );
++            //tmp[i]-&gt;setLast( (i==PLAYERS-1) );
+         }
+-		// setLast() has to be done before start(),
+-        // so that CanvasPlayer draws cards correctly for
+-        // doubling when gameStarted is emited.
+-        // otherwise we had to emit gameStarted twice which would 
+-        // result in an ugly UI rebuild
+-        start();
+         
+ 		for(i=0;i&lt;PLAYERS;i++)
+ 		{
+@@ -122,14 +133,15 @@
+ 	        tmp[i]-&gt;sortCards();
+         	if( tmp[i]-&gt;geklopft() &amp;&amp; tmp[i]-&gt;rtti() != Player::HUMAN ) 
+         	{
+-            	m_canvas-&gt;information( i18n(&quot;%1 has doubled.&quot;).arg( tmp[i]-&gt;name() ) );
+-            	emit signalDoubled();
++            	//m_canvas-&gt;information( i18n(&quot;%1 has doubled.&quot;).arg( tmp[i]-&gt;name() ) );
++                postEvent( PlayerDoubled, tmp[i]-&gt;id(), 0, i18n(&quot;%1 has doubled.&quot;).arg( tmp[i]-&gt;name() ), true );
++            	// emit signalDoubled();
+         	}
+ 			if(terminated)
+ 				return;
+ 		}
+     
+-    	m_canvas-&gt;redrawPlayers();
++    	postEvent( RedrawPlayers );
+     
+     	// find a player you can playercards
+     	// and setup m_gameinfo    
+@@ -140,7 +152,8 @@
+ 			tmp[i]-&gt;sortCards();
+ 			tmp[i]-&gt;init();
+ 		}
+-    	m_canvas-&gt;redrawPlayers();
++    	
++    	postEvent( RedrawPlayers );
+ 
+     	for(i=0;i&lt;TURNS ;i++)
+ 	    {
+@@ -163,14 +176,27 @@
+ 	    		}
+             
+        	    	m_currstich.append(c);
+-            	emit playerPlayedCard(tmp[a]-&gt;id(),c);
+-            	timer.block( 1 );
++                int* cards = new int[2];
++                cards[0] = c-&gt;id();
++                cards[1] = 0;
++                postEvent( CardPlayed, tmp[a]-&gt;id(), cards, QString::null, true );
++            	//emit playerPlayedCard(tmp[a]-&gt;id(),c);
++                
++            	sleep( 1 );
+ 				if( terminated )
+ 					return;
+         	}
+ 			index = highestCard();
+     	    tmp[index]-&gt;addStich( m_currstich );
+-        	emit playerMadeStich(tmp[index]-&gt;id());
++            
++            playernames = new QStringList();
++            for(a=0;a&lt;PLAYERS;a++)
++                playernames-&gt;append( m_currstich.at(a)-&gt;owner()-&gt;name() );
++                
++        	postEvent( PlayerMadeStich, tmp[index]-&gt;id(), m_currstich.toIntList(),
++                       tmp[index]-&gt;name(), false, playernames );
++                       
++            //emit playerMadeStich(tmp[index]-&gt;id());
+         	// Sortiere so, das der stecher n???hste karte spielt 
+ 			for(realindex=0;realindex&lt;PLAYERS;realindex++)
+ 				if(m_players[realindex]==tmp[index])
+@@ -193,8 +219,9 @@
+ void Game::endGame(void)
+ {
+ 	terminated=true;
+-	emit gameEnded();
+-	EXIT_LOOP();
++    postEvent( GameEnded );
++	//emit gameEnded();
++	//EXIT_LOOP();
+ }
+ 
+ /*const*/ GameInfo *Game::gameInfo() //const
+@@ -202,11 +229,6 @@
+     return &amp;m_gameinfo;
+ }
+ 
+-void Game::setCanvas( GameCanvas* c )
+-{
+-    m_canvas = c;
+-}
+-
+ Player* Game::findId( unsigned int id ) const
+ {     
+     for( unsigned int i = 0; i &lt; PLAYERS; i++)
+@@ -282,8 +304,13 @@
+     r-&gt;setLaufende( m_laufende );
+     r-&gt;setGameInfo( &amp;m_gameinfo );
+     for( unsigned int i=0;i&lt;PLAYERS;i++)
+-        emit playerResult( m_players[i]-&gt;name(), r-&gt;formatedPoints(m_players[i])  );
+-    m_canvas-&gt;information( r-&gt;result() );
++    {
++        postEvent( PlayerResults, m_players[i]-&gt;id(), 0, r-&gt;formatedPoints(m_players[i]), true );
++        // emit playerResult( m_players[i]-&gt;name(), r-&gt;formatedPoints(m_players[i])  );
++    }
++      
++    postEvent( InfoMessage, 0, 0, r-&gt;result(), true );
++    //m_canvas-&gt;information( r-&gt;result() );
+     delete r;
+     m_timesThrownTogether = 0;
+     
+@@ -310,12 +337,14 @@
+ 			info-&gt;setSpieler( players[i] );
+             games.append( info );
+             if( players[i]-&gt;rtti() != Player::HUMAN )
+-                m_canvas-&gt;information( i18n(&quot;%1 has a game.&quot;).arg( players[i]-&gt;name() ) );
++                postEvent( InfoMessage, 0, 0, i18n(&quot;%1 has a game.&quot;).arg( players[i]-&gt;name() ), true );
++                //m_canvas-&gt;information( i18n(&quot;%1 has a game.&quot;).arg( players[i]-&gt;name() ) );
+         }
+         else
+         {
+             if( players[i]-&gt;rtti() != Player::HUMAN )
+-                m_canvas-&gt;information( i18n(&quot;%1 has no game.&quot;).arg( players[i]-&gt;name() ) );
++                postEvent( InfoMessage, 0, 0, i18n(&quot;%1 has no game.&quot;).arg( players[i]-&gt;name() ), true );
++                //m_canvas-&gt;information( i18n(&quot;%1 has no game.&quot;).arg( players[i]-&gt;name() ) );
+         }
+     }
+     
+@@ -341,7 +370,7 @@
+     // finde den mitspieler:
+     if( m_gameinfo.mode()==GameInfo::RUFSPIEL ) 
+     {
+-        Card sau( Card::SAU, static_cast&lt;enum Card::color&gt;(m_gameinfo.color()) );
++        Card sau( Card::SAU, static_cast&lt;Card::EColor&gt;(m_gameinfo.color()) );
+         for( i=0;i&lt;PLAYERS || !m_gameinfo.mitspieler();i++ )
+         {
+             for( unsigned int z=0;z&lt;CARD_CNT/PLAYERS;z++ )
+@@ -354,10 +383,12 @@
+     }
+     
+     m_laufende = m_gameinfo.laufende();
+-    m_canvas-&gt;information( m_gameinfo.toString() );
++    postEvent( InfoMessage, 0, 0, m_gameinfo.toString(), true );
++    //m_canvas-&gt;information( m_gameinfo.toString() );
+ 
+     m_gameinfo.setValid( true );
+-    emit signalSetupGameInfo();
++    postEvent( GameInfoSetup );
++    //emit signalSetupGameInfo();
+     return true;
+ }
+ 
+@@ -373,7 +404,8 @@
+         for( i=PLAYERS-1;i&gt;=0;i-- )
+             if( m_players[i]-&gt;geklopft() )
+             {
+-                m_canvas-&gt;information( i18n(&quot;%1 has doubled last\nand has to play now.&quot;).arg( m_players[i]-&gt;name() ) );
++                postEvent( InfoMessage, 0, 0, i18n(&quot;%1 has doubled last\nand has to play now.&quot;).arg( m_players[i]-&gt;name() ), true );
++                //m_canvas-&gt;information( i18n(&quot;%1 has doubled last\nand has to play now.&quot;).arg( m_players[i]-&gt;name() ) );
+     
+                 info = m_players[i]-&gt;gameInfo( true );
+                 info-&gt;setSpieler( m_players[i] );
+@@ -385,10 +417,12 @@
+         
+     if( Settings::instance()-&gt;noGame() == Settings::NOGAME_NEUGEBEN )
+     {
+-        m_canvas-&gt;information( i18n(&quot;No one wants to play.\nCards will be thrown together.&quot;) );
++        postEvent( InfoMessage, 0, 0, i18n(&quot;No one wants to play.\nCards will be thrown together.&quot;), true );
++        //m_canvas-&gt;information( i18n(&quot;No one wants to play.\nCards will be thrown together.&quot;) );
+         m_timesThrownTogether++;
+         m_gameinfo.setValid( false );
+-        emit signalSetupGameInfo();
++        postEvent( GameInfoSetup );
++        //emit signalSetupGameInfo();
+         return false;
+     }
+     else if( Settings::instance()-&gt;noGame() == Settings::NOGAME_ALTERSPIELT )
+@@ -397,7 +431,8 @@
+         for( i=0;i&lt;PLAYERS;i++ )
+             if( m_players[i]-&gt;cards()-&gt;contains( Card::EICHEL, Card::OBER ) )
+             {
+-                m_canvas-&gt;information( i18n(&quot;%1 has got the Eichel Ober\nand has to play.&quot;).arg( m_players[i]-&gt;name() ) );
++                postEvent( InfoMessage, 0, 0, i18n(&quot;%1 has got the Eichel Ober\nand has to play.&quot;).arg( m_players[i]-&gt;name() ), true );
++                //m_canvas-&gt;information( i18n(&quot;%1 has got the Eichel Ober\nand has to play.&quot;).arg( m_players[i]-&gt;name() ) );
+                 
+                 info = m_players[i]-&gt;gameInfo( true );
+                 info-&gt;setSpieler( m_players[i] );
+@@ -441,11 +476,51 @@
+     int i;
+     QStringList list = Settings::instance()-&gt;playerNames();
+     m_players[0]-&gt;setName( list[0] );
++    postEvent( PlayerNameChanged, m_players[0]-&gt;id(), 0, list[0] );
++    
+     for( i=1;i&lt;PLAYERS;i++)
++    {
+         m_players[i]-&gt;setName( list[i] );
++        postEvent( PlayerNameChanged, m_players[i]-&gt;id(), 0, list[i] );
++    }
++       
++    postEvent( RedrawPlayers );
++    //m_canvas-&gt;redrawPlayers();
++}
++
++void* Game::postEvent( EAction action, unsigned int playerid, int* cardids, QString d, bool wait, QStringList* names )
++{
++    t_EventData* data = new t_EventData;
++    void* ret = NULL;
++    
++    data-&gt;type = action;
++    data-&gt;playerid = playerid;
++    data-&gt;cardids = cardids;
++    data-&gt;data = d;
++    data-&gt;wait = wait;
++    data-&gt;playernames = names;
++    data-&gt;returncode = NULL;
++    data-&gt;quitgame = false;
++    
++    KApplication::postEvent( m_parent, new QCustomEvent( (QEvent::Type)SCHAFKOPF_EVENT, (void*)data) );
++    if( wait )
++    {
++        sem_wait( m_sem );
++            
++        if( data-&gt;quitgame )
++            endGame();
++
++        ret = data-&gt;returncode;
+         
+-    if( m_canvas )
+-        m_canvas-&gt;redrawPlayers();
++        if( data-&gt;cardids )
++            delete [] data-&gt;cardids;
++                
++        if( data-&gt;playernames )
++            delete data-&gt;playernames;
++            
++        delete data;
++    }
++    
++    return ret;
+ }
+ 
+-#include &quot;game.moc&quot;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000064.html">[Schafkopf-devel] [PATCH] Threading Patch
+</A></li>
+	<LI>Next message: <A HREF="000066.html">[Schafkopf-devel] Commit Report - Schafkopf kleiner bugix
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#65">[ date ]</a>
+              <a href="thread.html#65">[ thread ]</a>
+              <a href="subject.html#65">[ subject ]</a>
+              <a href="author.html#65">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

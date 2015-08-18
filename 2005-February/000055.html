@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf Ueberprfuefung einbaut ob Hintergrundbild und
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20Ueberprfuefung%20einbaut%20ob%20Hintergrundbild%20und&In-Reply-To=%3C200502101337.j1ADbpNp004861%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000053.html">
+   <LINK REL="Next"  HREF="000056.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf Ueberprfuefung einbaut ob Hintergrundbild und</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20Ueberprfuefung%20einbaut%20ob%20Hintergrundbild%20und&In-Reply-To=%3C200502101337.j1ADbpNp004861%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf Ueberprfuefung einbaut ob Hintergrundbild und">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Thu Feb 10 14:37:51 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000053.html">[Schafkopf-devel] [RFC][PATCH] Threading
+</A></li>
+        <LI>Next message: <A HREF="000056.html">[Schafkopf-devel] Commit Report - Schafkopf Alpha-Karten fue Bavarian-Old hinzugefuegt.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#55">[ date ]</a>
+              <a href="thread.html#55">[ thread ]</a>
+              <a href="subject.html#55">[ subject ]</a>
+              <a href="author.html#55">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+Ueberprfuefung einbaut ob Hintergrundbild und Alphakarten geladen werden konnten.
+
+Modified Files:
+--------------
+    schafkopf/src:
+        canvascard.cpp
+        canvascard.h
+        gamecanvas.cpp
+        gamecanvas.h
+
+-------------- next part --------------
+Index: gamecanvas.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.h,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -Lsrc/gamecanvas.h -Lsrc/gamecanvas.h -u -r1.22 -r1.23
+--- src/gamecanvas.h
++++ src/gamecanvas.h
+@@ -104,7 +104,8 @@
+                 
+         Game* m_game;
+ 
+-        QImage ImgBack, ImgBack2;
++        QImage ImgBack;
++        bool loadOK;
+ };
+ 
+ #endif
+Index: canvascard.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvascard.cpp,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -Lsrc/canvascard.cpp -Lsrc/canvascard.cpp -u -r1.13 -r1.14
+--- src/canvascard.cpp
++++ src/canvascard.cpp
+@@ -37,8 +37,8 @@
+     m_forbidden = false;
+     show();
+     timer = new QTimer( this );
+-    Shadow.load( Settings::instance()-&gt;cardDeck() + &quot;alpha1.png&quot; );
+-    Shadow2.load( Settings::instance()-&gt;cardDeck() + &quot;alpha2.png&quot; );
++    loadOK1 = Shadow.load( Settings::instance()-&gt;cardDeck() + &quot;alpha1.png&quot; );
++    loadOK2 = Shadow2.load( Settings::instance()-&gt;cardDeck() + &quot;alpha2.png&quot; );
+ }
+ 
+ CanvasCard::CanvasCard(Card* card,QCanvas*c)
+@@ -76,12 +76,15 @@
+         if( m_forbidden )
+             pix = KPixmapEffect::fade( pix, 0.5, Qt::gray );
+         
+-        setSize( pix.width(), pix.height() );
++        setSize( pix.width()+3, pix.height()+3 );
+         bitBlt( p.device(), point.x(), point.y(), &amp;pix );
+-        if( m_rotation==0 || m_rotation==180)
++        if(loadOK1 &amp;&amp; loadOK2)
++        {
++	if( m_rotation==0 || m_rotation==180)
+             bitBlt( p.device(), point.x(), point.y(), &amp;Shadow );
+         else
+             bitBlt( p.device(), point.x(), point.y(), &amp;Shadow2 );
++        }
+     }
+ }
+ 
+Index: canvascard.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvascard.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -Lsrc/canvascard.h -Lsrc/canvascard.h -u -r1.10 -r1.11
+--- src/canvascard.h
++++ src/canvascard.h
+@@ -21,7 +21,6 @@
+ #define CANVASCARD_H
+ 
+ #include &lt;qcanvas.h&gt;
+-#include &lt;qimage.h&gt;
+ 
+ #define CANVASCARD 1000
+ 
+@@ -66,7 +65,8 @@
+ 	QTimer *timer;
+         
+         Card* m_card;
+-        QImage Shadow, Shadow2;
++        QPixmap Shadow, Shadow2;
++	bool loadOK1, loadOK2;
+ 
+ 	private slots:
+ 		void disableForbidden();
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.38
+retrieving revision 1.39
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.38 -r1.39
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -69,7 +69,7 @@
+     
+     canvas()-&gt;setBackgroundColor( Qt::darkGreen );
+     
+-    ImgBack.load( Settings::instance()-&gt;backgroundImage() );
++    loadOK = ImgBack.load( Settings::instance()-&gt;backgroundImage() );
+     canvas()-&gt;setAdvancePeriod( 20 );
+     update();
+     
+@@ -304,13 +304,17 @@
+ 
+ void GameCanvas::resizeEvent( QResizeEvent * r )
+ {
++    QImage ImgBack2;
+     canvas()-&gt;resize( this-&gt;width() -2, this-&gt;height()-2 );
+     QCanvasView::resizeEvent( r );
+     
+     positionObjects();
+     
+-    ImgBack2=ImgBack.smoothScale( canvas()-&gt;width(), canvas()-&gt;height() );
+-    canvas()-&gt;setBackgroundPixmap( ImgBack2 );
++    if(loadOK)
++    {
++         ImgBack2=ImgBack.smoothScale( canvas()-&gt;width(), canvas()-&gt;height() );
++         canvas()-&gt;setBackgroundPixmap( ImgBack2 );
++    }
+ }
+ 
+ void GameCanvas::redrawPlayers()
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000053.html">[Schafkopf-devel] [RFC][PATCH] Threading
+</A></li>
+	<LI>Next message: <A HREF="000056.html">[Schafkopf-devel] Commit Report - Schafkopf Alpha-Karten fue Bavarian-Old hinzugefuegt.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#55">[ date ]</a>
+              <a href="thread.html#55">[ thread ]</a>
+              <a href="subject.html#55">[ subject ]</a>
+              <a href="author.html#55">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

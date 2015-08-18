@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] bloewe: Commit Report - Schafkopf sprechblasen sollten jetzt auch bei
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20bloewe%3A%20Commit%20Report%20-%20Schafkopf%20sprechblasen%20sollten%20jetzt%20auch%20bei&In-Reply-To=%3C200507090309.j6939jqv022485%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000139.html">
+   <LINK REL="Next"  HREF="000141.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] bloewe: Commit Report - Schafkopf sprechblasen sollten jetzt auch bei</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20bloewe%3A%20Commit%20Report%20-%20Schafkopf%20sprechblasen%20sollten%20jetzt%20auch%20bei&In-Reply-To=%3C200507090309.j6939jqv022485%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] bloewe: Commit Report - Schafkopf sprechblasen sollten jetzt auch bei">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Sat Jul  9 05:09:45 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000139.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf sprechblasen werden besser positioniert
+</A></li>
+        <LI>Next message: <A HREF="000141.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf benni hats versaut ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#140">[ date ]</a>
+              <a href="thread.html#140">[ thread ]</a>
+              <a href="subject.html#140">[ subject ]</a>
+              <a href="author.html#140">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+sprechblasen sollten jetzt auch bei 2.,3.,4.,... spiel an der richtigen stelle sein
+
+Modified Files:
+--------------
+    schafkopf/src:
+        canvasplayer.cpp
+        game.cpp
+
+-------------- next part --------------
+Index: canvasplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.cpp,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -Lsrc/canvasplayer.cpp -Lsrc/canvasplayer.cpp -u -r1.25 -r1.26
+--- src/canvasplayer.cpp
++++ src/canvasplayer.cpp
+@@ -272,7 +272,7 @@
+     pop-&gt;setView( Text );
+     pop-&gt;setTimeout( 0 );
+     pop-&gt;show();
+-    switch(playerid)
++    switch(m_position)
+     {
+     case 1:
+ 		p=m_view-&gt;mapToGlobal(QPoint(m_name-&gt;x(), m_name-&gt;y() ));
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.78
+retrieving revision 1.79
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.78 -r1.79
+--- src/game.cpp
++++ src/game.cpp
+@@ -349,9 +349,18 @@
+     QPtrList&lt;GameInfo&gt; games;
+     games.setAutoDelete( true );
+     unsigned int i = 0;
++    int humanPlayer, playerInstance;
++    for( i=0;i&lt;PLAYERS;i++)
++    {
++        if( players[i]-&gt;rtti() == Player::HUMAN )
++    	    humanPlayer=i;
++    }
+ 	
+     for( i=0;i&lt;PLAYERS;i++)
+     {
++        playerInstance=4-humanPlayer+i;
++        if(playerInstance&gt;3)
++             playerInstance=playerInstance-4;
+         GameInfo* info = players[i]-&gt;gameInfo();
+ 	if(terminated)
+ 	    return false;
+@@ -360,13 +369,13 @@
+ 	    info-&gt;setSpieler( players[i] );
+             games.append( info );
+             if( players[i]-&gt;rtti() != Player::HUMAN )
+-                postEvent( Bubble, i, 0, i18n(&quot;%1: \&quot;I want to play.\&quot;&quot;).arg( players[i]-&gt;name() ), true );
++                postEvent( Bubble, playerInstance, 0, i18n(&quot;%1: \&quot;I want to play.\&quot;&quot;).arg( players[i]-&gt;name() ), true );
+ 	    //m_canvas-&gt;information( i18n(&quot;%1 has a game.&quot;).arg( players[i]-&gt;name() ) );
+         }
+         else
+         {
+             if( players[i]-&gt;rtti() != Player::HUMAN )
+-                postEvent( Bubble, i, 0, i18n(&quot;%1: \&quot;I don't want to play.\&quot;&quot;).arg( players[i]-&gt;name() ), true );
++                postEvent( Bubble, playerInstance, 0, i18n(&quot;%1: \&quot;I don't want to play.\&quot;&quot;).arg( players[i]-&gt;name() ), true );
+ 	    //m_canvas-&gt;information( i18n(&quot;%1 has no game.&quot;).arg( players[i]-&gt;name() ) );
+         }
+     }
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000139.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf sprechblasen werden besser positioniert
+</A></li>
+	<LI>Next message: <A HREF="000141.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf benni hats versaut ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#140">[ date ]</a>
+              <a href="thread.html#140">[ thread ]</a>
+              <a href="subject.html#140">[ subject ]</a>
+              <a href="author.html#140">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

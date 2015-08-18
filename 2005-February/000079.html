@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf (butt-ugly) Tastatursteuerung  Das spielen ist
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20%28butt-ugly%29%20Tastatursteuerung%20%20Das%20spielen%20ist&In-Reply-To=%3C200502191543.30026.domseichter%40web.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000077.html">
+   <LINK REL="Next"  HREF="000078.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf (butt-ugly) Tastatursteuerung  Das spielen ist</H1>
+    <B>Dominik Seichter</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20%28butt-ugly%29%20Tastatursteuerung%20%20Das%20spielen%20ist&In-Reply-To=%3C200502191543.30026.domseichter%40web.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf (butt-ugly) Tastatursteuerung  Das spielen ist">domseichter at web.de
+       </A><BR>
+    <I>Sat Feb 19 15:43:29 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000077.html">[Schafkopf-devel] Commit Report - Schafkopf (butt-ugly) Tastatursteuerung  Das spielen ist
+</A></li>
+        <LI>Next message: <A HREF="000078.html">[Schafkopf-devel] Freie Neuro Lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#79">[ date ]</a>
+              <a href="thread.html#79">[ thread ]</a>
+              <a href="subject.html#79">[ subject ]</a>
+              <a href="author.html#79">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Zus&#228;tzlich werden Player IDs jetzt vom Game vergeben und nimmer vom Player. 
+Sobald die Player &#252;bers netzwerk auf verschiedenen Rechnern laufen k&#246;nnen wir 
+nimmer in der Player Klasse von 0 hochz&#228;hlen. Daher wird das jetzt in Game 
+gemacht.
+
+CU Dom
+
+Am Saturday, 19. February 2005 15:39 schrieb <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">schafkopf-devel at berlios.de</A>:
+&gt;<i> Log Message:
+</I>&gt;<i> -----------
+</I>&gt;<i> (butt-ugly) Tastatursteuerung
+</I>&gt;<i>
+</I>&gt;<i> Das spielen ist jetzt sch&#246;n konfortabel wenn man ned dauernd rum klicken
+</I>&gt;<i> muss!
+</I>&gt;<i>
+</I>&gt;<i> Rechts/Links verschieben den Focus und Return/Enter &quot;klickt&quot; das aktuell
+</I>&gt;<i> gew&#228;hlte Element an. Zuvor muss man nat&#252;rlich den Spielfeld den Tastatur
+</I>&gt;<i> Focus geben. Habe &#252;berlegt ob ich TAB und Shift-TAB zum wechseln nehmen
+</I>&gt;<i> soll, aber die Pfeiltasten gefall mir besser.
+</I>&gt;<i>
+</I>&gt;<i> Die schillernden Farben k&#246;nnt ihr nat&#252;rlich gerne gegen sch&#246;nere
+</I>&gt;<i> austauschen. Als Informatiker sollte ich mich bei geschmacksfragen eh
+</I>&gt;<i> raushalten.
+</I>&gt;<i>
+</I>&gt;<i> Modified Files:
+</I>&gt;<i> --------------
+</I>&gt;<i>     schafkopf:
+</I>&gt;<i>         TODO
+</I>&gt;<i>     schafkopf/src:
+</I>&gt;<i>         canvascard.cpp
+</I>&gt;<i>         canvascard.h
+</I>&gt;<i>         canvasplayer.cpp
+</I>&gt;<i>         canvasplayer.h
+</I>&gt;<i>         computerplayer.cpp
+</I>&gt;<i>         computerplayer.h
+</I>&gt;<i>         game.cpp
+</I>&gt;<i>         game.h
+</I>&gt;<i>         gamecanvas.cpp
+</I>&gt;<i>         gamecanvas.h
+</I>&gt;<i>         humanplayer.cpp
+</I>&gt;<i>         humanplayer.h
+</I>&gt;<i>         player.cpp
+</I>&gt;<i>         player.h
+</I>&gt;<i>         schafkopfdef.h
+</I>
+-- 
+**********************************************************************
+Dominik Seichter - <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>
+KRename  - <A HREF="http://www.krename.net">http://www.krename.net</A>  - Powerful batch renamer for KDE
+KBarcode - <A HREF="http://www.kbarcode.net">http://www.kbarcode.net</A> - Barcode and label printing
+KDE Mass Mailer - <A HREF="http://www.kmassmailer.net">http://www.kmassmailer.net</A> - Mass mailing for KDE
+SchafKopf - <A HREF="http://schafkopf.berlios.de">http://schafkopf.berlios.de</A> - Schafkopf, a card game,  for KDE
+**********************************************************************
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000077.html">[Schafkopf-devel] Commit Report - Schafkopf (butt-ugly) Tastatursteuerung  Das spielen ist
+</A></li>
+	<LI>Next message: <A HREF="000078.html">[Schafkopf-devel] Freie Neuro Lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#79">[ date ]</a>
+              <a href="thread.html#79">[ thread ]</a>
+              <a href="subject.html#79">[ subject ]</a>
+              <a href="author.html#79">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

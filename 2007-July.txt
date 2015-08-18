@@ -1,0 +1,64 @@
+From domseichter at web.de  Tue Jul  3 18:24:34 2007
+From: domseichter at web.de (Dominik Seichter)
+Date: Tue, 3 Jul 2007 18:24:34 +0200
+Subject: [Schafkopf-devel] Schafkopf
+In-Reply-To: <200707031733.30125.martin@mschimmels.de>
+References: <200707031733.30125.martin@mschimmels.de>
+Message-ID: <200707031824.37230.domseichter@web.de>
+
+
+Hallo Martin,
+
+Da ist ein Fehler beim erstellen des RPMs passiert. Du kannst es mit 
+rpm --i --force --nodeps schafkopf-0.7-0.oc2pus.1.i586.rpm installieren.
+
+Sch?n das wir so zum Kultur-Export beitragen!
+
+Viel Spass beim spielen!
+
+	Dom
+
+Am Tuesday 03 July 2007 schrieb Martin Schimmels:
+> Hallo, Dominik!
+>
+> Ich versuche, Euer Schafkopf zu installieren, ich hab die Version
+> "0.oc2pus.1" als .rpm runtergeladen. Ein rpm -i bricht ab mit
+>
+> error: Failed dependencies:
+>         libexpat.so.0 is needed by schafkopf-0.7-0.oc2pus.1.i586
+>
+> Der "locate" liefert:
+>
+> locate libexpat
+> /usr/lib/libexpat.a
+> /usr/lib/libexpat.so
+> /usr/lib/libexpat.so.0
+> /usr/lib/libexpat.so.1
+> /usr/lib/libexpat.so.1.5.0
+>
+> Was steckt da hinter? Warum funktioniert das nicht???
+>
+> Gru? aus dem ba.-w?. Ausland (wo man, dank meiner bajuwarisch-assimilierten
+> Tochter auch schafkopft!!!)
+>
+> Martin
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20070703/6e3fe861/attachment.pgp>
+

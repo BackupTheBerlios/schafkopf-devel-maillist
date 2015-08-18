@@ -1,0 +1,323 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf Ich wollte das gar nicht programmieren! Erlich
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-January/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20Ich%20wollte%20das%20gar%20nicht%20programmieren%21%20Erlich&In-Reply-To=%3C200501071945.j07Jji1U024345%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000025.html">
+   <LINK REL="Next"  HREF="000027.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf Ich wollte das gar nicht programmieren! Erlich</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20Ich%20wollte%20das%20gar%20nicht%20programmieren%21%20Erlich&In-Reply-To=%3C200501071945.j07Jji1U024345%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf Ich wollte das gar nicht programmieren! Erlich">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Fri Jan  7 20:45:44 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000025.html">[Schafkopf-devel] Schafkopf 0.5 ebuild
+</A></li>
+        <LI>Next message: <A HREF="000027.html">[Schafkopf-devel] Commit Report - Schafkopf karten werden jetzt animiert wenn
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#26">[ date ]</a>
+              <a href="thread.html#26">[ thread ]</a>
+              <a href="subject.html#26">[ subject ]</a>
+              <a href="author.html#26">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+Ich wollte das gar nicht programmieren! Erlich nicht! Ich muss ja lernen.....
+Aber das war reiner selbst schutz - sonst h&#228;tte mich eine theologie studentin tot geredet im zug. Also musste ich arbeiten....
+
+Man kann jetzt konfigurieren welche spiele gespielt werden d&#252;rfen. Die einstellung wird im Spiel aber noch nicht benutzt. Das kommt sp&#228;ter.
+
+Modified Files:
+--------------
+    schafkopf/src:
+        preferencesdlg.cpp
+        preferencesdlg.h
+        settings.cpp
+        settings.h
+
+-------------- next part --------------
+Index: settings.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lsrc/settings.h -Lsrc/settings.h -u -r1.11 -r1.12
+--- src/settings.h
++++ src/settings.h
+@@ -33,8 +33,20 @@
+     double schneider;
+ };
+ 
+-/* 
++/** a datatype defining which games are allowed to be 
++  * played in this game according to the users preferences
++  */
++struct t_AllowedGames {
++    bool wenz;
++    bool farb_wenz;
++    
++    bool geier;
++    bool farb_geier;
++    
++    bool dachs;
++};
+ 
++/* 
+ // Use as soon as the avatar is implemented
+ struct t_Players {
+     QString name;
+@@ -96,6 +108,11 @@
+         /** delete after usage
+           */
+         t_ResultValues* pointResults() const;
++
++        /** delete after usage
++          */
++        t_AllowedGames* allowedGames() const;
++        void setAllowedGames( const t_AllowedGames* allowed );
+         
+     signals:
+         void cardChanged();
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.12 -r1.13
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -41,7 +41,7 @@
+       KDialogBase::Ok, parent, name, true, true )
+ {
+     addPagePlayer();
+-    // addPageGame(); // erlaubte spiele
++    addPageGames(); // erlaubte spiele
+     // addPageSchafkopf(); // ton an aus .....
+     addPageRules();
+     addPageResults();
+@@ -60,36 +60,46 @@
+ void PreferencesDlg::accept()
+ {
+     t_ResultValues r;
++    t_AllowedGames allowed;
++    Settings* s = Settings::instance();
+     
+-    Settings::instance()-&gt;setResultsType( m_radioMoney-&gt;isChecked() ? Settings::MONEY: Settings::POINTS );
++    s-&gt;setResultsType( m_radioMoney-&gt;isChecked() ? Settings::MONEY: Settings::POINTS );
+     
+     r.rufspiel = m_money_call-&gt;value();
+     r.solo = m_money_solo-&gt;value();
+     r.laufende = m_money_lauf-&gt;value();
+     r.schneider = m_money_schneider-&gt;value();
+     r.schwarz = m_money_notrick-&gt;value();
+-    Settings::instance()-&gt;setMoneyResults( &amp;r );
++    s-&gt;setMoneyResults( &amp;r );
+     
+     r.rufspiel = m_point_call-&gt;value();
+     r.solo = m_point_solo-&gt;value();
+     r.laufende = m_point_lauf-&gt;value();
+     r.schneider = m_point_schneider-&gt;value();
+     r.schwarz = m_point_notrick-&gt;value();
+-    Settings::instance()-&gt;setPointResults( &amp;r );
++    s-&gt;setPointResults( &amp;r );
+    
+     QStringList names; 
+     names &lt;&lt; m_p1_name-&gt;text();
+     names &lt;&lt; m_p2_name-&gt;text();
+     names &lt;&lt; m_p3_name-&gt;text();
+     names &lt;&lt; m_p4_name-&gt;text();
+-    Settings::instance()-&gt;setPlayerNames( names );
++    s-&gt;setPlayerNames( names );
+     
+-    Settings::instance()-&gt;setNoGame( m_radioThrowAway-&gt;isChecked() ? Settings::NOGAME_NEUGEBEN : Settings::NOGAME_ALTERSPIELT );
+-    Settings::instance()-&gt;setDoublerHasToPlay( m_checkDoublerPlays-&gt;isChecked() );
++    s-&gt;setNoGame( m_radioThrowAway-&gt;isChecked() ? Settings::NOGAME_NEUGEBEN : Settings::NOGAME_ALTERSPIELT );
++    s-&gt;setDoublerHasToPlay( m_checkDoublerPlays-&gt;isChecked() );
+     
+-    Settings::instance()-&gt;setDoubleNextGame( m_checkDoubleNextGame-&gt;isChecked() );
++    s-&gt;setDoubleNextGame( m_checkDoubleNextGame-&gt;isChecked() );
+     
+-    Settings::instance()-&gt;setRearrangeCards( m_checkRearrangeCards-&gt;isChecked() );
++    s-&gt;setRearrangeCards( m_checkRearrangeCards-&gt;isChecked() );
++    
++    // allowed games
++    allowed.wenz = m_games_wenz-&gt;isChecked();
++    allowed.farb_wenz = m_games_farbwenz-&gt;isChecked();
++    allowed.geier = m_games_geier-&gt;isChecked();
++    allowed.farb_geier = m_games_farbgeier-&gt;isChecked();
++    allowed.dachs = m_games_dachs-&gt;isChecked();
++    s-&gt;setAllowedGames( &amp;allowed );
+     
+     KDialogBase::accept();
+ }
+@@ -269,9 +279,62 @@
+     m_checkRearrangeCards-&gt;setChecked( Settings::instance()-&gt;rearrangeCards() );
+ }
+ 
++void PreferencesDlg::addPageGames()
++{
++    QFrame* box = addPage( i18n(&quot;Games&quot;), QString::null, BarIcon(&quot;joystick&quot;) );
++    
++    QVBoxLayout* layout = new QVBoxLayout( box, 6, 6  );
++    QHBoxLayout* farbWenzLayout = new QHBoxLayout( NULL, 6, 6 );
++    QHBoxLayout* farbGeierLayout = new QHBoxLayout( NULL, 6, 6 );
++    
++    QSpacerItem* spacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding );
++    QSpacerItem* smallSpace = new QSpacerItem( 0, 0, QSizePolicy::Maximum, QSizePolicy::Maximum );
++    QSpacerItem* smallSpace2 = new QSpacerItem( 0, 0, QSizePolicy::Maximum, QSizePolicy::Maximum );
++    
++    m_games_wenz = new QCheckBox( i18n(&quot;&amp;Wenz&quot;), box );
++    m_games_farbwenz = new QCheckBox( i18n(&quot;Colored &amp;Wenz&quot;), box );
++    m_games_geier = new QCheckBox( i18n(&quot;&amp;Geier&quot;), box );
++    m_games_farbgeier = new QCheckBox( i18n(&quot;Colored &amp;Geier&quot;), box );
++    m_games_dachs = new QCheckBox( i18n(&quot;&amp;Badger&quot;), box );
++    
++    layout-&gt;addWidget( new QLabel( i18n(&quot;&lt;qt&gt;You can configure which games are allowed to play.&quot;
++                                        &quot;You cannot disable certain games, such as Callgames and Solos as they are always &quot; &quot;enabled by default.&quot;), box ) );
++                                        
++    farbWenzLayout-&gt;addItem( smallSpace );
++    farbWenzLayout-&gt;addWidget( m_games_farbwenz );
++    farbGeierLayout-&gt;addItem( smallSpace2 );
++    farbGeierLayout-&gt;addWidget( m_games_farbgeier );
++    
++    layout-&gt;addWidget( m_games_wenz );
++    layout-&gt;addLayout( farbWenzLayout );
++    layout-&gt;addWidget( m_games_geier );
++    layout-&gt;addLayout( farbGeierLayout );
++    layout-&gt;addWidget( m_games_dachs );
++    layout-&gt;addItem( spacer );
++    
++    // load settings
++    t_AllowedGames* allowed = Settings::instance()-&gt;allowedGames();
++    m_games_wenz-&gt;setChecked( allowed-&gt;wenz );
++    m_games_farbwenz-&gt;setChecked( allowed-&gt;farb_wenz );
++    m_games_geier-&gt;setChecked( allowed-&gt;geier );
++    m_games_farbgeier-&gt;setChecked( allowed-&gt;farb_geier );
++    m_games_dachs-&gt;setChecked( allowed-&gt;dachs );
++    delete allowed;
++    
++    // connections
++    connect( m_games_wenz, SIGNAL( clicked() ), this, SLOT( enableControls() ) );
++    connect( m_games_geier, SIGNAL( clicked() ), this, SLOT( enableControls() ) );
++    
++    // tool tips
++    QToolTip::add( m_games_dachs, i18n(&quot;&lt;qt&gt;The badger is no official game in SchafKopf and is therefore not played and tournaments.&quot;) );
++}
++
+ void PreferencesDlg::enableControls()
+ {
+     m_checkDoubleNextGame-&gt;setEnabled( m_radioThrowAway-&gt;isChecked() );
++    
++    m_games_farbwenz-&gt;setEnabled( m_games_wenz-&gt;isChecked() );
++    m_games_farbgeier-&gt;setEnabled( m_games_geier-&gt;isChecked() );
+ }
+ 
+ #include &quot;preferencesdlg.moc&quot;
+Index: preferencesdlg.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -Lsrc/preferencesdlg.h -Lsrc/preferencesdlg.h -u -r1.10 -r1.11
+--- src/preferencesdlg.h
++++ src/preferencesdlg.h
+@@ -55,7 +55,7 @@
+         void addPageResultsPoints();
+         void addPageRules();
+         void addPageView();
+-
++        void addPageGames();
+         
+     private:
+         QRadioButton* m_radioMoney;
+@@ -68,6 +68,12 @@
+         QCheckBox* m_checkDoubleNextGame;
+         QCheckBox* m_checkRearrangeCards;
+ 
++        QCheckBox* m_games_wenz;
++        QCheckBox* m_games_farbwenz;
++        QCheckBox* m_games_geier;
++        QCheckBox* m_games_farbgeier;
++        QCheckBox* m_games_dachs;
++        
+         KLineEdit* m_p1_name;
+         KLineEdit* m_p2_name;
+         KLineEdit* m_p3_name;
+Index: settings.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.cpp,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -Lsrc/settings.cpp -Lsrc/settings.cpp -u -r1.14 -r1.15
+--- src/settings.cpp
++++ src/settings.cpp
+@@ -277,4 +277,31 @@
+     return b;
+ }
+ 
++t_AllowedGames* Settings::allowedGames() const
++{
++    t_AllowedGames* a = new t_AllowedGames;
++    
++    KConfig* config = kapp-&gt;config();
++    config-&gt;setGroup( &quot;Games&quot; );
++    a-&gt;wenz = config-&gt;readBoolEntry( &quot;AllowWenz&quot;, true );
++    a-&gt;farb_wenz = config-&gt;readBoolEntry( &quot;AllowFarbWenz&quot;, true );
++    a-&gt;geier = config-&gt;readBoolEntry( &quot;AllowGeier&quot;, true );
++    a-&gt;farb_geier = config-&gt;readBoolEntry( &quot;AllowFarbGeier&quot;, false );
++    a-&gt;dachs = config-&gt;readBoolEntry( &quot;AllowDachs&quot;, false );
++    
++    return a;
++}
++
++void Settings::setAllowedGames( const t_AllowedGames* allowed )
++{
++    KConfig* config = kapp-&gt;config();
++    config-&gt;setGroup( &quot;Games&quot; );
++    config-&gt;writeEntry( &quot;AllowWenz&quot;, allowed-&gt;wenz );
++    config-&gt;writeEntry( &quot;AllowFarbWenz&quot;, allowed-&gt;farb_wenz );
++    config-&gt;writeEntry( &quot;AllowGeier&quot;, allowed-&gt;geier );
++    config-&gt;writeEntry( &quot;AllowFarbGeier&quot;, allowed-&gt;farb_geier );
++    config-&gt;writeEntry( &quot;AllowDachs&quot;, allowed-&gt;dachs );
++    config-&gt;sync();
++}
++
+ #include &quot;settings.moc&quot;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000025.html">[Schafkopf-devel] Schafkopf 0.5 ebuild
+</A></li>
+	<LI>Next message: <A HREF="000027.html">[Schafkopf-devel] Commit Report - Schafkopf karten werden jetzt animiert wenn
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#26">[ date ]</a>
+              <a href="thread.html#26">[ thread ]</a>
+              <a href="subject.html#26">[ subject ]</a>
+              <a href="author.html#26">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

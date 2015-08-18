@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf neuer button: hintergrundbild loeschen
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20neuer%20button%3A%20hintergrundbild%20loeschen&In-Reply-To=%3C200502102049.j1AKnhJY012830%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000060.html">
+   <LINK REL="Next"  HREF="000062.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf neuer button: hintergrundbild loeschen</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20neuer%20button%3A%20hintergrundbild%20loeschen&In-Reply-To=%3C200502102049.j1AKnhJY012830%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf neuer button: hintergrundbild loeschen">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Thu Feb 10 21:49:43 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000060.html">[Schafkopf-devel] Commit Report - Schafkopf kein neustart nach wechsel des
+</A></li>
+        <LI>Next message: <A HREF="000062.html">[Schafkopf-devel] Commit Report - Schafkopf neuer button: hintergrundbild loeschen
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#61">[ date ]</a>
+              <a href="thread.html#61">[ thread ]</a>
+              <a href="subject.html#61">[ subject ]</a>
+              <a href="author.html#61">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+neuer button: hintergrundbild loeschen
+
+Modified Files:
+--------------
+    schafkopf/src:
+        gamecanvas.cpp
+        preferencesdlg.cpp
+        preferencesdlg.h
+
+-------------- next part --------------
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.16 -r1.17
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -273,6 +273,7 @@
+     QVButtonGroup* group2 = new QVButtonGroup( i18n(&quot;Game Canvas:&quot;), box, &quot;group2&quot; );
+     QLabel* label3 = new QLabel( i18n(&quot;Background image:&quot;), group2, &quot;label3&quot; );
+     m_linePathBackground = new KURLRequester( Settings::instance()-&gt;backgroundImage(), group2, &quot;m_linePathBackground&quot; );
++    m_pushURLClear = new QPushButton( i18n(&quot;clear background image&quot;), group2, &quot;m_pushURLClear&quot; );
+         
+     QVButtonGroup* group = new QVButtonGroup( i18n(&quot;Card Arrangement:&quot;), box, &quot;group&quot; );
+     m_checkRearrangeCards = new QCheckBox ( i18n(&quot;Rearrange cards after each trick.&quot;), group );
+@@ -282,6 +283,8 @@
+     layout-&gt;addWidget( group );
+     layout-&gt;addItem( spacer );
+     
++    connect( m_pushURLClear, SIGNAL( clicked() ), m_linePathBackground, SLOT( clear() ) );
++
+     // load data from configuration
+     m_checkRearrangeCards-&gt;setChecked( Settings::instance()-&gt;rearrangeCards() );
+ }
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.40
+retrieving revision 1.41
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.40 -r1.41
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -180,37 +180,37 @@
+     int h = canvas()-&gt;height();//-DIST;
+     int cardw = Card::backgroundPixmap()-&gt;width();
+     int cardh = Card::backgroundPixmap()-&gt;height();
+-    int stichcanvasw = canvas()-&gt;width() - (4*DIST) - (2*cardh);
+-    int stichcanvash = canvas()-&gt;height() - (4*DIST) - (2*cardh);
++    int stichcanvasw = canvas()-&gt;width() - (2*DIST) - (2*cardh) - 50;
++    int stichcanvash = canvas()-&gt;height() - (2*DIST) - (2*cardh) - 50;
+     int cx = w/2;
+     int cy = h/2;
+     
+     switch( player ) 
+     {
+         case 0:
+-            if(stichcanvash&gt;(2*cardh))
+-	    	p = QPoint(cx-(cardw/2), cy );
++            if(stichcanvash&gt;(2*cardh-20))
++	    	p = QPoint(cx-(cardw/2)-5, cy-10 );
+ 	    else
+-	    	p = QPoint(cx-(cardw/2), cy+(stichcanvash/2)-cardh);
++	    	p = QPoint(cx-(cardw/2)-5, cy+(stichcanvash/2)-cardh);
+ 	    break;
+         case 1:
+-	    if(stichcanvasw&gt;(2*cardh))
+-            	p = QPoint(cx-cardh, cy-(cardw/2));
++	    if(stichcanvasw&gt;(2*cardh-20))
++            	p = QPoint(cx-cardh+10, cy-(cardw/2)-5);
+ 	    else
+-	    	p = QPoint(cx-(stichcanvasw/2), cy-(cardw/2));
++	    	p = QPoint(cx-(stichcanvasw/2), cy-(cardw/2)-5);
+ 	    break;
+         case 2:
+-            if(stichcanvash&gt;(2*cardh))
+-            	p = QPoint(cx-(cardw/2), cy-cardh );
++            if(stichcanvash&gt;(2*cardh-20))
++            	p = QPoint(cx-(cardw/2)+5, cy-cardh+10 );
+ 	    else
+-	    	p = QPoint(cx-(cardw/2), cy-(stichcanvash/2));
++	    	p = QPoint(cx-(cardw/2)+5, cy-(stichcanvash/2));
+ 	    break;
+         case 3:
+         default:
+-	    if(stichcanvasw&gt;(2*cardh))
+-            	p = QPoint(cx, cy-(cardw/2));
++	    if(stichcanvasw&gt;(2*cardh-20))
++            	p = QPoint(cx-10, cy-(cardw/2)+5);
+ 	    else
+-	    	p = QPoint(cx+(stichcanvasw/2)-cardh, cy-(cardw/2));
++	    	p = QPoint(cx+(stichcanvasw/2)-cardh, cy-(cardw/2)+5);
+ 	    break;
+     };
+         
+@@ -326,6 +326,8 @@
+ {
+     loadOK = ImgBack.load( Settings::instance()-&gt;backgroundImage() );
+     resizeBackground();
++    if(!loadOK)
++         canvas()-&gt;setBackgroundPixmap( NULL );
+ }
+ 
+ void GameCanvas::redrawPlayers()
+Index: preferencesdlg.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.h,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -Lsrc/preferencesdlg.h -Lsrc/preferencesdlg.h -u -r1.13 -r1.14
+--- src/preferencesdlg.h
++++ src/preferencesdlg.h
+@@ -29,6 +29,7 @@
+ class QLabel;
+ class QSpinBox;
+ class QCheckBox;
++class QPushButton;
+ class KURLRequester;
+ 
+ /**
+@@ -81,6 +82,8 @@
+         KLineEdit* m_p4_name;
+ 
+         KURLRequester* m_linePathBackground;
++
++        QPushButton* m_pushURLClear;
+         
+         KDoubleNumInput* m_money_solo;
+         KDoubleNumInput* m_money_call;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000060.html">[Schafkopf-devel] Commit Report - Schafkopf kein neustart nach wechsel des
+</A></li>
+	<LI>Next message: <A HREF="000062.html">[Schafkopf-devel] Commit Report - Schafkopf neuer button: hintergrundbild loeschen
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#61">[ date ]</a>
+              <a href="thread.html#61">[ thread ]</a>
+              <a href="subject.html#61">[ subject ]</a>
+              <a href="author.html#61">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

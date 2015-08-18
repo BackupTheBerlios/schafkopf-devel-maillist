@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Re: schafkopf: kritik und anregungen
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Re%3A%20schafkopf%3A%20kritik%20und%20anregungen&In-Reply-To=%3C200506221148.06529.domseichter%40web.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Re: schafkopf: kritik und anregungen</H1>
+    <B>Dominik Seichter</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Re%3A%20schafkopf%3A%20kritik%20und%20anregungen&In-Reply-To=%3C200506221148.06529.domseichter%40web.de%3E"
+       TITLE="[Schafkopf-devel] Re: schafkopf: kritik und anregungen">domseichter at web.de
+       </A><BR>
+    <I>Wed Jun 22 11:48:06 CEST 2005</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#124">[ date ]</a>
+              <a href="thread.html#124">[ thread ]</a>
+              <a href="subject.html#124">[ subject ]</a>
+              <a href="author.html#124">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hallo Uli,
+
+
+Am Monday, 20. June 2005 14:51 schrieben Sie:
+&gt;<i> hallo!
+</I>&gt;<i>
+</I>&gt;<i> erstmal ein gro&#223;es lob, dass du ein schafkopf-programm f&#252;r linux
+</I>&gt;<i> programmiert hast!
+</I>Danke :-)
+
+&gt;<i> ein paar sachen sind mir aufgefallen, womit man in dem entwicklungsstadium
+</I>&gt;<i> aber wahrscheinlich rechnen und leben muss. also hier meine kritiken und
+</I>&gt;<i> anregungen:
+</I>&gt;<i> - das programm z&#228;hlt in der abrechnung keine laufenden, obwohl die in den
+</I>&gt;<i> optionen mit 0,10euros eingestellt sind
+</I>Das mit den laufenden ist in der Tat noch ziemlich Buggy. Wir versuchen das so 
+schnell wie m&#246;glich zu beheben (so schnell wie m&#246;glich heisst aber wohl 
+leider August :( )
+
+&gt;<i> - mit 30 augen gilt man als geschneidert; ich kenn das so, dass man mit 30
+</I>&gt;<i> schneiderfrei ist. kl&#228;r mich bitte auf, wenn meine ansicht nicht mit den
+</I>&gt;<i> offiziellen regeln &#252;bereinstimmt
+</I>So wie ich es kenne ist man erst mit 31 Punkten schneider frei. Allerdings 
+haben wir (laut Wikipedia) beide Recht. Ich zitiere:
+
+&lt;quote&gt;
+Mit 31 Augen ist die Spielerpartei Schneider frei. F&#252;r die Nichtspielerpartei 
+hingegen ist entsprechend des Spiel mit 60 Augen gewonnen und mit 90 Augen 
+mit Schneider gewonnen sowie mit 30 Augen Schneider frei.
+&lt;/quote&gt;
+
+Das muss nat&#252;rlich auch noch richtiggestellt werden.
+
+&gt;<i> - es w&#228;r sch&#246;n, wenn beim geben und spiel ansagen angezeigt w&#252;rde, wer der
+</I>&gt;<i> erste in der runde ist
+</I>Stimmt, das w&#252;rde die &#220;bersicht verbessern.
+
+&gt;<i> - taktik der computerspieler: die spielen fast nur solospiele, kaum mal ein
+</I>&gt;<i> sauspiel. und sie schmieren des &#246;fteren mal den gegner, auch wenn der stich
+</I>&gt;<i> schon dem gegner geh&#246;rt und keine offensichtliche notwenigkeit besteht
+</I>&gt;<i> (z.b. weil die farbe das erste mal gespielt wird)
+</I>Die bessere KI ist in Arbeit. Aber wir haben leider nicht so viel Zeit daf&#252;r 
+wie wir es uns w&#252;nschen w&#252;rden.
+
+&gt;<i> - die zeitabst&#228;nde beim karten ausspielen k&#246;nnten &quot;praxisgerechter&quot; sein,
+</I>&gt;<i> d.h. der mensch-spieler sollte sofort ausspielen k&#246;nnen, wenn der
+</I>&gt;<i> computer-spieler vor ihm ausgespielt hat. daf&#252;r w&#228;re eine l&#228;ngere wartezeit
+</I>&gt;<i> sch&#246;n, bevor der stich wegger&#228;umt wird, etwa durch einen klick auf eine
+</I>&gt;<i> taste oder ein enter, falls man mit der tastatur spielt
+</I>Das k&#246;nnte man konfigurierbar machen.
+
+&gt;<i> - wenn die spielergebnisse bzw. abrechnung bei einem neustart des programms
+</I>&gt;<i> erhalten blieben, w&#228;r das ganz nett
+</I>Speichern der Ergebnisse ist geplant.
+
+&gt;<i> - die rufsau geht ziemlich oft durch, d.h. jeder spieler hat eine karte mit
+</I>&gt;<i> der farbe. t&#228;uscht mich da mein gef&#252;hl oder kann das am misch- bzw.
+</I>&gt;<i> verteil-algorithmus liegen?
+</I>Unser Mischalgorithmus ist sicher besser als jedes echte Mischen. Das kann 
+nat&#252;rlich ein Problem sein. Wir verwenden zum nischen (so gut wie) echte 
+Zufalls Zahlen, in echt ist es aber so dass beim mischen alte Stiche oft 
+zusammen kleben, was dann daf&#252;r sorgt dass man &#246;fters Farbfrei ist. Ich habe 
+allerdings gerade auch keine Idee wie man &quot;schlechteres&quot; mischen simulieren 
+sollte.
+
+&gt;<i>
+</I>&gt;<i> soweit mal f&#252;rs erste, was mir so aufgefallen is. werd dann mal bissl
+</I>&gt;<i> weiter&quot;testen&quot;  ;)
+</I>Danke f&#252;r die R&#252;ckmeldung! Wir versuchen das alles zu ber&#252;cksichtigen und 
+freuen uns nat&#252;rlich &#252;ber weiteres Feedback!
+
+&gt;<i> p.s.: die mail direkt aus dem programm zu senden hat bei mir nicht
+</I>&gt;<i> funktioniert
+</I>Das ist ein KDE Feature... Hast Du den Mailserver im KDE Kontrollzentrum 
+konfiguriert gehabt? Das ist denke ich notwendig damit das geht.
+
+
+CU Dom
+-- 
+**********************************************************************
+Dominik Seichter - <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>
+KRename  - <A HREF="http://www.krename.net">http://www.krename.net</A>  - Powerful batch renamer for KDE
+KBarcode - <A HREF="http://www.kbarcode.net">http://www.kbarcode.net</A> - Barcode and label printing
+SchafKopf - <A HREF="http://schafkopf.berlios.de">http://schafkopf.berlios.de</A> - Schafkopf, a card game,  for KDE
+Alan - <A HREF="http://alan.sf.net">http://alan.sf.net</A> - A Turing Machine in Java
+**********************************************************************
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#124">[ date ]</a>
+              <a href="thread.html#124">[ thread ]</a>
+              <a href="subject.html#124">[ subject ]</a>
+              <a href="author.html#124">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

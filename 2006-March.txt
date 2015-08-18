@@ -1,0 +1,26 @@
+From bierkastl at freenet.de  Thu Mar 16 20:50:50 2006
+From: bierkastl at freenet.de (Johannes Kastl)
+Date: Thu, 16 Mar 2006 20:50:50 +0100
+Subject: [Schafkopf-devel] Anzahl der Karten =?ISO-8859-1?Q?=E4ndern=3F?=
+Message-ID: <4419C19A.8030109@freenet.de>
+
+Mahlzeit,
+
+ich kenne Schafkopf aus meiner Gegend nur mit 24 Karten, also ohne 7er
+und 8er. Kann man das irgendwo einstellen? W?re schon sch?n. Nur hab
+ich nix gefunden.
+
+Und immer weiter so, sieht schon recht gut aus, das Ganze.
+
+OJ
+-- 
+Join the army, see the world, meet interesting people and kill them.
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: OpenPGP digital signature
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20060316/204ba4f4/attachment.pgp>
+

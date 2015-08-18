@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] domseichter: Commit Report - Schafkopf Commited patch by Joachim Meyer.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20Commited%20patch%20by%20Joachim%20Meyer.&In-Reply-To=%3C200602131534.k1DFYDGp026398%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000236.html">
+   <LINK REL="Next"  HREF="000238.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] domseichter: Commit Report - Schafkopf Commited patch by Joachim Meyer.</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20Commited%20patch%20by%20Joachim%20Meyer.&In-Reply-To=%3C200602131534.k1DFYDGp026398%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] domseichter: Commit Report - Schafkopf Commited patch by Joachim Meyer.">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Mon Feb 13 16:34:13 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000236.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf update admin directory to KDE 3.5
+</A></li>
+        <LI>Next message: <A HREF="000238.html">[Schafkopf-devel] Re: KDE Schafkopf 0.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#237">[ date ]</a>
+              <a href="thread.html#237">[ thread ]</a>
+              <a href="subject.html#237">[ subject ]</a>
+              <a href="author.html#237">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+Commited patch by Joachim Meyer.
+
+Servus!
+
+Habe vor zwei Tagen die neue 0.7er Version runtergeladen. Zun&#195;&#164;chst
+einmal gro&#195;&#159;es Lob f&#195;&#188;r das sch&#195;&#182;ne Spiel. 
+Ich spiele seit ein paar Wochen regelm&#195;&#164;&#195;&#159;ig mit Freunden Schafkopf. Und
+nebenher trainiere ich mit eurem Programm. Nur so ein paar Aktionen der
+KI sind noch ein wenig uneffezient. Daher habe ich mal zwei &#195;&#132;nderungen
+an der computerplayer.cpp vorgenommen:
+
+1) Bei Solospielen nicht mehr schmieren - finde das Schadet mehr als es
+hilft.
+2) Wenn die KI beim Solospiel einen Stich trumpfen kann und letzter ist,
+nimmt sie den kleinsten anstatt den gr&#195;&#182;&#195;&#159;ten Trumpf
+
+Finde das macht die KI schon ein wenig besser....
+
+Habe im Anhang mal die Datei mit den &#195;&#132;nderungen. Keine Ahnung, ob im CVS
+schon was anders ist. Habe bis jetzt nur an der 0.7 gearbeitet...
+
+Gru&#195;&#159;!
+
+Joachim Meyer
+
+Modified Files:
+--------------
+    schafkopf/src:
+        computerplayer.cpp
+
+-------------- next part --------------
+Index: computerplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.cpp,v
+retrieving revision 1.38
+retrieving revision 1.39
+diff -Lsrc/computerplayer.cpp -Lsrc/computerplayer.cpp -u -r1.38 -r1.39
+--- src/computerplayer.cpp
++++ src/computerplayer.cpp
+@@ -269,7 +269,9 @@
+                 return findSchmiere(cards);
+             }
+ 	}
+-        else
++	
++	// Schade mehr als es hilft
++	/*  else
+         {
+             // Bei Solos wird geschmiert wenn:
+             // -man nicht spieler und nicht letzter oder erster ist
+@@ -285,7 +287,7 @@
+                 qDebug(&quot;%s: schmiere!&quot;, name().latin1() );
+                 return findSchmiere(cards);
+             }
+-        }
++	    }*/
+ 	
+         if(canMakeStich(cards))
+ 	{
+@@ -311,7 +313,14 @@
+         else
+         {
+ 		  qDebug(&quot;%s: versuche zu stechen&quot;, name().latin1());
++		  // Wenn ich letzter Spieler bin reicht der kleinste Trumpf
++		  if (m_game-&gt;currStich()-&gt;count() == PLAYERS - 1)
++		    {
++		  return findLowestPossibleCard(findHighestCard(stich),cards);
++
++		    } else {
+ 		  return findHighestCard(cards);
++		    }
+         }
+ 	}
+ 	qDebug(&quot;%s: spiele billigste karte&quot;, name().latin1());
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000236.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf update admin directory to KDE 3.5
+</A></li>
+	<LI>Next message: <A HREF="000238.html">[Schafkopf-devel] Re: KDE Schafkopf 0.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#237">[ date ]</a>
+              <a href="thread.html#237">[ thread ]</a>
+              <a href="subject.html#237">[ subject ]</a>
+              <a href="author.html#237">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

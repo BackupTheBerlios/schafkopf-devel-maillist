@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf lokale sockets funzen jetz auch
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20lokale%20sockets%20funzen%20jetz%20auch&In-Reply-To=%3C200502151847.j1FIllCQ017357%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000070.html">
+   <LINK REL="Next"  HREF="000072.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf lokale sockets funzen jetz auch</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20lokale%20sockets%20funzen%20jetz%20auch&In-Reply-To=%3C200502151847.j1FIllCQ017357%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf lokale sockets funzen jetz auch">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Tue Feb 15 19:47:47 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000070.html">[Schafkopf-devel] Commit Report - Schafkopf Einige Klassen f&#252;r die
+</A></li>
+        <LI>Next message: <A HREF="000072.html">[Schafkopf-devel] Commit Report - Schafkopf aktuelle TODO-Liste jetzt auch auf der
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#71">[ date ]</a>
+              <a href="thread.html#71">[ thread ]</a>
+              <a href="subject.html#71">[ subject ]</a>
+              <a href="author.html#71">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+lokale sockets funzen jetz auch
+
+Modified Files:
+--------------
+    schafkopf/src:
+        commsocketclient.cpp
+        commsocketclient.h
+        commsocketserver.cpp
+
+-------------- next part --------------
+Index: commsocketserver.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/commsocketserver.cpp,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -Lsrc/commsocketserver.cpp -Lsrc/commsocketserver.cpp -u -r1.1 -r1.2
+--- src/commsocketserver.cpp
++++ src/commsocketserver.cpp
+@@ -1,6 +1,8 @@
+ 
+ #include &lt;iostream&gt;
+ #include &lt;sys/poll.h&gt;
++#include &lt;sys/socket.h&gt;
++#include &lt;sys/un.h&gt;
+ #include &quot;commsocketserver.h&quot;
+ 
+ CommSocketServer::CommSocketServer(const char *name, int port, bool global)
+@@ -161,18 +163,28 @@
+ int CommSocketServer::create_socket(unsigned int port, bool global)
+ {
+     int sock;
+-    sockaddr_in addr;
++    sockaddr_in gaddr;
++    sockaddr_un laddr;
++    sockaddr *addr=(sockaddr *)&gaddr;
++    int n=sizeof(sockaddr_in);
+     int set=1;
+     
+-    sock=socket (global ? PF_INET : PF_LOCAL, SOCK_STREAM, 0);
++    sock=socket(global ? PF_INET : PF_LOCAL, SOCK_STREAM, 0);
+     if(sock&lt;0)
+         return -1;
+-    if(!init_sockaddr(&amp;addr, &quot;localhost&quot;, port))
++    if(!global)
++    {
++        laddr.sun_family=AF_LOCAL;
++        sprintf(laddr.sun_path, &quot;%d&quot;, port);
++        addr=(sockaddr *) &laddr;
++        n=SUN_LEN(&amp;laddr);
++    }
++    else if(!init_sockaddr(&amp;gaddr, &quot;localhost&quot;, port))
+     {
+         close(sock);
+         return -1;
+     }
+-    if(bind(sock, (sockaddr *)&amp;addr, sizeof(sockaddr_in))&lt;0)
++    if(bind(sock, addr, n)&lt;0)
+     {
+         close(sock);
+         return -1;
+Index: commsocketclient.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/commsocketclient.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -Lsrc/commsocketclient.h -Lsrc/commsocketclient.h -u -r1.1 -r1.2
+--- src/commsocketclient.h
++++ src/commsocketclient.h
+@@ -28,7 +28,7 @@
+     : public CommBase
+ {
+     public:
+-        CommSocketClient(const char *hostname, unsigned int port, bool local, CommSocketServer::ClientType type); 
++        CommSocketClient(const char *hostname, unsigned int port, bool global, CommSocketServer::ClientType type); 
+         ~CommSocketClient(); 
+         bool waitMsg(int timeout=-1, int *rec=NULL); 
+         bool receiveMsg(Message *msg);
+@@ -38,7 +38,7 @@
+         int clientSocket;
+         
+         static int init_sockaddr (sockaddr_in *name, const char *hostname, unsigned int port);
+-        static int open_socket(const char *hostname, unsigned int port, bool local);
++        static int open_socket(const char *hostname, unsigned int port, bool global);
+ };
+ 
+ #endif
+Index: commsocketclient.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/commsocketclient.cpp,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -Lsrc/commsocketclient.cpp -Lsrc/commsocketclient.cpp -u -r1.1 -r1.2
+--- src/commsocketclient.cpp
++++ src/commsocketclient.cpp
+@@ -1,17 +1,18 @@
+ #include &lt;iostream&gt;
+ #include &lt;sys/socket.h&gt;
++#include &lt;sys/un.h&gt;
+ #include &lt;sys/poll.h&gt;
+ #include &lt;netinet/in.h&gt;
+ #include &lt;netdb.h&gt;
+ #include &quot;commsocketclient.h&quot;
+ #include &quot;commsocketserver.h&quot;
+ 
+-CommSocketClient::CommSocketClient(const char *hostname, unsigned int port, bool local, CommSocketServer::ClientType type)
++CommSocketClient::CommSocketClient(const char *hostname, unsigned int port, bool global, CommSocketServer::ClientType type)
+     : CommBase(hostname)
+ {
+     CommSocketServer::RegisterMessage msg;
+     
+-    clientSocket=open_socket(hostname, port, local);
++    clientSocket=open_socket(hostname, port, global);
+     if(clientSocket&lt;0)
+         throw EConnectError();
+     msg.data.msg=CommBase::msg_msg;
+@@ -107,24 +108,34 @@
+     return 1;
+ }
+ 
+-int CommSocketClient::open_socket(const char *hostname, unsigned int port, bool local)
++int CommSocketClient::open_socket(const char *hostname, unsigned int port, bool global)
+ {
+     int sock;
+-    sockaddr_in addr;
++    sockaddr_in gaddr;
++    sockaddr_un laddr;
++    sockaddr *addr=(sockaddr *)&gaddr;
++    int n=sizeof(sockaddr_in);
++    int set=1;
+     
+-    sock=socket(PF_INET, SOCK_STREAM, 0);
++    sock=socket(global ? PF_INET : PF_LOCAL, SOCK_STREAM, 0);
+     if(sock&lt;0)
+-    {
+         return -1;
++    if(!global)
++    {
++        laddr.sun_family=AF_LOCAL;
++        sprintf(laddr.sun_path, &quot;%d&quot;, port);
++        addr=(sockaddr *) &laddr;
++        n=SUN_LEN(&amp;laddr);
+     }
+-    if(!init_sockaddr(&amp;addr, hostname, port))
++    else if(!init_sockaddr(&amp;gaddr, &quot;localhost&quot;, port))
+     {
+         close(sock);
+         return -1;
+     }
+-    if(connect(sock, (sockaddr *)&amp;addr, sizeof(sockaddr_in))&lt;0)
++    if(connect(sock, addr, n)&lt;0)
+     {
+         close(sock);
++        cerr &lt;&lt; &quot;connect failed&quot; &lt;&lt; endl;
+         return -1;
+     }
+     return sock;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000070.html">[Schafkopf-devel] Commit Report - Schafkopf Einige Klassen f&#252;r die
+</A></li>
+	<LI>Next message: <A HREF="000072.html">[Schafkopf-devel] Commit Report - Schafkopf aktuelle TODO-Liste jetzt auch auf der
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#71">[ date ]</a>
+              <a href="thread.html#71">[ thread ]</a>
+              <a href="subject.html#71">[ subject ]</a>
+              <a href="author.html#71">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

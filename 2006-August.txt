@@ -1,0 +1,96 @@
+From domseichter at web.de  Tue Aug 15 15:22:22 2006
+From: domseichter at web.de (Dominik Seichter)
+Date: Tue, 15 Aug 2006 15:22:22 +0200
+Subject: [Schafkopf-devel] Schafkopf - Grave: keine Karten zu sehen
+In-Reply-To: <44E1BF59.3070906@beratung-plank.de>
+References: <44E1BF59.3070906@beratung-plank.de>
+Message-ID: <200608151522.25638.domseichter@web.de>
+
+Servus,
+
+Answering in German, because of your *.de e-mail address:
+
+Hast Du ein Kartenset f?r Schafkopf eingestellt? Settings -> Configure 
+Carddeck.
+
+CU Dom
+
+Am Tuesday, 15. August 2006 14:34 schrieben Sie:
+> Servus,
+> I can't see the cards in my hand. there's only 15% of the top of a
+> single card below my name.
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 191 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20060815/d5da342b/attachment.pgp>
+
+From domseichter at web.de  Thu Aug 17 17:05:03 2006
+From: domseichter at web.de (Dominik Seichter)
+Date: Thu, 17 Aug 2006 17:05:03 +0200
+Subject: [Schafkopf-devel] Schafkopf - Grave: keine Karten zu sehen
+In-Reply-To: <44E3F4E2.3030100@beratung-plank.de>
+References: <44E1BF59.3070906@beratung-plank.de>
+	<200608151522.25638.domseichter@web.de>
+	<44E3F4E2.3030100@beratung-plank.de>
+Message-ID: <200608171705.06048.domseichter@web.de>
+
+Hallo Tom,
+
+kannst Du mal die Version 0.7 von unserer Webseite http://schafkopf.berlios.de 
+probieren? Evtl. l?st das das Problem.
+
+Danke,
+	Dom
+
+Am Thursday, 17. August 2006 06:47 schrieben Sie:
+> Hi Dominik.
+> hab' ich definiert. Auf dem Bildschirmausschnitt schaut unten auch ein
+> St?ckchen Karte raus. Aber mehr wird's nicht.
+> Ciao
+> Tom
+>
+> Dominik Seichter schrieb:
+> > Servus,
+> >
+> > Answering in German, because of your *.de e-mail address:
+> >
+> > Hast Du ein Kartenset f?r Schafkopf eingestellt? Settings -> Configure
+> > Carddeck.
+> >
+> > CU Dom
+> >
+> > Am Tuesday, 15. August 2006 14:34 schrieben Sie:
+> >> Servus,
+> >> I can't see the cards in my hand. there's only 15% of the top of a
+> >> single card below my name.
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 191 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20060817/ccd5f684/attachment.pgp>
+

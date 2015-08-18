@@ -1,0 +1,47 @@
+From domseichter at web.de  Wed Apr  5 18:01:51 2006
+From: domseichter at web.de (Dominik Seichter)
+Date: Wed, 5 Apr 2006 18:01:51 +0200
+Subject: [Schafkopf-devel] Re: Hilfe zu SchafKopf 0.7
+In-Reply-To: <000001c658b5$3dab28f0$fe78a8c0@kiste>
+References: <000001c658b5$3dab28f0$fe78a8c0@kiste>
+Message-ID: <200604051801.51437.domseichter@web.de>
+
+Hallo Robert,
+
+Wie wir auf unserer Seite schreiben ist SchafKopf nur f?r KDE verf?gbar. KDE 
+ist eine Desktop Umgebung f?r Linux.  D.h. SchafKopf wird nicht unter Windows 
+laufen. Wenn Du ein Linux probieren m?chtest auf dem SchafKopf l?uft lad dir 
+am besten OpenSuSE herunter: www.opensuse.org und installier dir SuSE Linux 
+auf Deinem Rechner. Dort kannst Du dann auch unser SchafKopf installieren.
+
+MfG,
+	Dominik
+
+Am Wednesday, 5. April 2006 15:31 schrieben Sie:
+> Hallo Dominik,
+>
+> habe mir Euer/Dein SchafKopf 0.7 runtergeladen und war schon ganz hei?.
+> Habe es dann aber leider nicht geschafft zu installieren.
+> Da ich ein ?Computer-Depp? bin was das Programmieren betrifft konnte
+> ich mit Anweisungen, wie ?cd to the directory usw.? nichts anfangen.
+> W?re toll wenn Du mir kurz auf deutsch erkl?ren k?nntest wie ich es
+> auf XP (habe es zumindest so verstanden, dass es auf Windows auch geht,
+> oder?) zum laufen bringe (habe den Source Code). In den FAQs habe ich
+> nichts gefunden, was mir weiterhilft.
+> W?re toll wenn Du mir helfen k?nntest, bin es n?mlich leid mit den
+> normalen
+> ?dummen? Programmen zu spielen.
+>
+> Vielen Dank
+> Robert
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+
+

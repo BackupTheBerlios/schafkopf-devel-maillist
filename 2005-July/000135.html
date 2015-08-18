@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] domseichter: Commit Report - Schafkopf clean up and comment
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20clean%20up%20and%20comment&In-Reply-To=%3C200507031321.j63DLpZw001404%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000134.html">
+   <LINK REL="Next"  HREF="000136.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] domseichter: Commit Report - Schafkopf clean up and comment</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20clean%20up%20and%20comment&In-Reply-To=%3C200507031321.j63DLpZw001404%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] domseichter: Commit Report - Schafkopf clean up and comment">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Sun Jul  3 15:21:51 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000134.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf arrrrrghhh.
+</A></li>
+        <LI>Next message: <A HREF="000136.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf schmieren ist jetzt IMHO wesentlich besser
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#135">[ date ]</a>
+              <a href="thread.html#135">[ thread ]</a>
+              <a href="subject.html#135">[ subject ]</a>
+              <a href="author.html#135">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+clean up and comment
+
+Modified Files:
+--------------
+    schafkopf/src:
+        computerplayer.cpp
+        computerplayer.h
+
+-------------- next part --------------
+Index: computerplayer.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.h,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -Lsrc/computerplayer.h -Lsrc/computerplayer.h -u -r1.15 -r1.16
+--- src/computerplayer.h
++++ src/computerplayer.h
+@@ -33,16 +33,18 @@
+         ComputerPlayer(unsigned int id,Game* game);
+         ~ComputerPlayer();
+         
+-		void init();
+-		void klopfen();
++        void init();
++        void klopfen();
+         Card *play();
+         GameInfo* gameInfo( bool force = false );
+         
+-		int rtti() const { return COMPUTER; }
++        int rtti() const { return COMPUTER; }
+ 
+         Card *findHighestCard(CardList *cards);
+         Card *findSchmiere(CardList *cards);		// Nice name, isn't it? :)
++        
+         Card *findCheapestCard(CardList *cards);
++        
+         /** Finde die niedrigste Karte aus @p cards um @p highest zu stechen
+           */
+         Card *findLowestPossibleCard(Card* highest, CardList *cards);
+@@ -57,30 +59,42 @@
+         int cardsStillInGame( int c );
+         
+     private:
++        Card *findCardToPlay(CardList *cards);
++        bool canMakeStich(CardList *cards);		
++        
++        /** Prueft ob der aktuelle Stich der eigenen Spieler Partei 
++         *  gehoert oder nicht. Dabei werden nur die aktuell
++         *  gespielten Karten gespielt bewertet und nicht evtl. hoehere
++         *  Karten die die Gegenspielerpartei spaeter noch spielen koennte
++         *
++         *  @returns true  wenn der stich der eigenen Partei gehoert
++         *  @returns false wenn der stich dem gegner gehoert oder
++         *                 noch keine Karte gespielt wurde
++         */
++        bool ownStich();
++        bool istTrumpfFrei(int playerId);
++        bool istFarbFrei(int playerId, int c);
++        float gehtDurch(Card *card);
++        float gegnerSticht(Card *card);
++        Card *highestTrumpfInGame();
++        int myTrumpfs();
++        int trumpfsInGame();
++        
++	//private slots:
++        void cardPlayed(unsigned int player, Card *c);
++                
++    private:
+         typedef struct game_data {
+             int trumpf;
+             int fehlfarbe;
+             int weight;
+             GameInfo info;        
+         };
+-		CardList *m_playedCards[4];
+-		CardList *m_angespielt;
++        
++        CardList *m_playedCards[4];
++        CardList *m_angespielt;
+         OpenBook* book;
+-		int mitspieler;
+-		
+-		Card *findCardToPlay(CardList *cards);
+-		bool canMakeStich(CardList *cards);		
+-		bool ownStich();
+-		bool istTrumpfFrei(int playerId);
+-		bool istFarbFrei(int playerId, int c);
+-		float gehtDurch(Card *card);
+-		float gegnerSticht(Card *card);
+-		Card *highestTrumpfInGame();
+-		int myTrumpfs();
+-		int trumpfsInGame();
+-				
+-	//private slots:
+-		void cardPlayed(unsigned int player, Card *c);
++        int mitspieler;		
+ };
+ 
+ #endif
+Index: computerplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.cpp,v
+retrieving revision 1.33
+retrieving revision 1.34
+diff -Lsrc/computerplayer.cpp -Lsrc/computerplayer.cpp -u -r1.33 -r1.34
+--- src/computerplayer.cpp
++++ src/computerplayer.cpp
+@@ -361,15 +361,19 @@
+ bool ComputerPlayer::ownStich()
+ {
+     Card* highestCard= m_game-&gt;currStich()-&gt;at(m_game-&gt;highestCard());
+-    CardList spielercards;
+     bool spieler = ( m_game-&gt;gameInfo()-&gt;spieler() == this || m_game-&gt;gameInfo()-&gt;mitspieler() == this );
+     qDebug(&quot;%s ist %s Spieler.&quot;, name().latin1(), (spieler ? &quot;&quot;:&quot;nicht&quot;) );
++
+     /* The stich cannot belong to us if we are to play
+      * the first card! 
+      */
+     if( !m_game-&gt;currStich()-&gt;count() )
+ 	return false;
+ 
++    /* This looks butt ugly but it works!
++     * We can only check if the card belongs to the player party, so we check afterwars
++     * if we are part of the player part!! Think about it... it does really work :)
++     */
+     if( highestCard-&gt;owner() == m_game-&gt;gameInfo()-&gt;spieler() || highestCard-&gt;owner() == m_game-&gt;gameInfo()-&gt;mitspieler() )
+         return ( spieler ? true : false );
+     else
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000134.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf arrrrrghhh.
+</A></li>
+	<LI>Next message: <A HREF="000136.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf schmieren ist jetzt IMHO wesentlich besser
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#135">[ date ]</a>
+              <a href="thread.html#135">[ thread ]</a>
+              <a href="subject.html#135">[ subject ]</a>
+              <a href="author.html#135">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,149 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf FIXED: OpenBook erkennt jetzt wieder korrekt
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20FIXED%3A%20OpenBook%20erkennt%20jetzt%20wieder%20korrekt&In-Reply-To=%3C200503311041.j2VAfPQY016208%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000106.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf FIXED: OpenBook erkennt jetzt wieder korrekt</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20FIXED%3A%20OpenBook%20erkennt%20jetzt%20wieder%20korrekt&In-Reply-To=%3C200503311041.j2VAfPQY016208%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf FIXED: OpenBook erkennt jetzt wieder korrekt">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Thu Mar 31 12:41:25 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000106.html">[Schafkopf-devel] Commit Report - Schafkopf Dom hats versaut ;-)
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#108">[ date ]</a>
+              <a href="thread.html#108">[ thread ]</a>
+              <a href="subject.html#108">[ subject ]</a>
+              <a href="author.html#108">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+FIXED: OpenBook erkennt jetzt wieder korrekt wer spieler ist und wer nicht, deswegen spielt der spieler jetzt auch wieder seine truempfe beim solo
+
+Modified Files:
+--------------
+    schafkopf:
+        TODO
+    schafkopf/src:
+        computerplayer.cpp
+        openbook.cpp
+        stichdlg.cpp
+
+-------------- next part --------------
+Index: TODO
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/TODO,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -LTODO -LTODO -u -r1.15 -r1.16
+--- TODO
++++ TODO
+@@ -5,7 +5,6 @@
+ 
+ AI:
+ - Solo: Mitspieler schmieren dem Spieler
+-- Solo: Spieler spielt seine Truempfe zu spaet.
+ - Computer schmiert auch Ober wenn er nix hoeheres hat
+ - Oefters Rufspiele spielen
+ - &quot;Wird eine Farbe das zweite Mal gespielt, so sollte ein AI-Spieler mindestens mit einem Unter stechen, sofern hinter ihm noch ein Gegner kommt.&quot; (auf keinen Fall schmieren!!)
+@@ -20,4 +19,4 @@
+ - Trainingsmodus mit &quot;Rueckgaengig&quot;-Funktion (auch mehrere Stiche)
+ - &quot;Letzter Stich&quot;-Dialog: Karten so anordnen wie auf dem Spielfeld
+ - Kontra, Reh, ...
+-&lt;/pre&gt;
+\ No newline at end of file
++&lt;/pre&gt;
+Index: computerplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.cpp,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -Lsrc/computerplayer.cpp -Lsrc/computerplayer.cpp -u -r1.30 -r1.31
+--- src/computerplayer.cpp
++++ src/computerplayer.cpp
+@@ -148,6 +148,7 @@
+ 			else
+ 				i++;
+ 		}
++		qDebug(&quot;%s: allowed-&gt;count() : %i&quot;, name().latin1(), allowed-&gt;count() );
+ 	}
+     else if( m_game-&gt;currStich()-&gt;count() == 3 )
+     {
+Index: stichdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/stichdlg.cpp,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -Lsrc/stichdlg.cpp -Lsrc/stichdlg.cpp -u -r1.7 -r1.8
+--- src/stichdlg.cpp
++++ src/stichdlg.cpp
+@@ -65,7 +65,9 @@
+     {
+         if( stich.count() &gt; i ) 
+         {
+-            cards[i]-&gt;setPixmap( *(stich.at( stich.count() - PLAYERS + i )-&gt;pixmap()) );
++	    Card* c = stich.at( stich.count() - PLAYERS + i );
++	    if( c )
++		cards[i]-&gt;setPixmap( *(c-&gt;pixmap()) );
+             players[i]-&gt;setText( &quot;&lt;qt&gt;&lt;b&gt;&quot;+(*playerlist)[i]+&quot;&lt;/b&gt;&lt;/qt&gt;&quot; );
+         }   
+         else
+Index: openbook.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/openbook.cpp,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -Lsrc/openbook.cpp -Lsrc/openbook.cpp -u -r1.9 -r1.10
+--- src/openbook.cpp
++++ src/openbook.cpp
+@@ -128,7 +128,9 @@
+     CardList* allowed = m_self-&gt;allowedCards();
+     CardList* list = new CardList();
+     unsigned int i = 0;
+-    
++
++    m_player = ((Player*)m_self == m_game-&gt;gameInfo()-&gt;spieler() || (Player*)m_self == m_game-&gt;gameInfo()-&gt;mitspieler() );
++    qDebug(&quot; %s : player : %i&quot;, m_self-&gt;name().latin1(), (int)m_player );
+     for( i=0;i&lt;sizeof(rules)/sizeof(s_rule);i++)
+     {
+         s_rule r = rules[i];
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000106.html">[Schafkopf-devel] Commit Report - Schafkopf Dom hats versaut ;-)
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#108">[ date ]</a>
+              <a href="thread.html#108">[ thread ]</a>
+              <a href="subject.html#108">[ subject ]</a>
+              <a href="author.html#108">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

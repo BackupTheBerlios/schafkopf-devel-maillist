@@ -1,0 +1,137 @@
+From domseichter at web.de  Sun Apr 17 12:16:50 2011
+From: domseichter at web.de (Dominik Seichter)
+Date: Sun, 17 Apr 2011 12:16:50 +0200
+Subject: [Schafkopf-devel] Schafkopf-Spiel
+In-Reply-To: <53963AF59642443780FEAB829FB81552@michaelspc>
+References: <53963AF59642443780FEAB829FB81552@michaelspc>
+Message-ID: <201104171216.51432.domseichter@web.de>
+
+Hallo Herr Thurmann,
+
+Es gibt in der Tag eine M?glichkeit SchafKopf auf das vor allem in Franken 
+beliebte "kurze Spiel" umzustellen. Leider ist diese M?glichkeit sehr unsch?n, 
+was aber auch daran liegt, dass wir schon seid einige Zeit praktisch nicht 
+mehr dazu kommen das Spiel zu warten. Daher wird es auch in absehbarer Zeit 
+keine neue Version geben (au?er jmd findet sich der den Code f?r KDE4 
+portiert).
+
+Zu Ihrer Frage:
+Sie k?nnen in der Datei schafkopfdef.h die Zeile
+#define SCHAFKOPF_LANG
+durch
+// #define SCHAFKOPF_LANG
+ersetzenn.
+
+Danach m?ssen sie Schafkopf nur noch neu kompilieren (siehe Webseite) und das 
+kurze Spiel steht Ihnen zur Verf?gung.
+
+Viel Spa?!
+
+	Dominik Seichter
+
+On Saturday, April 16, 2011 12:33:39 pm Michael Thumann wrote:
+> Hallo Herr Seichter,
+> 
+> ich habe mir das Spiel "Schafkopf" heruntergeladen und installiert. Ich
+> finde das Spiel super!
+> 
+> Eine Frage habe ich aber noch: Bei uns in Bayern spielt man Schafkopf
+> "kurz", das hei?t man spielt mit 24 Karten (ohne der Karten 7 und 8).
+> 
+> Kann man das bei Ihrem Spiel einstellen oder gibt es f?r das Spiel einmal
+> ein Update, welches diese Funktion enth?lt?
+> 
+> 
+> Viele Gr??e
+> Michael Thumann
+> 
+> E-Mail: email at michael-thumann.de
+
+
+From domseichter at web.de  Sun Apr 17 13:29:56 2011
+From: domseichter at web.de (Dominik Seichter)
+Date: Sun, 17 Apr 2011 13:29:56 +0200
+Subject: [Schafkopf-devel] Schafkopf-Spiel
+In-Reply-To: <372CB473381F4D4AADFC7AABD1A0B1A3@michaelspc>
+References: <53963AF59642443780FEAB829FB81552@michaelspc>
+	<201104171216.51432.domseichter@web.de>
+	<372CB473381F4D4AADFC7AABD1A0B1A3@michaelspc>
+Message-ID: <201104171329.57502.domseichter@web.de>
+
+
+Leider Nein. SchafKopf ist wie schon gesagt mittlerweile relativ alt. Es setzt 
+noch auf die Bibliotheken  von KDE3 (aktuell ist KDE 4.4), die ich gerade 
+selbt nicht mehr installiert habe. Daher kann ich Ihnen keine Version 
+kompilieren.
+
+Sch?ne Gr??e,
+	Dominik Seichter
+
+On Sunday, April 17, 2011 01:24:06 pm Michael Thumann wrote:
+> Hallo Herr Seichter,
+> 
+> vielen Dank f?r Ihre Nachricht!
+> 
+> K?nnten Sie mir vielleicht die Version mit dem kurzem Spiel kompilieren?
+> 
+> Ich besch?ftige mich zwar sehr mit Linux, aber beim Programme kompilieren
+> steige ich noch nicht ganz durch.
+> 
+> 
+> Vielen vielen Dank und sch?nen Sonntag!
+> 
+> Michael Thumann
+> 
+> E-Mail: email at michael-thumann.de
+> --------------------------------------------------
+> From: "Dominik Seichter" <domseichter at web.de>
+> Sent: Sunday, April 17, 2011 12:16 PM
+> To: "Michael Thumann" <email at michael-thumann.de>;
+> <schafkopf-devel at berlios.de>
+> Subject: Re: Schafkopf-Spiel
+> 
+> > Hallo Herr Thurmann,
+> > 
+> > Es gibt in der Tag eine M?glichkeit SchafKopf auf das vor allem in
+> > Franken beliebte "kurze Spiel" umzustellen. Leider ist diese M?glichkeit
+> > sehr unsch?n,
+> > was aber auch daran liegt, dass wir schon seid einige Zeit praktisch
+> > nicht mehr dazu kommen das Spiel zu warten. Daher wird es auch in
+> > absehbarer Zeit
+> > keine neue Version geben (au?er jmd findet sich der den Code f?r KDE4
+> > portiert).
+> > 
+> > Zu Ihrer Frage:
+> > Sie k?nnen in der Datei schafkopfdef.h die Zeile
+> > #define SCHAFKOPF_LANG
+> > durch
+> > // #define SCHAFKOPF_LANG
+> > ersetzenn.
+> > 
+> > Danach m?ssen sie Schafkopf nur noch neu kompilieren (siehe Webseite) und
+> > das
+> > kurze Spiel steht Ihnen zur Verf?gung.
+> > 
+> > Viel Spa?!
+> > 
+> > Dominik Seichter
+> > 
+> > On Saturday, April 16, 2011 12:33:39 pm Michael Thumann wrote:
+> >> Hallo Herr Seichter,
+> >> 
+> >> ich habe mir das Spiel "Schafkopf" heruntergeladen und installiert. Ich
+> >> finde das Spiel super!
+> >> 
+> >> Eine Frage habe ich aber noch: Bei uns in Bayern spielt man Schafkopf
+> >> "kurz", das hei?t man spielt mit 24 Karten (ohne der Karten 7 und 8).
+> >> 
+> >> Kann man das bei Ihrem Spiel einstellen oder gibt es f?r das Spiel
+> >> einmal ein Update, welches diese Funktion enth?lt?
+> >> 
+> >> 
+> >> Viele Gr??e
+> >> Michael Thumann
+> >> 
+> >> E-Mail: email at michael-thumann.de
+
+

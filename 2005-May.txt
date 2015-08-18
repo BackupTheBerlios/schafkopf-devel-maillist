@@ -1,0 +1,535 @@
+From schafkopf-devel at berlios.de  Sun May  8 16:34:34 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Sun, 8 May 2005 16:34:34 +0200
+Subject: [Schafkopf-devel] domseichter: Commit Report - Schafkopf Ich habe einen Simulations Modus hinzugefügt,
+Message-ID: <200505081434.j48EYYHh032301@sheep.berlios.de>
+
+Log Message:
+-----------
+Ich habe einen Simulations Modus hinzugef??gt, der einfach Spiele bist zum Wert SIMULATION_MODE_MAX simuliert (mit 4 Computer Spielern ohne User interaktion). Damit habe ich gerade 10000 Spiele in ca. 35 Minuten simuliert. Das (f??r mich harte ;) ) Ergebnis:
+
+dominik: -279,90
+dom: -373,90
+lenz: 293,10
+gj: 360,70
+
+Das positive daran war, dass es anscheinend keine Memory Leaks mehr gibt (eines habe ich gefixt). Der Speicher verbrauch bleibt w??hrend allen 10000 Spielen konstant.
+Das ganze ist hoffentlich mal sinnvoll, wenn wir das Neuronetz trainieren m??ssen, das der Lenz sicher bald einbaut. Aktiviert wird das ganze durch das definieren von SIMULATION_MODE in schafkopfdef.h .
+
+Modified Files:
+--------------
+    schafkopf/src:
+        canvascard.cpp
+        canvasplayer.cpp
+        card.h
+        computerplayer.cpp
+        game.cpp
+        gamecanvas.cpp
+        openbook.cpp
+        player.cpp
+        schafkopfdef.h
+        stichdlg.cpp
+
+-------------- next part --------------
+Index: stichdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/stichdlg.cpp,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/stichdlg.cpp -Lsrc/stichdlg.cpp -u -r1.8 -r1.9
+--- src/stichdlg.cpp
++++ src/stichdlg.cpp
+@@ -55,7 +55,8 @@
+ void StichDlg::changed( const QString & name, int* list, QStringList* playerlist )
+ {
+     CardList stich( list );
+-    
++    stich.setAutoDelete( true );
++
+     if( stich.count() )
+         trick->setText( i18n("Trick was made by: <b>") + name + "</b>" );
+     else
+Index: openbook.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/openbook.cpp,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -Lsrc/openbook.cpp -Lsrc/openbook.cpp -u -r1.10 -r1.11
+--- src/openbook.cpp
++++ src/openbook.cpp
+@@ -130,7 +130,6 @@
+     unsigned int i = 0;
+ 
+     m_player = ((Player*)m_self == m_game->gameInfo()->spieler() || (Player*)m_self == m_game->gameInfo()->mitspieler() );
+-    qDebug(" %s : player : %i", m_self->name().latin1(), (int)m_player );
+     for( i=0;i<sizeof(rules)/sizeof(s_rule);i++)
+     {
+         s_rule r = rules[i];
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.73
+retrieving revision 1.74
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.73 -r1.74
+--- src/game.cpp
++++ src/game.cpp
+@@ -45,13 +45,18 @@
+     m_parent = parent;
+     m_laufende = 0;
+     m_timesThrownTogether = 0;
+-    
++
++#ifndef SIMULATION_MODE
+     // Create our player objects
+     // delete these only in the destructor    
+     m_players[0] = new HumanPlayer( def_id++, this );
+     for( i=1;i<PLAYERS;i++)
+         m_players[i] = new ComputerPlayer( def_id++, this );
+-    
++#else
++    for( i=0;i<PLAYERS;i++)
++        m_players[i] = new ComputerPlayer( def_id++, this );
++#endif // SIMULATION_MODE    
++
+     updatePlayerNames();
+     
+     // make sure that results get cleaned up, when the results type is changed
+@@ -181,8 +186,11 @@
+                 cards[1] = 0;
+                 postEvent( CardPlayed, tmp[a]->id(), cards, QString::null, true );
+             	//emit playerPlayedCard(tmp[a]->id(),c);
+-                
++
++#ifndef SIMULATION_MODE
+             	sleep( 1 );
++#endif // SIMULATION_MODE
++
+ 		if( terminated )
+ 		    return;
+ 	    }
+@@ -208,6 +216,14 @@
+ 	if(!terminated)
+ 	    gameResults();
+ 	gamecnt++;
++
++#ifdef SIMULATION_MODE
++        if( gamecnt >= SIMULATION_MODE_MAX )
++        {
++            terminated = true;
++            qDebug("Terminating Simulation after %i games.", SIMULATION_MODE_MAX );
++        }
++#endif // SIMULATION_MODE
+     }
+ }
+ 
+@@ -499,7 +515,24 @@
+ {
+     t_EventData* data = new t_EventData;
+     void* ret = NULL;
+-    
++
++#ifdef SIMULATION_MODE
++    // ignore all actions that require user 
++    // interaction in simulation mode
++    if( action == InfoMessage ||
++        action == PlayerDoubled )
++    {
++        if( cardids )
++            delete [] cardids;
++
++        if( names )
++            delete names;
++
++        delete data;
++        return NULL;
++    }
++#endif // SIMULATION_MODE
++
+     data->type = action;
+     data->playerid = playerid;
+     data->cardids = cardids;
+Index: schafkopfdef.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopfdef.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/schafkopfdef.h -Lsrc/schafkopfdef.h -u -r1.8 -r1.9
+--- src/schafkopfdef.h
++++ src/schafkopfdef.h
+@@ -88,6 +88,15 @@
+     #warning "CHEATING ENABLED!!!"
+ #endif
+ 
++/** 
++ * Enable the simulation mode, might be useful for training 
++ * the neuro-net we will surely get soon.
++ */
++//#define SIMULATION_MODE
++/**
++ * How many games should be simulated in SIMULATION_MODE?
++ */
++#define SIMULATION_MODE_MAX 10000
+ 
+ // DISTANCE from the border used in CanvasPlayer
+ #define DIST 20
+Index: card.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/card.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/card.h -Lsrc/card.h -u -r1.8 -r1.9
+--- src/card.h
++++ src/card.h
+@@ -44,6 +44,7 @@
+         QPixmap* pixmap();
+         
+         /** return a pixmap for the background of a card.
++          * Do not delete the returned pixmap!
+           */
+         static QPixmap* backgroundPixmap();
+         
+Index: player.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.cpp,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -Lsrc/player.cpp -Lsrc/player.cpp -u -r1.30 -r1.31
+--- src/player.cpp
++++ src/player.cpp
+@@ -23,8 +23,8 @@
+ 
+ Player::~ Player()
+ {
+-	delete m_cards;
+-	delete m_stiche;
++    delete m_cards;
++    delete m_stiche;
+ }
+ 
+ const QString & Player::name() const
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.47
+retrieving revision 1.48
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.47 -r1.48
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -97,7 +97,6 @@
+     m_focus_list.append( m_ok );
+     for( i=0;i<NUMCARDS;i++ )
+         m_focus_list.append( m_players[0]->canvasCard( i ) );
+-    
+ }    
+ 
+ GameCanvas::~GameCanvas()
+@@ -223,7 +222,7 @@
+     connect( this, SIGNAL(clicked( QCanvasItem* )), this, SLOT(cardClicked(QCanvasItem*)));
+     m_result = -1;
+ 
+-    if( hasFocus() )
++    if( hasFocus() && human )
+         for( i=0;i<NUMCARDS;i++)
+         {
+             c = human->canvasCard( i );
+@@ -346,7 +345,7 @@
+ 	
+     for(i=0;i<PLAYERS;i++)
+     {
+-		m_players[i]->init();
++        m_players[i]->init();
+         m_stich[i]->hide();
+     }
+ }
+Index: computerplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.cpp,v
+retrieving revision 1.31
+retrieving revision 1.32
+diff -Lsrc/computerplayer.cpp -Lsrc/computerplayer.cpp -u -r1.31 -r1.32
+--- src/computerplayer.cpp
++++ src/computerplayer.cpp
+@@ -98,23 +98,24 @@
+ 
+ void ComputerPlayer::init()
+ {
+-	int i;
++    int i;
+ 	
+-	for(i=0;i<PLAYERS;i++)
+-		m_playedCards[i]->clear();
+-	m_angespielt->clear();
+-	if(m_game->gameInfo()->mitspieler()==this)
+-	{
+-		for(mitspieler=0;mitspieler<PLAYERS;mitspieler++)
+-			if(m_game->findIndex(mitspieler)==m_game->gameInfo()->spieler())
+-				break;
+-	}
+-	else if(m_game->gameInfo()->mode()!=GameInfo::RUFSPIEL && 
++    for(i=0;i<PLAYERS;i++)
++	m_playedCards[i]->clear();
++
++    m_angespielt->clear();
++    if(m_game->gameInfo()->mitspieler()==this)
++    {
++	for(mitspieler=0;mitspieler<PLAYERS;mitspieler++)
++	    if(m_game->findIndex(mitspieler)==m_game->gameInfo()->spieler())
++		break;
++    }
++    else if(m_game->gameInfo()->mode()!=GameInfo::RUFSPIEL && 
+             m_game->gameInfo()->mode()!=GameInfo::RAMSCH &&
+             m_game->gameInfo()->spieler()!=this)
+-		mitspieler=m_game->gameInfo()->spieler()->id();
+-	else
+-		mitspieler=-1;
++	mitspieler=m_game->gameInfo()->spieler()->id();
++    else
++	mitspieler=-1;
+ }
+ 
+ Card *ComputerPlayer::play()
+@@ -245,8 +246,8 @@
+ {
+ 	if(ownStich())
+ 	{
+-		qDebug("schmiere");
+-		return findSchmiere(cards);
++	    qDebug("%s: schmiere", name().latin1());
++	    return findSchmiere(cards);
+ 	}
+ 	else if(canMakeStich(cards))
+ 	{
+@@ -359,21 +360,34 @@
+ 
+ bool ComputerPlayer::ownStich()
+ {
+-	Card *highestCard=m_game->currStich()->at(m_game->highestCard());
+-	
+-	if(mitspieler==-1)
+-		return false;
+-	if(m_game->gameInfo()->mode()==GameInfo::RUFSPIEL)
+-	{
+-		if(m_playedCards[mitspieler]->containsRef(highestCard))
+-			return true;
+-	}
+-	else
+-	{
+-		if(!m_playedCards[mitspieler]->containsRef(highestCard))	
+-			return true;
+-	}
++    Card* highestCard= m_game->currStich()->at(m_game->highestCard());
++    CardList spielercards;
++    bool spieler = ( m_game->gameInfo()->spieler() == this || m_game->gameInfo()->mitspieler() == this );
++
++    /* The stich cannot belong to us if we are to play
++     * the first card! 
++     */
++    if( !m_game->currStich()->count() )
+ 	return false;
++
++    qDebug("%s is spieler ? %i Highest Card=%p", name().latin1(), (int)spieler, highestCard );
++
++    if( m_game->gameInfo()->spieler() )
++	spielercards.appendList( m_game->gameInfo()->spieler()->cards() );
++
++    if( m_game->gameInfo()->mitspieler() )
++	spielercards.appendList( m_game->gameInfo()->mitspieler()->cards() );
++
++    if( spielercards.containsRef( highestCard ) )
++    {
++	qDebug("Spieler hat die hoechste Karte: %i",  (spieler ? true : true));
++	return (spieler ? true : false);
++    }
++    else
++    {
++	qDebug("Gegenspieler hat die hoechste Karte: %i", (spieler ? false : true) );
++	return (spieler ? false : true);
++    }
+ }
+ 
+ bool ComputerPlayer::istTrumpfFrei(int playerId)
+Index: canvasplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.cpp,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -Lsrc/canvasplayer.cpp -Lsrc/canvasplayer.cpp -u -r1.22 -r1.23
+--- src/canvasplayer.cpp
++++ src/canvasplayer.cpp
+@@ -37,7 +37,14 @@
+     m_position = i;
+     // TODO: get a correct id! especially important for networking!
+     m_id = i;
++
++#ifndef SIMULATION_MODE
++    // TODO: This should be passed as flag depending on Player::isHuman();
+     m_is_human = (m_id == 0);
++#else
++    m_is_human = false;
++#endif // SIMULATION_MODE
++
+ }
+ 
+ CanvasPlayer::~CanvasPlayer()
+@@ -243,7 +250,9 @@
+ {
+     int i;
+     for( i = 0; i < NUMCARDS; i++ ) 
++    {
+         m_items[i]->setCard( NULL );
++    }
+ 
+     m_cards->clear();
+     m_cards->appendList( cards );
+Index: canvascard.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvascard.cpp,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -Lsrc/canvascard.cpp -Lsrc/canvascard.cpp -u -r1.19 -r1.20
+--- src/canvascard.cpp
++++ src/canvascard.cpp
+@@ -20,6 +20,7 @@
+ #include "canvascard.h"
+ #include "card.h"
+ #include "settings.h"
++#include "schafkopfdef.h"
+ 
+ #include <qpainter.h>
+ #include <qtimer.h>
+@@ -52,6 +53,10 @@
+ 
+ void CanvasCard::draw( QPainter & p )
+ {
++#ifdef SIMULATION_MODE
++    return;
++#endif // SIMULATION_MODE    
++
+     if( m_card )
+     {
+         QPixmap* pixmap = m_visible ? m_card->pixmap() : Card::backgroundPixmap();
+
+From domseichter at web.de  Sat May 14 13:41:15 2005
+From: domseichter at web.de (Dominik Seichter)
+Date: Sat, 14 May 2005 13:41:15 +0200
+Subject: [Schafkopf-devel] Fwd: Feedback: Schafkopf:  Wunsch: Spielpreis selbst verlangen
+Message-ID: <200505141341.15500.domseichter@web.de>
+
+Wer meldet sich freiwillig um das einzubauen?
+
+Ja ja, bitte ned alle auf einmal ;)
+
+----------  Weitergeleitete Nachricht  ----------
+
+Subject: Feedback: Schafkopf:  Wunsch: Spielpreis selbst verlangen
+Date: Thursday, 12. May 2005 02:22
+From: Torsten Leitner <Torsten.Leitner at email.de>
+To: domseichter at web.de
+
+Hi,
+
+ich Spiel seit kurzem auch Schafkopf auf Linux. Da wollt ich mal
+anregen, eine Option einzubauen, die es einem erm?glicht den Spielpreis
+selbst einzugeben. Gegebenenfalls sollte dann auch sowas wie "?tsch, Du
+hast zu wenig kassiert" oder so angezeigt werden und falls zuviel
+verlangt wurde nat?rlich die doppelt Differenz zum eigentlichen
+Spielpreis zur?ckverlangt werden .....
+Vielleicht ist es auch m?glich nach dem zusammenwerfen den einfachen
+Spielpreis in einen Stock einzubezahlen, anstatt das n?chste Spiel
+doppelt zu nehmen ......
+
+Auf alle F?lle schon mal vielen Dank f?r die bisherige Version, die
+macht n?mlich einen Heidenspa? !!!!!
+
+Ich spiel jetzt noch ne Runde...
+
+Beste Gr??e
+
+Torsten Leitner
+
+-------------------------------------------------------
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+KDE Mass Mailer - http://www.kmassmailer.net - Mass mailing for KDE
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+**********************************************************************
+
+
+From domseichter at web.de  Sun May 22 10:58:46 2005
+From: domseichter at web.de (Dominik Seichter)
+Date: Sun, 22 May 2005 08:58:46 +0000
+Subject: [Schafkopf-devel] Fwd: schafkopf.berlios.de
+Message-ID: <200505221058.48757.domseichter@web.de>
+
+@Benni: Eine Idee wieso die ganzen Links auf der Titel Seite ned gehen? Da 
+geht gar nix. Egal ob Deutsch oder Englisch.
+
+@Lenz: Hab ihm Dein cvs-ebuild geschickt.
+
+----------  Weitergeleitete Nachricht  ----------
+
+Subject: schafkopf.berlios.de
+Date: Sunday, 22. May 2005 03:35
+From: monaden at gmail.com
+To: domseichter at web.de
+
+Hi,
+
+wollte nur (vermutlich nicht als erster) nur darauf hinweisen, dass auf
+http://schafkopf.berlios.de/index.php kaum ein Link funktioniert ;-)
+
+Gibts auch bald ein ebuild f?r schafkopf-0.6?
+
+Gute Nacht,
+
+Matthias
+
+-------------------------------------------------------
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+KDE Mass Mailer - http://www.kmassmailer.net - Mass mailing for KDE
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20050522/1a0b8731/attachment.pgp>
+
+From domseichter at web.de  Sat May 28 16:44:35 2005
+From: domseichter at web.de (Dominik Seichter)
+Date: Sat, 28 May 2005 16:44:35 +0200
+Subject: [Schafkopf-devel] Webseite
+Message-ID: <200505281644.38135.domseichter@web.de>
+
+Hi,
+
+Hab Typo3 auf 3.8.0 aktuallisiert. Die Webseite geht jetzt damit wieder :)
+
+CU Dom
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+KDE Mass Mailer - http://www.kmassmailer.net - Mass mailing for KDE
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20050528/df1fe03c/attachment.pgp>
+

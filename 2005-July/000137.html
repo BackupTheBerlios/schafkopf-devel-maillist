@@ -1,0 +1,417 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] bloewe: Commit Report - Schafkopf neu: sprechblasen
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20bloewe%3A%20Commit%20Report%20-%20Schafkopf%20neu%3A%20sprechblasen&In-Reply-To=%3C200507061602.j66G2GQc001303%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000136.html">
+   <LINK REL="Next"  HREF="000138.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] bloewe: Commit Report - Schafkopf neu: sprechblasen</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20bloewe%3A%20Commit%20Report%20-%20Schafkopf%20neu%3A%20sprechblasen&In-Reply-To=%3C200507061602.j66G2GQc001303%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] bloewe: Commit Report - Schafkopf neu: sprechblasen">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Wed Jul  6 18:02:16 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000136.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf schmieren ist jetzt IMHO wesentlich besser
+</A></li>
+        <LI>Next message: <A HREF="000138.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf remove strategy book, the AI plays more
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#137">[ date ]</a>
+              <a href="thread.html#137">[ thread ]</a>
+              <a href="subject.html#137">[ subject ]</a>
+              <a href="author.html#137">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+neu: sprechblasen
+
+Modified Files:
+--------------
+    schafkopf/src:
+        canvasplayer.cpp
+        canvasplayer.h
+        computerplayer.cpp
+        game.cpp
+        gamecanvas.cpp
+        gamecanvas.h
+        openbook.cpp
+        player.cpp
+        schafkopf.cpp
+        schafkopfdef.h
+
+-------------- next part --------------
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.48
+retrieving revision 1.49
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.48 -r1.49
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -59,7 +59,7 @@
+     for(;i&lt;PLAYERS;i++)
+     {
+         m_stich[i]=new CanvasCard( c );
+-        m_players[i]=new CanvasPlayer( i, c );
++        m_players[i]=new CanvasPlayer( i, c, this );
+     }
+     
+     m_item = NULL;
+@@ -529,6 +529,11 @@
+     canvas()-&gt;update();
+         
+     return;
++}
++
++void GameCanvas::Bubble( const QString &amp; message, unsigned int playerid )
++{
++    m_players[playerid]-&gt;say(message, playerid);
+ }
+ 
+ void GameCanvas::playerHasDoubled( unsigned int id, bool value )
+Index: computerplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.cpp,v
+retrieving revision 1.35
+retrieving revision 1.36
+diff -Lsrc/computerplayer.cpp -Lsrc/computerplayer.cpp -u -r1.35 -r1.36
+--- src/computerplayer.cpp
++++ src/computerplayer.cpp
+@@ -302,16 +302,16 @@
+         {
+             // falls der computer spieler farbfrei ist und noch gen??gend karten von dieser farbe im spieler
+             // sind versucht er so niedrig wie m??glich zu stechen
+-            qDebug(&quot;versuche so niedrig wie m??glich zu stechen&quot;);
++            qDebug(&quot;%s: versuche so niedrig wie m??glich zu stechen&quot;, name().latin1());
+             return findLowestPossibleCard(findHighestCard(stich),cards);
+         }
+         else
+         {
+-		  qDebug(&quot;versuche zu stechen&quot;);
++		  qDebug(&quot;%s: versuche zu stechen&quot;, name().latin1());
+ 		  return findHighestCard(cards);
+         }
+ 	}
+-	qDebug(&quot;spiele billigste karte&quot;);
++	qDebug(&quot;%s: spiele billigste karte&quot;, name().latin1());
+ 	return findCheapestCard(cards);
+ }
+ 
+@@ -408,6 +408,7 @@
+      * We can only check if the card belongs to the player party, so we check afterwars
+      * if we are part of the player part!! Think about it... it does really work :)
+      */
++    qDebug(&quot;%s ist %s Spieler.&quot;, name().latin1(), ( this-&gt;isPlayer() ? &quot;&quot;:&quot;nicht&quot;) );
+     if( highestCard-&gt;owner()-&gt;isPlayer() )
+         return ( this-&gt;isPlayer() ? true : false );
+     else
+@@ -513,7 +514,7 @@
+ 			mitspieler=player;
+ 		else
+ 			mitspieler=0+1+2+3-(id()+m_game-&gt;gameInfo()-&gt;spieler()-&gt;id()+player);
+-		qDebug(&quot;Mitspieler gefunden: %s&quot;,m_game-&gt;findIndex(mitspieler)-&gt;name().latin1());
++		qDebug(&quot;%s: Mitspieler gefunden: %s&quot;, name().latin1(), m_game-&gt;findIndex(mitspieler)-&gt;name().latin1());
+ 	}
+ }
+ 
+Index: openbook.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/openbook.cpp,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -Lsrc/openbook.cpp -Lsrc/openbook.cpp -u -r1.12 -r1.13
+--- src/openbook.cpp
++++ src/openbook.cpp
+@@ -55,7 +55,7 @@
+         bool player;
+     };
+     
+-    RULE( player1, &quot;davon-laufen - h???gt von allowedCards ab und l???ft nicht mit dem zehner davon&quot;, 
++    RULE( player1, &quot;davon-laufen - haegt von allowedCards ab und laeuft nicht mit dem zehner davon&quot;, 
+         ( info-&gt;mode() == GameInfo::RUFSPIEL &amp;&amp; 
+           !allowed-&gt;contains( info-&gt;color(), Card::SAU ) ),
+         ( !info-&gt;istTrumpf( c ) &amp;&amp; c-&gt;color() == info-&gt;color() &amp;&amp; c-&gt;card() != Card::SAU &amp;&amp; c-&gt;card() != Card::ZEHN )
+Index: schafkopfdef.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopfdef.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lsrc/schafkopfdef.h -Lsrc/schafkopfdef.h -u -r1.11 -r1.12
+--- src/schafkopfdef.h
++++ src/schafkopfdef.h
+@@ -42,7 +42,7 @@
+ typedef enum EAction { NoAction, GameStarted, GameEnded, PlayerDoubled, 
+                        PlayerHasDoubled, PlayerIsLast, PlayerNameChanged, PlayerGotCards,
+                        CardPlayed, PlayerMadeStich, PlayerResults, GameInfoSetup,
+-                       RedrawPlayers, InfoMessage, QuestionYesNo, 
++                       RedrawPlayers, InfoMessage, Bubble, QuestionYesNo, 
+                        HumanPlayerGetCard, ForbiddenCard, SelectGame,
+                        ForcedSelectGame };
+ 
+@@ -82,7 +82,7 @@
+   * and improving the AI.
+   * But it might cause problems in network mode for cheaters!!
+   */
+-//#define CHEAT
++#define CHEAT
+ 
+ #ifdef CHEAT
+     #warning &quot;CHEATING ENABLED!!!&quot;
+Index: gamecanvas.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.h,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -Lsrc/gamecanvas.h -Lsrc/gamecanvas.h -u -r1.26 -r1.27
+--- src/gamecanvas.h
++++ src/gamecanvas.h
+@@ -60,6 +60,10 @@
+           */
+         void information( const QString &amp; message );
+ 
++        /** displays a bubble with the text the computerplayers says
++          */
++        void Bubble( const QString &amp; message, unsigned int playerid );
++        
+         /** set the canvas player with the @p id to have doubled in this game
+           */
+         void playerHasDoubled( unsigned int id, bool value );
+Index: schafkopf.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopf.cpp,v
+retrieving revision 1.37
+retrieving revision 1.38
+diff -Lsrc/schafkopf.cpp -Lsrc/schafkopf.cpp -u -r1.37 -r1.38
+--- src/schafkopf.cpp
++++ src/schafkopf.cpp
+@@ -194,6 +194,10 @@
+                 m_canvasview-&gt;information( data-&gt;data );
+                 break;
+                 
++            case Bubble:
++                m_canvasview-&gt;Bubble( data-&gt;data, data-&gt;playerid );
++                break;
++                
+             case QuestionYesNo:
+                 a = new int;
+                 *a = m_canvasview-&gt;questionYesNo( data-&gt;data ) ? YES : NO;
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.77
+retrieving revision 1.78
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.77 -r1.78
+--- src/game.cpp
++++ src/game.cpp
+@@ -360,13 +360,13 @@
+ 	    info-&gt;setSpieler( players[i] );
+             games.append( info );
+             if( players[i]-&gt;rtti() != Player::HUMAN )
+-                postEvent( InfoMessage, 0, 0, i18n(&quot;%1 has a game.&quot;).arg( players[i]-&gt;name() ), true );
++                postEvent( Bubble, i, 0, i18n(&quot;%1: \&quot;I want to play.\&quot;&quot;).arg( players[i]-&gt;name() ), true );
+ 	    //m_canvas-&gt;information( i18n(&quot;%1 has a game.&quot;).arg( players[i]-&gt;name() ) );
+         }
+         else
+         {
+             if( players[i]-&gt;rtti() != Player::HUMAN )
+-                postEvent( InfoMessage, 0, 0, i18n(&quot;%1 has no game.&quot;).arg( players[i]-&gt;name() ), true );
++                postEvent( Bubble, i, 0, i18n(&quot;%1: \&quot;I don't want to play.\&quot;&quot;).arg( players[i]-&gt;name() ), true );
+ 	    //m_canvas-&gt;information( i18n(&quot;%1 has no game.&quot;).arg( players[i]-&gt;name() ) );
+         }
+     }
+Index: player.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.cpp,v
+retrieving revision 1.32
+retrieving revision 1.33
+diff -Lsrc/player.cpp -Lsrc/player.cpp -u -r1.32 -r1.33
+--- src/player.cpp
++++ src/player.cpp
+@@ -228,7 +228,7 @@
+             if( istTrumpf( Spielfarbe-&gt;at(i) ) )
+             {
+                 Spielfarbe-&gt;removeRef( Spielfarbe-&gt;at(i) );
+-                qDebug(&quot;Entferne trumpf aus Spielfarbe&quot;);
++                qDebug(&quot;%s: Entferne trumpf aus Spielfarbe&quot;, name().latin1());
+             }
+         }
+                 
+Index: canvasplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.cpp,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -Lsrc/canvasplayer.cpp -Lsrc/canvasplayer.cpp -u -r1.23 -r1.24
+--- src/canvasplayer.cpp
++++ src/canvasplayer.cpp
+@@ -28,12 +28,18 @@
+ 
+ #include &lt;qcanvas.h&gt;
+ #include &lt;qfont.h&gt;
++#include &lt;qtimer.h&gt;
++#include &lt;qsignal.h&gt;
++#include &lt;kpassivepopup.h&gt;
++#include &lt;kapplication.h&gt;
++#include &lt;qlabel.h&gt;
++#include &lt;qwidget.h&gt;
+ 
+-CanvasPlayer::CanvasPlayer( int i, QCanvas* canvas )
++CanvasPlayer::CanvasPlayer( int i, QCanvas* canvas, QCanvasView* view )
+     : m_canvas( canvas )
+ {
+     create();
+-    
++    m_view = view;
+     m_position = i;
+     // TODO: get a correct id! especially important for networking!
+     m_id = i;
+@@ -258,6 +264,38 @@
+     m_cards-&gt;appendList( cards );
+ }
+ 
++void CanvasPlayer::say( const QString &amp; message, unsigned int playerid )
++{
++    int x, y;
++    MyKPassivePopup *pop = new MyKPassivePopup( KApplication::kApplication()-&gt;mainWidget() );
++    QLabel *Text = new QLabel( message, pop );
++    pop-&gt;setView( Text );
++    x=KApplication::kApplication()-&gt;mainWidget()-&gt;x();
++    y=KApplication::kApplication()-&gt;mainWidget()-&gt;y();
++    pop-&gt;show();
++    switch(playerid)
++    {
++    case 1:
++    		x+=5+m_name-&gt;x()+70;
++    		y+=m_canvas-&gt;height()/2;
++    		break;
++
++    case 2:
++    		x+=m_canvas-&gt;width()/2-pop-&gt;width()/2;
++    		//y+=this-&gt;mapToGlobal(QPoint(m_name-&gt;x(), 0 )).x();
++    		y+=m_view-&gt;mapToGlobal(QPoint(0, m_name-&gt;y() )).y();
++    		break;
++    case 3:
++    default:
++    		x+=5+m_name-&gt;x()-70;
++    		y+=m_canvas-&gt;height()/2;
++    		break;
++    }
++
++    pop-&gt;setGeometry ( QRect ( QPoint ( x, y ), QPoint( 0,0 ) ) );
++    //(m_name-&gt;x()+m_name-&gt;boundingRect().width()/2+20,m_name-&gt;y());
++}
++
+ void CanvasPlayer::setHasDoubled( bool h )
+ {
+     m_has_doubled = h;
+@@ -281,5 +319,15 @@
+ unsigned int CanvasPlayer::id() const
+ {
+     return m_id;
++}
++
++MyKPassivePopup::MyKPassivePopup( QWidget *parent, const char *name, WFlags f ) : KPassivePopup(parent, name, f)
++{
++}
++
++void MyKPassivePopup::myShow()
++{
++	show();
++	moveNear( QRect(QPoint(300,300), QPoint(50,50)) );
+ }
+ 
+Index: canvasplayer.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/canvasplayer.h -Lsrc/canvasplayer.h -u -r1.8 -r1.9
+--- src/canvasplayer.h
++++ src/canvasplayer.h
+@@ -23,12 +23,14 @@
+ #include &quot;schafkopfdef.h&quot;
+ 
+ #include &lt;qstring.h&gt;
++#include &lt;kpassivepopup.h&gt;
+ 
+ class Card;
+ class CardList;
+ class CanvasCard;
+ class Player;
+ class QCanvas;
++class QCanvasView;
+ class QCanvasText;
+ 
+ /**
+@@ -38,7 +40,7 @@
+ */
+ class CanvasPlayer{
+     public:
+-        CanvasPlayer( int i, QCanvas* canvas );
++        CanvasPlayer( int i, QCanvas* canvas, QCanvasView* view );
+         ~CanvasPlayer();
+         
+         void position();
+@@ -51,6 +53,7 @@
+         void setLast( bool l );
+         void setName( const QString &amp; name );
+         void setCards( CardList* cards );
++        void say( const QString &amp; message, unsigned int playerid );
+         
+         CanvasCard* canvasCard( int index );
+         void cardPlayed( Card* c );
+@@ -67,9 +70,17 @@
+         QString m_player_name;
+         
+         QCanvas* m_canvas;
++        QCanvasView* m_view;
+         QCanvasText* m_name;
+         CanvasCard* m_items[NUMCARDS];
+         CardList* m_cards;
+ };
++
++class MyKPassivePopup : public KPassivePopup
++    {
++    public:
++	MyKPassivePopup( QWidget *parent=0, const char *name=0, WFlags f=0 );
++	void myShow();
++    };
+ 
+ #endif
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000136.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf schmieren ist jetzt IMHO wesentlich besser
+</A></li>
+	<LI>Next message: <A HREF="000138.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf remove strategy book, the AI plays more
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#137">[ date ]</a>
+              <a href="thread.html#137">[ thread ]</a>
+              <a href="subject.html#137">[ subject ]</a>
+              <a href="author.html#137">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

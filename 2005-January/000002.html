@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf regel-dialog ueberarbeitet und uebersetzt
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-January/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20regel-dialog%20ueberarbeitet%20und%20uebersetzt&In-Reply-To=%3C200501021544.j02FivZQ012442%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000001.html">
+   <LINK REL="Next"  HREF="000003.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf regel-dialog ueberarbeitet und uebersetzt</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20regel-dialog%20ueberarbeitet%20und%20uebersetzt&In-Reply-To=%3C200501021544.j02FivZQ012442%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf regel-dialog ueberarbeitet und uebersetzt">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Sun Jan  2 16:44:57 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000001.html">[Schafkopf-devel] Commit Report - Schafkopf regel-dialog etwas erweitert
+</A></li>
+        <LI>Next message: <A HREF="000003.html">[Schafkopf-devel] Commit Report - Schafkopf der computer kann jetzt klopfen, es fehlt noch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#2">[ date ]</a>
+              <a href="thread.html#2">[ thread ]</a>
+              <a href="subject.html#2">[ subject ]</a>
+              <a href="author.html#2">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+regel-dialog ueberarbeitet und uebersetzt
+
+Modified Files:
+--------------
+    schafkopf/po:
+        de.po
+    schafkopf/src:
+        preferencesdlg.cpp
+        preferencesdlg.h
+
+-------------- next part --------------
+Index: de.po
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/po/de.po,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lpo/de.po -Lpo/de.po -u -r1.8 -r1.9
+--- po/de.po
++++ po/de.po
+@@ -355,3 +355,24 @@
+ 
+ msgid &quot;Configure Point Values&quot;
+ msgstr &quot;Punkte festlegen&quot;
++
++msgid &quot;Rules&quot;
++msgstr &quot;Regeln&quot;
++
++msgid &quot;No one wants to play:&quot;
++msgstr &quot;Niemand will spielen:&quot;
++
++msgid &quot;The &amp;last player who has doubled has to play.&quot;
++msgstr &quot;Der Spieler, der als &amp;letztes geklopft hat, muss spielen.&quot;
++
++msgid &quot;The last player who has doubled has to play. If no one has doubled the above rule takes effect.&quot;
++msgstr &quot;Der Spieler, der als letztes geklopft hat, muss spielen. Falls niemand geklopft hat, tritt die obige Regel in Kraft.&quot;
++
++msgid &quot;&amp;Throw cards together and give new ones.&quot;
++msgstr &quot;Karten &amp;zusammenwerfen und neu geben.&quot;
++
++msgid &quot;The player who has the Eichel &amp;Ober has to play.&quot;
++msgstr &quot;Der Spieler der den &amp;Alten hat muss spielen.&quot;
++
++msgid &quot;&amp;Double next game when cards were thrown together.&quot;
++msgstr &quot;Das n??chste Spiel &amp;doppeln wenn die Karten zusammengeworfen wurden.&quot;
+Index: preferencesdlg.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -Lsrc/preferencesdlg.h -Lsrc/preferencesdlg.h -u -r1.6 -r1.7
+--- src/preferencesdlg.h
++++ src/preferencesdlg.h
+@@ -57,11 +57,8 @@
+         QRadioButton* m_radioPoints;
+         QRadioButton* m_radioThrowAway;
+         QRadioButton* m_radioForcedGame;
+-        QRadioButton* m_radioForcedGame2;
+-        QRadioButton* m_radioForcedGame3;
+-        QRadioButton* m_radioForcedGame4;
+-
+-
++        
++        QCheckBox* m_checkDoublerPlays;
+         QCheckBox* m_checkDoubleNextGame; 
+ 
+         KLineEdit* m_p1_name;
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.7 -r1.8
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -34,6 +34,7 @@
+ #include &lt;qlabel.h&gt;
+ #include &lt;qspinbox.h&gt;
+ #include &lt;qcheckbox.h&gt;
++#include &lt;qtooltip.h&gt;
+ 
+ PreferencesDlg::PreferencesDlg(QWidget *parent, const char *name)
+     : KDialogBase( IconList, i18n(&quot;Preferences&quot;), KDialogBase::Ok|KDialogBase::Cancel,
+@@ -117,13 +118,11 @@
+     QSpacerItem* spacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding );
+     
+     QVButtonGroup* group = new QVButtonGroup( i18n(&quot;No one wants to play:&quot;), box, &quot;group&quot; );
+-    m_radioThrowAway = new QRadioButton( i18n(&quot;&amp;Throw cards together and give new ones&quot;), group );
+-    m_radioForcedGame = new QRadioButton( i18n(&quot;He who has the Eichel &amp;Ober has to play&quot;), group );
+-    m_radioForcedGame2 = new QRadioButton( i18n(&quot;He who doubled last has to play. If no one has doubled:&quot;), group );
+-    QVButtonGroup* group2 = new QVButtonGroup( &quot;&quot;, group, &quot;group2&quot; );
+-    m_radioForcedGame3 = new QRadioButton( i18n(&quot;Throw cards together&quot;), group2 );
+-    m_radioForcedGame4 = new QRadioButton( i18n(&quot;Eichel Ober has to play&quot;), group2 );
+-    m_checkDoubleNextGame = new QCheckBox ( i18n(&quot;Double next game when cards are thrown together&quot;), group );
++    m_radioThrowAway = new QRadioButton( i18n(&quot;&amp;Throw cards together and give new ones.&quot;), group );
++    m_radioForcedGame = new QRadioButton( i18n(&quot;The player who has the Eichel &amp;Ober has to play.&quot;), group );
++    m_checkDoublerPlays = new QCheckBox ( i18n(&quot;The &amp;last player who has doubled has to play.&quot;), group );
++    QToolTip::add( m_checkDoublerPlays, i18n(&quot;The last player who has doubled has to play. If no one has doubled the above rule takes effect.&quot;) );
++    m_checkDoubleNextGame = new QCheckBox ( i18n(&quot;&amp;Double next game when cards were thrown together.&quot;), group );
+  
+     layout-&gt;addWidget( group );
+     layout-&gt;addItem( spacer );
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000001.html">[Schafkopf-devel] Commit Report - Schafkopf regel-dialog etwas erweitert
+</A></li>
+	<LI>Next message: <A HREF="000003.html">[Schafkopf-devel] Commit Report - Schafkopf der computer kann jetzt klopfen, es fehlt noch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#2">[ date ]</a>
+              <a href="thread.html#2">[ thread ]</a>
+              <a href="subject.html#2">[ subject ]</a>
+              <a href="author.html#2">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

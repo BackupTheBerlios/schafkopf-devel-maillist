@@ -1,0 +1,270 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf use settings allowed games settings from the
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-January/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20use%20settings%20allowed%20games%20settings%20from%20the&In-Reply-To=%3C200501072110.j07LAIKW027708%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000028.html">
+   <LINK REL="Next"  HREF="000030.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf use settings allowed games settings from the</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20use%20settings%20allowed%20games%20settings%20from%20the&In-Reply-To=%3C200501072110.j07LAIKW027708%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf use settings allowed games settings from the">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Fri Jan  7 22:10:18 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000028.html">[Schafkopf-devel] Commit Report - Schafkopf muell entfernt
+</A></li>
+        <LI>Next message: <A HREF="000030.html">[Schafkopf-devel] Commit Report - Schafkopf uebersetzung
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#29">[ date ]</a>
+              <a href="thread.html#29">[ thread ]</a>
+              <a href="subject.html#29">[ subject ]</a>
+              <a href="author.html#29">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+use settings allowed games settings from the preferences
+
+Modified Files:
+--------------
+    schafkopf/src:
+        selectgamecolorbox.cpp
+        selectgamecolorbox.h
+        selectgametypebox.cpp
+        selectgametypebox.h
+
+-------------- next part --------------
+Index: selectgametypebox.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/selectgametypebox.cpp,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/selectgametypebox.cpp -Lsrc/selectgametypebox.cpp -u -r1.8 -r1.9
+--- src/selectgametypebox.cpp
++++ src/selectgametypebox.cpp
+@@ -23,6 +23,7 @@
+ #include &quot;cardlist.h&quot;
+ #include &quot;game.h&quot;
+ #include &quot;gameinfo.h&quot;
++#include &quot;settings.h&quot;
+ 
+ #include &lt;qwidget.h&gt;
+ #include &lt;qhbox.h&gt;
+@@ -49,6 +50,8 @@
+ 
+ SelectGameTypeBox::SelectGameTypeBox( QWidget *parent, const char *name ):QHBox(parent, name, 0)
+ {
++    m_allowed = Settings::instance()-&gt;allowedGames();
++    
+ 	setSpacing(8);
+ 	page = new QHBox( this );
+ 	row1 = new QVBox( page );
+@@ -73,11 +76,20 @@
+ 
+ 	checkRufspiel-&gt;setChecked(TRUE);
+ 
++    checkGeier-&gt;setEnabled( m_allowed-&gt;geier );
++    checkWenz-&gt;setEnabled( m_allowed-&gt;wenz );
++    checkDachs-&gt;setEnabled( m_allowed-&gt;dachs );
++    
+ 	typeChanged();
+ 	infoLabel-&gt;setMaximumWidth(preview-&gt;size().width());
+ 
+ }
+ 
++SelectGameTypeBox::~SelectGameTypeBox()
++{
++    delete m_allowed;
++}
++
+ void SelectGameTypeBox::typeChanged()
+ {
+ 	GameInfo *info=gameInfo();
+@@ -110,11 +122,6 @@
+ {
+ 	infoLabel-&gt;setText(Text);
+ }
+-
+-SelectGameTypeBox::~SelectGameTypeBox()
+-{
+-}
+-
+ 
+ void SelectGameTypeBox::updatePreview()
+ {
+Index: selectgamecolorbox.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/selectgamecolorbox.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -Lsrc/selectgamecolorbox.h -Lsrc/selectgamecolorbox.h -u -r1.2 -r1.3
+--- src/selectgamecolorbox.h
++++ src/selectgamecolorbox.h
+@@ -35,6 +35,8 @@
+ class SelectGameWizard;
+ class GameInfo;
+ 
++struct t_AllowedGames;
++
+ /**
+ @author Christian Kern
+ */
+@@ -49,6 +51,10 @@
+ 	void setGameInfo(GameInfo* info);
+ 	GameInfo* getGameInfo();
+ 	bool getFinish();
++    
++private:
++    t_AllowedGames* m_allowed;
++    
+ protected:
+ 	GameInfo* m_gameinfo;
+ 	QButtonGroup* color_group;
+Index: selectgametypebox.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/selectgametypebox.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -Lsrc/selectgametypebox.h -Lsrc/selectgametypebox.h -u -r1.4 -r1.5
+--- src/selectgametypebox.h
++++ src/selectgametypebox.h
+@@ -31,6 +31,8 @@
+ class QButtonGroup;
+ class GameInfo;
+ 
++struct t_AllowedGames;
++
+ /**
+ @author Christian Kern
+ */
+@@ -42,6 +44,10 @@
+ 
+ 	~SelectGameTypeBox();
+ 	GameInfo* gameInfo() const;
++    
++private:
++    t_AllowedGames* m_allowed;
++    
+ protected:
+ 	QRadioButton* checkRufspiel;
+ 	QRadioButton* checkSolo;
+Index: selectgamecolorbox.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/selectgamecolorbox.cpp,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -Lsrc/selectgamecolorbox.cpp -Lsrc/selectgamecolorbox.cpp -u -r1.2 -r1.3
+--- src/selectgamecolorbox.cpp
++++ src/selectgamecolorbox.cpp
+@@ -23,6 +23,7 @@
+ #include &quot;cardlist.h&quot;
+ #include &quot;game.h&quot;
+ #include &quot;gameinfo.h&quot;
++#include &quot;settings.h&quot;
+ 
+ #include &lt;qwidget.h&gt;
+ #include &lt;qhbox.h&gt;
+@@ -44,6 +45,8 @@
+ 
+ SelectGameColorBox::SelectGameColorBox( QWidget *parent, const char *name ):QHBox(parent, name, 0)
+ {
++    m_allowed = Settings::instance()-&gt;allowedGames();
++    
+ 	m_gameinfo=0;
+ 	setSpacing(8);
+ 	page = new QVBox( this );
+@@ -72,6 +75,16 @@
+ 
+ }
+ 
++
++SelectGameColorBox::~SelectGameColorBox()
++{
++	delete m_Herz;
++	delete m_Schelle;
++	delete m_Eichel;
++	delete m_Gras;
++    delete m_allowed;
++}
++
+ int SelectGameColorBox::getColor()
+ {
+ 	if(checkEichel-&gt;isChecked()) return (Card::EICHEL);
+@@ -159,13 +172,21 @@
+ 
+ void SelectGameColorBox::setStatus(bool Eichel, bool Gras, bool Herz, bool Schellen, bool Farblos)
+ {
+-	if(Eichel==true) checkEichel-&gt;show();
++    bool allow_colors = true;
++    
++    if( m_gameinfo-&gt;mode() == GameInfo::WENZ )
++        allow_colors = allow_colors &amp; m_allowed-&gt;farb_wenz;
++        
++    if( m_gameinfo-&gt;mode() == GameInfo::GEIER )
++        allow_colors = allow_colors &amp; m_allowed-&gt;farb_geier;
++    
++	if(allow_colors&amp;&amp;Eichel==true) checkEichel-&gt;show();
+ 	else checkEichel-&gt;hide();
+-	if(Gras==true) checkGras-&gt;show();
++	if(allow_colors&amp;&amp;Gras==true) checkGras-&gt;show();
+ 	else checkGras-&gt;hide();
+-	if(Herz==true) checkHerz-&gt;show();
++	if(allow_colors&amp;&amp;Herz==true) checkHerz-&gt;show();
+ 	else checkHerz-&gt;hide();
+-	if(Schellen==true) checkSchellen-&gt;show();
++	if(allow_colors&amp;&amp;Schellen==true) checkSchellen-&gt;show();
+ 	else checkSchellen-&gt;hide();
+ 	if(Farblos==true) checkFarblos-&gt;show();
+ 	else checkFarblos-&gt;hide();
+@@ -177,14 +198,6 @@
+ bool SelectGameColorBox::getFinish()
+ {
+ 	return m_finish;
+-}
+-
+-SelectGameColorBox::~SelectGameColorBox()
+-{
+-	delete m_Herz;
+-	delete m_Schelle;
+-	delete m_Eichel;
+-	delete m_Gras;
+ }
+ 
+ void SelectGameColorBox::setGameInfo(GameInfo* info)
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000028.html">[Schafkopf-devel] Commit Report - Schafkopf muell entfernt
+</A></li>
+	<LI>Next message: <A HREF="000030.html">[Schafkopf-devel] Commit Report - Schafkopf uebersetzung
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#29">[ date ]</a>
+              <a href="thread.html#29">[ thread ]</a>
+              <a href="subject.html#29">[ subject ]</a>
+              <a href="author.html#29">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

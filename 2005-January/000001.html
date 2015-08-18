@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf regel-dialog etwas erweitert
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-January/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20regel-dialog%20etwas%20erweitert&In-Reply-To=%3C200501020342.j023gTiv014490%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000000.html">
+   <LINK REL="Next"  HREF="000002.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf regel-dialog etwas erweitert</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20regel-dialog%20etwas%20erweitert&In-Reply-To=%3C200501020342.j023gTiv014490%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf regel-dialog etwas erweitert">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Sun Jan  2 04:42:29 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000000.html">[Schafkopf-devel] Commit Report - Schafkopf change player names on the fly
+</A></li>
+        <LI>Next message: <A HREF="000002.html">[Schafkopf-devel] Commit Report - Schafkopf regel-dialog ueberarbeitet und uebersetzt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+regel-dialog etwas erweitert
+
+Modified Files:
+--------------
+    schafkopf/src:
+        preferencesdlg.cpp
+        preferencesdlg.h
+
+-------------- next part --------------
+Index: preferencesdlg.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -Lsrc/preferencesdlg.h -Lsrc/preferencesdlg.h -u -r1.5 -r1.6
+--- src/preferencesdlg.h
++++ src/preferencesdlg.h
+@@ -28,6 +28,7 @@
+ class QRadioButton;
+ class QLabel;
+ class QSpinBox;
++class QCheckBox;
+ 
+ /**
+ Preferences dialog for schafkopf
+@@ -56,6 +57,12 @@
+         QRadioButton* m_radioPoints;
+         QRadioButton* m_radioThrowAway;
+         QRadioButton* m_radioForcedGame;
++        QRadioButton* m_radioForcedGame2;
++        QRadioButton* m_radioForcedGame3;
++        QRadioButton* m_radioForcedGame4;
++
++
++        QCheckBox* m_checkDoubleNextGame; 
+ 
+         KLineEdit* m_p1_name;
+         KLineEdit* m_p2_name;
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.6 -r1.7
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -33,6 +33,7 @@
+ #include &lt;qhbuttongroup.h&gt;
+ #include &lt;qlabel.h&gt;
+ #include &lt;qspinbox.h&gt;
++#include &lt;qcheckbox.h&gt;
+ 
+ PreferencesDlg::PreferencesDlg(QWidget *parent, const char *name)
+     : KDialogBase( IconList, i18n(&quot;Preferences&quot;), KDialogBase::Ok|KDialogBase::Cancel,
+@@ -116,8 +117,13 @@
+     QSpacerItem* spacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding );
+     
+     QVButtonGroup* group = new QVButtonGroup( i18n(&quot;No one wants to play:&quot;), box, &quot;group&quot; );
+-    m_radioThrowAway = new QRadioButton( i18n(&quot;&amp;Throw cards away and give new ones&quot;), group );
+-    m_radioForcedGame = new QRadioButton( i18n(&quot;&amp;Forced game (Eichel Ober plays)&quot;), group );
++    m_radioThrowAway = new QRadioButton( i18n(&quot;&amp;Throw cards together and give new ones&quot;), group );
++    m_radioForcedGame = new QRadioButton( i18n(&quot;He who has the Eichel &amp;Ober has to play&quot;), group );
++    m_radioForcedGame2 = new QRadioButton( i18n(&quot;He who doubled last has to play. If no one has doubled:&quot;), group );
++    QVButtonGroup* group2 = new QVButtonGroup( &quot;&quot;, group, &quot;group2&quot; );
++    m_radioForcedGame3 = new QRadioButton( i18n(&quot;Throw cards together&quot;), group2 );
++    m_radioForcedGame4 = new QRadioButton( i18n(&quot;Eichel Ober has to play&quot;), group2 );
++    m_checkDoubleNextGame = new QCheckBox ( i18n(&quot;Double next game when cards are thrown together&quot;), group );
+  
+     layout-&gt;addWidget( group );
+     layout-&gt;addItem( spacer );
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000000.html">[Schafkopf-devel] Commit Report - Schafkopf change player names on the fly
+</A></li>
+	<LI>Next message: <A HREF="000002.html">[Schafkopf-devel] Commit Report - Schafkopf regel-dialog ueberarbeitet und uebersetzt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

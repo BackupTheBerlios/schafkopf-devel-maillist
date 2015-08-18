@@ -1,0 +1,130 @@
+From domseichter at web.de  Wed May 20 17:01:39 2009
+From: domseichter at web.de (Dominik Seichter)
+Date: Wed, 20 May 2009 17:01:39 +0200
+Subject: [Schafkopf-devel] SchafKopf
+In-Reply-To: <1705374572@web.de>
+References: <1705374572@web.de>
+Message-ID: <200905201701.42186.domseichter@web.de>
+
+Hallo Kurt,
+
+Schafkopf ben?tigt die KDE3 Bibliotheken und insbesondere die KDE3 Version der 
+KDEGames Bibliothek. Einfach einen Sym-Link auf eine andere Version der 
+Bibliothek setzen hilft da leider nichts, da diese grundverschieden sind.
+
+Soweit ich wei?, m?sstest Du die Packete f?r KDE3 und KDEGames 3 ?ber Yast 
+einfach nachinstallieren k?nnen. Wichtig: Zum Kompilieren ben?tigst Du auch 
+kdegames-devel sowie kdelibs-devel (die Paketnamen k?nnen auf SuSE leicht 
+utnerschiedlich sein)
+
+Ciao,
+	Dominik
+
+Am Mittwoch, 20. Mai 2009 schrieb Kurt Schneider:
+> --
+> Hallo Dominik,
+>
+> so langsam bin ich am verzweifeln, was die Installation von SchafKopf auf
+> Linux angeht :-(((. Ich habe ein SuSE 11.1 System und habe alle
+> M?glichkeiten versucht.
+>
+>
+> Download der Sourcen und anschlie?endes make enden mit folgender
+> Fehlermeldung:
+> ---------------------------------------------------------------------------
+>---- /usr/lib/qt3/include/qpushbutton.h: In member function ?virtual void
+> QPushButton::setIsMenuButton(bool)?: /usr/lib/qt3/include/qpushbutton.h:94:
+> warning: conversion to ?unsigned char:1? from ?int? may alter its value
+> schafkopf.cpp: In member function ?virtual void
+> SchafKopf::customEvent(QCustomEvent*)?: schafkopf.cpp:249: warning:
+> deleting ?void*? is undefined
+> schafkopf.cpp: In member function ?void SchafKopf::setupActions()?:
+> schafkopf.cpp:277: error: ?KStdGameAction? has not been declared
+> schafkopf.cpp:278: error: ?KStdGameAction? has not been declared
+> schafkopf.cpp:288: error: ?KStdGameAction? has not been declared
+> schafkopf.cpp:294: error: ?KStdGameAction? has not been declared
+> make[2]: *** [schafkopf.o] Error 1
+> make[2]: Leaving directory `/home/kurt/tmp/schafkopf-0.7/src'
+> make[1]: *** [all-recursive] Error 1
+> make[1]: Leaving directory `/home/kurt/tmp/schafkopf-0.7'
+> make: *** [all] Error 2
+>
+>
+> Download des CVS Tree und make endet mit der f?r mich V?LLIG
+> unverst?ndlichen Meldung:
+> ---------------------------------------------------------------------------
+>----------- This Makefile is only for the CVS repository
+> This will be deleted before making the distribution
+>
+> *** YOU'RE USING autoconf (GNU Autoconf) 2.63.
+> *** KDE requires autoconf 2.53 or newer
+> make[1]: *** [cvs] Error 1
+> make: *** [all] Error 2
+>
+>
+> Installationsversuch des rpm Package f?r SuSE 10.0 (ein aktuelleres scheint
+> es ja nicht zu geben) endet in:
+> ---------------------------------------------------------------------------
+>-------------------------------- warning:
+> schafkopf-0.7-0.oc2pus.1SuSE10.i586.rpm: Header V3 DSA signature: NOKEY,
+> key ID 1dfa8f0c error: Failed dependencies:
+>         libkdegames.so.1 is needed by schafkopf-0.7-0.oc2pus.1.i586
+>         libpng.so.3 is needed by schafkopf-0.7-0.oc2pus.1.i586
+>
+> obwohl:
+>
+> $ ls -l /usr/lib/libkdegames* /usr/lib/libpng*
+> lrwxrwxrwx 1 root root     16 2009-05-19 15:04 /usr/lib/libkdegames.so ->
+> libkdegames.so.5 lrwxrwxrwx 1 root root     20 2009-05-15 20:11
+> /usr/lib/libkdegames.so.5 -> libkdegames.so.5.0.0 -rwxr-xr-x 1 root root
+> 984104 2008-12-03 13:35 /usr/lib/libkdegames.so.5.0.0 lrwxrwxrwx 1 root
+> root     18 2009-05-15 21:26 /usr/lib/libpng12.so -> libpng12.so.0.31.0
+> lrwxrwxrwx 1 root root     18 2009-05-15 21:09 /usr/lib/libpng12.so.0 ->
+> libpng12.so.0.31.0 -rwxr-xr-x 1 root root 165848 2009-02-25 18:17
+> /usr/lib/libpng12.so.0.31.0 lrwxrwxrwx 1 root root     11 2009-05-15 21:26
+> /usr/lib/libpng.so -> libpng12.so
+>
+> Es scheint also alles da zu sein. Verlinken von libkdegames.so.1 und
+> libkdegames.so.5 bringt auch nichts.
+>
+> Tja, wie ich schon sagte: ich bin hier ziemlich am Ende :-(((
+>
+> Hast Du noch eine Idee?
+>s
+> Vielen Dank und lieben Gru?
+>
+> Kurt
+>
+> -----------------------------------
+> Kurt Schneider
+> Merowingerstra?e 1a
+> D-40223 D?sseldorf
+>
+> Tel.       +49 / 211 / 543 543 0
+> Tel.       +49 / 211 / 81-11677
+> Mobile: +49 / 172 / 93 93 027
+> Email:   Kurt.Schneider at uni-duesseldorf.de
+>
+> ____________________________________________________________
+> Text: GRATIS f?r alle WEB.DE-Nutzer: Die maxdome Movie-FLAT!
+> Jetzt freischalten unter http://movieflat.web.de
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: This is a digitally signed message part.
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20090520/a5926903/attachment.pgp>
+

@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf kleiner bugix
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20kleiner%20bugix&In-Reply-To=%3C200502131353.j1DDrLTY015748%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000065.html">
+   <LINK REL="Next"  HREF="000067.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf kleiner bugix</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20kleiner%20bugix&In-Reply-To=%3C200502131353.j1DDrLTY015748%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf kleiner bugix">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Sun Feb 13 14:53:21 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000065.html">[Schafkopf-devel] Commit Report - Schafkopf Keiner hat sich beschwert, also stell ich den
+</A></li>
+        <LI>Next message: <A HREF="000067.html">[Schafkopf-devel] Commit Report - Schafkopf stiche verschwinden nicht mehr beim karten
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#66">[ date ]</a>
+              <a href="thread.html#66">[ thread ]</a>
+              <a href="subject.html#66">[ subject ]</a>
+              <a href="author.html#66">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+kleiner bugix
+
+Modified Files:
+--------------
+    schafkopf:
+        TODO
+    schafkopf/src:
+        preferencesdlg.cpp
+
+-------------- next part --------------
+Index: TODO
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/TODO,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -LTODO -LTODO -u -r1.7 -r1.8
+--- TODO
++++ TODO
+@@ -1,2 +1,11 @@
+ 
+-Rufsau nach davonlaufen in allowedCards hinzuf?gen
++Fixen:
++- Umstellen der Spielkarten (und R?ckseite) f?hrt zu Darstellungsfehler
++- Rufsau nach davonlaufen in allowedCards hinzuf?gen
++
++neue Features:
++- Tastatursteuerung
++- &quot;Momentan ist es so, dass ich sofort bei der Spielansage angeben muss, welches Spiel ich zu spielen gedenke. In der Realit?t kann ich es davon abh?ngig machen, ob hinter mir noch jemand ein Spiel angemeldet hat. Die exakte Spielauswahl sollte also erst zu dem Zeitpunkt erfolgen, an dem sie auch in der Ralit?t stattfindet.&quot; Und dann nur Spiele ausw?hlbar machen die h?her sind als die vorher angesagten.
++- AI verbessern
++- richtige Schafkopfkarten hinzuf?gen
++- netzwerktransparente Kommunikation (f?r neuronales Netzwerk)
+\ No newline at end of file
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.18 -r1.19
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -282,6 +282,7 @@
+     layout-&gt;addWidget( group2 );
+     layout-&gt;addWidget( group );
+     layout-&gt;addItem( spacer );
++    disableClearButton(m_linePathBackground-&gt;url());
+     
+     connect( m_pushURLClear, SIGNAL( clicked() ), m_linePathBackground, SLOT( clear() ) );
+     connect( m_linePathBackground, SIGNAL( textChanged(const QString &amp;) ), this, SLOT( disableClearButton(const QString &amp;) ) );
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000065.html">[Schafkopf-devel] Commit Report - Schafkopf Keiner hat sich beschwert, also stell ich den
+</A></li>
+	<LI>Next message: <A HREF="000067.html">[Schafkopf-devel] Commit Report - Schafkopf stiche verschwinden nicht mehr beim karten
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#66">[ date ]</a>
+              <a href="thread.html#66">[ thread ]</a>
+              <a href="subject.html#66">[ subject ]</a>
+              <a href="author.html#66">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

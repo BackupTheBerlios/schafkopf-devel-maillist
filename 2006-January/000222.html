@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] domseichter: Commit Report - Schafkopf xdg desktop entry standard
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2006-January/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20xdg%20desktop%20entry%20standard&In-Reply-To=%3C200601141316.k0EDGHhe012210%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000221.html">
+   <LINK REL="Next"  HREF="000223.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] domseichter: Commit Report - Schafkopf xdg desktop entry standard</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20xdg%20desktop%20entry%20standard&In-Reply-To=%3C200601141316.k0EDGHhe012210%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] domseichter: Commit Report - Schafkopf xdg desktop entry standard">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Sat Jan 14 14:16:17 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000221.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf kleinigkeiten ...
+</A></li>
+        <LI>Next message: <A HREF="000223.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf fixed desktop file
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#222">[ date ]</a>
+              <a href="thread.html#222">[ thread ]</a>
+              <a href="subject.html#222">[ subject ]</a>
+              <a href="author.html#222">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+xdg desktop entry standard
+
+Modified Files:
+--------------
+    schafkopf/src:
+        Makefile.am
+        schafkopf.desktop
+
+-------------- next part --------------
+Index: schafkopf.desktop
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopf.desktop,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -Lsrc/schafkopf.desktop -Lsrc/schafkopf.desktop -u -r1.1.1.1 -r1.2
+--- src/schafkopf.desktop
++++ src/schafkopf.desktop
+@@ -6,3 +6,4 @@
+ Type=Application
+ Comment=Schafkopf - A popular Bavarian Cardgame
+ Comment[de]=Schafkopfen
++Categories=Qt;KDE;CardGame;
+Index: Makefile.am
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/Makefile.am,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -Lsrc/Makefile.am -Lsrc/Makefile.am -u -r1.17 -r1.18
+--- src/Makefile.am
++++ src/Makefile.am
+@@ -31,9 +31,7 @@
+ schafkopf_LDFLAGS = $(KDE_RPATH) $(all_libraries)
+ schafkopf_LDADD = -lkdegames $(LIB_KDEUI)
+ 
+-# this is where the desktop file will go 
+-shelldesktopdir   = $(kde_appsdir)/Games/
+-shelldesktop_DATA = schafkopf.desktop
++xdg_apps_DATA = schafkopf.desktop
+ 
+ # this is where the shell's XML-GUI resource file goes
+ shellrcdir   = $(kde_datadir)/schafkopf
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000221.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf kleinigkeiten ...
+</A></li>
+	<LI>Next message: <A HREF="000223.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf fixed desktop file
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#222">[ date ]</a>
+              <a href="thread.html#222">[ thread ]</a>
+              <a href="subject.html#222">[ subject ]</a>
+              <a href="author.html#222">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

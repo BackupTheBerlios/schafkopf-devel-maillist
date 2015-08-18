@@ -1,0 +1,292 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf Werden nicht gebraucht.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20Werden%20nicht%20gebraucht.&In-Reply-To=%3C200502211243.j1LChpHT018146%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000082.html">
+   <LINK REL="Next"  HREF="000084.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf Werden nicht gebraucht.</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20Werden%20nicht%20gebraucht.&In-Reply-To=%3C200502211243.j1LChpHT018146%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf Werden nicht gebraucht.">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Mon Feb 21 13:43:51 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000082.html">[Schafkopf-devel] Commit Report - Schafkopf unterstrichen ist sch&#246;ner als haessliches
+</A></li>
+        <LI>Next message: <A HREF="000084.html">[Schafkopf-devel] Commit Report - Schafkopf Results ist keine Virtuelle Klasse mehr und
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#83">[ date ]</a>
+              <a href="thread.html#83">[ thread ]</a>
+              <a href="subject.html#83">[ subject ]</a>
+              <a href="author.html#83">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+Werden nicht gebraucht. Wird jetzt alles in Results gemacht -&gt; weniger doppelter code.
+
+Removed Files:
+-------------
+    schafkopf/src:
+        moneyresults.cpp
+        pointresults.cpp
+        moneyresults.h
+        pointresults.h
+
+-------------- next part --------------
+--- src/moneyresults.h
++++ /dev/null
+@@ -1,36 +0,0 @@
+-/***************************************************************************
+- *   Copyright (C) 2004 by Dominik Seichter                                *
+- *   <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>                                                    *
+- *                                                                         *
+- *   This program is free software; you can redistribute it and/or modify  *
+- *   it under the terms of the GNU General Public License as published by  *
+- *   the Free Software Foundation; either version 2 of the License, or     *
+- *   (at your option) any later version.                                   *
+- *                                                                         *
+- *   This program is distributed in the hope that it will be useful,       *
+- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+- *   GNU General Public License for more details.                          *
+- *                                                                         *
+- *   You should have received a copy of the GNU General Public License     *
+- *   along with this program; if not, write to the                         *
+- *   Free Software Foundation, Inc.,                                       *
+- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+- ***************************************************************************/
+-#ifndef MONEYRESULTS_H
+-#define MONEYRESULTS_H
+-
+-#include &quot;results.h&quot;
+-
+-/**
+<A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">- at author</A> Dominik Seichter
+-*/
+-class MoneyResults : virtual public Results
+-{
+-    public:
+-        MoneyResults();
+-        double points( Player* player );
+-        QString formatedPoints( Player* player );
+-};
+-
+-#endif
+--- src/pointresults.cpp
++++ /dev/null
+@@ -1,67 +0,0 @@
+-/***************************************************************************
+- *   Copyright (C) 2004 by Dominik Seichter                                *
+- *   <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>                                                    *
+- *                                                                         *
+- *   This program is free software; you can redistribute it and/or modify  *
+- *   it under the terms of the GNU General Public License as published by  *
+- *   the Free Software Foundation; either version 2 of the License, or     *
+- *   (at your option) any later version.                                   *
+- *                                                                         *
+- *   This program is distributed in the hope that it will be useful,       *
+- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+- *   GNU General Public License for more details.                          *
+- *                                                                         *
+- *   You should have received a copy of the GNU General Public License     *
+- *   along with this program; if not, write to the                         *
+- *   Free Software Foundation, Inc.,                                       *
+- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+- ***************************************************************************/
+-#include &quot;pointresults.h&quot;
+-#include &quot;player.h&quot;
+-#include &quot;game.h&quot;
+-#include &quot;gameinfo.h&quot;
+-#include &quot;settings.h&quot;
+-
+-#include &lt;kglobal.h&gt;
+-#include &lt;klocale.h&gt;
+-
+-PointResults::PointResults()
+- : Results()
+-{
+-}
+-
+-double PointResults::points( Player* player )
+-{
+-    int m = 0;
+-    t_ResultValues* r = Settings::instance()-&gt;pointResults();
+-    
+-    parse();
+-
+-    if( m_gameinfo-&gt;mode() != GameInfo::RUFSPIEL &amp;&amp; m_gameinfo-&gt;mode() != GameInfo::RAMSCH )
+-        m = (int)r-&gt;solo; // SOLO = 2
+-    else if( m_gameinfo-&gt;mode() == GameInfo::RUFSPIEL )
+-        m = (int)r-&gt;rufspiel;
+-        
+-    m += m_schneider ? (int)r-&gt;schneider : 0;
+-    m += m_schwarz ? (int)r-&gt;schwarz : 0;
+-    m += m_laufende * (int)r-&gt;laufende;
+-    m = (int)klopfen( player-&gt;game()-&gt;timesDoubled(), m );
+-    
+-    if( player == m_gameinfo-&gt;spieler() || player == m_gameinfo-&gt;mitspieler() )
+-        m = (m_points &gt; 60 ? m : m * -1);
+-    else
+-        m = (m_points &gt; 60 ? m * -1 : m);
+-        
+-    if( player == m_gameinfo-&gt;spieler() &amp;&amp; !m_gameinfo-&gt;mitspieler() )
+-        m *= 3;
+-        
+-    return (double)m;
+-}
+-
+-QString PointResults::formatedPoints( Player* player )
+-{
+-    player-&gt;setPoints( points( player ) + player-&gt;points() );
+-    return QString::number( (int)player-&gt;points() );
+-}
+-
+--- src/moneyresults.cpp
++++ /dev/null
+@@ -1,67 +0,0 @@
+-/***************************************************************************
+- *   Copyright (C) 2004 by Dominik Seichter                                *
+- *   <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>                                                    *
+- *                                                                         *
+- *   This program is free software; you can redistribute it and/or modify  *
+- *   it under the terms of the GNU General Public License as published by  *
+- *   the Free Software Foundation; either version 2 of the License, or     *
+- *   (at your option) any later version.                                   *
+- *                                                                         *
+- *   This program is distributed in the hope that it will be useful,       *
+- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+- *   GNU General Public License for more details.                          *
+- *                                                                         *
+- *   You should have received a copy of the GNU General Public License     *
+- *   along with this program; if not, write to the                         *
+- *   Free Software Foundation, Inc.,                                       *
+- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+- ***************************************************************************/
+-#include &quot;moneyresults.h&quot;
+-#include &quot;player.h&quot;
+-#include &quot;game.h&quot;
+-#include &quot;gameinfo.h&quot;
+-#include &quot;settings.h&quot;
+-
+-#include &lt;kglobal.h&gt;
+-#include &lt;klocale.h&gt;
+-
+-MoneyResults::MoneyResults()
+- : Results()
+-{
+-}
+-
+-double MoneyResults::points( Player* player )
+-{
+-    t_ResultValues* r = Settings::instance()-&gt;moneyResults();
+-    double m = 0.0;
+-    
+-    parse();
+-        
+-    if( m_gameinfo-&gt;mode() != GameInfo::RUFSPIEL &amp;&amp; m_gameinfo-&gt;mode() != GameInfo::RAMSCH )
+-        m = r-&gt;solo; // SOLO = 20cent
+-    else if( m_gameinfo-&gt;mode() == GameInfo::RUFSPIEL )
+-        m = r-&gt;rufspiel;
+-        
+-    m += m_schneider ? r-&gt;schneider : 0.0;
+-    m += m_schwarz ? r-&gt;schwarz : 0.0;
+-    m += m_laufende * r-&gt;laufende;
+-    m = klopfen( player-&gt;game()-&gt;timesDoubled(), m );
+-    
+-    if( player == m_gameinfo-&gt;spieler() || player == m_gameinfo-&gt;mitspieler() )
+-        m = (m_points &gt; 60 ? m : m * -1.0);
+-    else
+-        m = (m_points &gt; 60 ? m * -1.0 : m);
+-        
+-    if( player == m_gameinfo-&gt;spieler() &amp;&amp; !m_gameinfo-&gt;mitspieler() )
+-        m *= 3;
+-        
+-    return m;
+-}
+-
+-QString MoneyResults::formatedPoints( Player* player )
+-{
+-    player-&gt;setPoints( points( player ) + player-&gt;points() );
+-    KLocale* locale = KGlobal::locale();
+-    return locale-&gt;formatMoney( player-&gt;points() );
+-}
+--- src/pointresults.h
++++ /dev/null
+@@ -1,37 +0,0 @@
+-/***************************************************************************
+- *   Copyright (C) 2004 by Dominik Seichter                                *
+- *   <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>                                                    *
+- *                                                                         *
+- *   This program is free software; you can redistribute it and/or modify  *
+- *   it under the terms of the GNU General Public License as published by  *
+- *   the Free Software Foundation; either version 2 of the License, or     *
+- *   (at your option) any later version.                                   *
+- *                                                                         *
+- *   This program is distributed in the hope that it will be useful,       *
+- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+- *   GNU General Public License for more details.                          *
+- *                                                                         *
+- *   You should have received a copy of the GNU General Public License     *
+- *   along with this program; if not, write to the                         *
+- *   Free Software Foundation, Inc.,                                       *
+- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+- ***************************************************************************/
+-#ifndef POINTRESULTS_H
+-#define POINTRESULTS_H
+-
+-#include &lt;results.h&gt;
+-
+-/**
+<A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">- at author</A> Dominik Seichter
+-*/
+-class PointResults : virtual public Results
+-{
+-    public:
+-        PointResults();
+-		double points( Player* player );
+-        QString formatedPoints( Player* player );
+-};
+-
+-    
+-#endif
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000082.html">[Schafkopf-devel] Commit Report - Schafkopf unterstrichen ist sch&#246;ner als haessliches
+</A></li>
+	<LI>Next message: <A HREF="000084.html">[Schafkopf-devel] Commit Report - Schafkopf Results ist keine Virtuelle Klasse mehr und
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#83">[ date ]</a>
+              <a href="thread.html#83">[ thread ]</a>
+              <a href="subject.html#83">[ subject ]</a>
+              <a href="author.html#83">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

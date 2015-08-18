@@ -1,0 +1,48 @@
+From domseichter at web.de  Sun May 30 23:47:24 2010
+From: domseichter at web.de (Dominik Seichter)
+Date: Sun, 30 May 2010 22:47:24 +0100
+Subject: [Schafkopf-devel] Schafkopf
+In-Reply-To: <4C02B0B4.5030402@yahoo.de>
+References: <4C02B0B4.5030402@yahoo.de>
+Message-ID: <201005302247.26916.domseichter@web.de>
+
+Servus Ruben,
+
+Sicher k?nnen wir uns duzen :). Sch?n, dass unser Spiel Dir gef?llt. Leider 
+haben wir, seid mittlerweile glaub ich 3 Jahren, keine Zeit mehr gehabt weiter 
+daran zu arbeiten. Wir w?rden uns allerdings sehr freuen, wenn sich jemand 
+findet der das Projekt weiterentwickeln m?chte oder zumindest nach KDE4 
+portieren w?rde. Selbstverst?ndlich w?rden wir versuchen soviel es geht zu 
+helfen und alle Fragen zu beantworten.
+
+Sch?nen Gru?,
+	Dominik
+
+Am Sonntag 30 Mai 2010 schrieb Ruben Lenz:
+> Hi,
+> um es mal kurz zu machen: Ich bin auf dein (wir k?nnen uns doch duzen?)
+> Schafkopf-Projekt gesto?en, habe es installiert und es hat mich wirklich
+> ?berzeugt. Deshalb meine Frage: Wird es noch weiterentwickelt?
+> Gru?,
+> 
+> Ruben
+> 
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 197 bytes
+Desc: This is a digitally signed message part.
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20100530/662143ff/attachment.pgp>
+

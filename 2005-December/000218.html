@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] bloewe: Commit Report - Schafkopf Positionierung der Karten korrigiert und etwas
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20bloewe%3A%20Commit%20Report%20-%20Schafkopf%20Positionierung%20der%20Karten%20korrigiert%20und%20etwas&In-Reply-To=%3C200512281647.jBSGldRX016107%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000217.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] bloewe: Commit Report - Schafkopf Positionierung der Karten korrigiert und etwas</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20bloewe%3A%20Commit%20Report%20-%20Schafkopf%20Positionierung%20der%20Karten%20korrigiert%20und%20etwas&In-Reply-To=%3C200512281647.jBSGldRX016107%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] bloewe: Commit Report - Schafkopf Positionierung der Karten korrigiert und etwas">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Wed Dec 28 17:47:39 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000217.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf Patch by Harald Fernengel
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#218">[ date ]</a>
+              <a href="thread.html#218">[ thread ]</a>
+              <a href="subject.html#218">[ subject ]</a>
+              <a href="author.html#218">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+Positionierung der Karten korrigiert und etwas aufgeraeumt
+
+Modified Files:
+--------------
+    schafkopf/src:
+        canvasplayer.cpp
+
+-------------- next part --------------
+Index: canvasplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.cpp,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -Lsrc/canvasplayer.cpp -Lsrc/canvasplayer.cpp -u -r1.30 -r1.31
+--- src/canvasplayer.cpp
++++ src/canvasplayer.cpp
+@@ -90,12 +90,13 @@
+ {
+     int x = 0, y = 0;
+     int num = 0;
+-    int w = m_canvas-&gt;width();//-DIST;
+-    int h = m_canvas-&gt;height();//-DIST;
+-    int offsetl = 0; //Hiermit kann man am linken Rand Platz schaffen fr z.B. ein Bild des Spielers (fr Netzwerkmodus).
++    int w = m_canvas-&gt;width();
++    int h = m_canvas-&gt;height();
++    int offsetl = 0; //Hiermit kann man am linken Rand Platz schaffen fuer z.B. ein Bild des Spielers (Netzwerkmodus).
+     int availw = m_canvas-&gt;width() - 2*DIST - offsetl;
+     int cardw = Card::backgroundPixmap()-&gt;width();
+     int cardh = Card::backgroundPixmap()-&gt;height();
++    float cardoverlap = 1./8.; //Ueberlapp der Karten im Verhaeltnis zur Kartenbreite
+     
+     for( unsigned int z = 0; z &lt; NUMCARDS; z++ )
+     {
+@@ -123,12 +124,12 @@
+             break;
+         case 1:
+             x=DIST; 
+-            y=(h-((cardh/4)*(num-1)+cardh))/2; 
++            y=(h-((cardh*cardoverlap)*(num-1)+cardh))/2; 
+         
+             m_name-&gt;move(x,y-m_name-&gt;boundingRect().height());
+             break;
+-        case 2: 
+-            x=(w-((cardw/4)*(num-1)+cardw))/2;
++        case 2:
++            x=( w-( (cardw*cardoverlap)*(num-1)+cardw ) )/2; //berechnet die Position der linken Seite des Kartenstapels
+             y=DIST;
+         
+             m_name-&gt;move( (w-m_name-&gt;boundingRect().width())/2, y+cardh );
+@@ -136,7 +137,7 @@
+         case 3:
+         default:
+             x=w-cardw-DIST;
+-            y=(h-((cardh/4)*(num-1)+cardh))/2; 
++            y=(h-((cardh*cardoverlap)*(num-1)+cardh))/2; 
+         
+             m_name-&gt;move(x, y-m_name-&gt;boundingRect().height());
+             break;
+@@ -163,9 +164,9 @@
+ 	    	x += (availw-cardw)/(num-1);
+ 	}
+         else if(m_position==2)
+-            x += (cardw/6);
++            x += (cardw*cardoverlap);
+         else
+-            y += (cardh/6);
++            y += (cardh*cardoverlap);
+ 	}
+     }
+         
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000217.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf Patch by Harald Fernengel
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#218">[ date ]</a>
+              <a href="thread.html#218">[ thread ]</a>
+              <a href="subject.html#218">[ subject ]</a>
+              <a href="author.html#218">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

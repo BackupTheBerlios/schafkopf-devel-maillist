@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf beim ersten start ist nun unser kartenset
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-January/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20beim%20ersten%20start%20ist%20nun%20unser%20kartenset&In-Reply-To=%3C200501121530.j0CFUcd5004598%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000033.html">
+   <LINK REL="Next"  HREF="000035.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf beim ersten start ist nun unser kartenset</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20beim%20ersten%20start%20ist%20nun%20unser%20kartenset&In-Reply-To=%3C200501121530.j0CFUcd5004598%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf beim ersten start ist nun unser kartenset">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Wed Jan 12 16:30:38 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000033.html">[Schafkopf-devel] Commit Report - Schafkopf fix compilation on Qt &lt; 3.2.0
+</A></li>
+        <LI>Next message: <A HREF="000035.html">[Schafkopf-devel] Commit Report - Schafkopf beim ersten start ist nun unser kartenset
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#34">[ date ]</a>
+              <a href="thread.html#34">[ thread ]</a>
+              <a href="subject.html#34">[ subject ]</a>
+              <a href="author.html#34">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+beim ersten start ist nun unser kartenset eingestellt.
+
+Modified Files:
+--------------
+    schafkopf/src:
+        settings.cpp
+        settings.h
+
+-------------- next part --------------
+Index: settings.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.h,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -Lsrc/settings.h -Lsrc/settings.h -u -r1.12 -r1.13
+--- src/settings.h
++++ src/settings.h
+@@ -72,6 +72,7 @@
+         
+         const QString cardDeck() const;
+         const QString cardBackground() const;
++        QString getCardDir() const;
+         
+         const QStringList playerNames() const;
+         void setPlayerNames( const QStringList &amp; names );
+Index: settings.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.cpp,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -Lsrc/settings.cpp -Lsrc/settings.cpp -u -r1.15 -r1.16
+--- src/settings.cpp
++++ src/settings.cpp
+@@ -53,14 +53,24 @@
+ {
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;CardDeck&quot;);
+-    return config-&gt;readEntry(&quot;Cards&quot;, KCardDialog::getDefaultCardDir() );    
++    return config-&gt;readEntry(&quot;Cards&quot;, getCardDir()+&quot;cards-bavarian-old/&quot; );    
+ }
+ 
+ const QString Settings::cardBackground() const
+ {
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;CardDeck&quot;);
+-    return config-&gt;readEntry(&quot;Deck&quot;, KCardDialog::getDefaultDeck() );    
++    return config-&gt;readEntry(&quot;Deck&quot;, getCardDir()+&quot;decks/bavaria_tux.png&quot; );    
++}
++
++QString Settings::getCardDir() const
++{
++    QString dir = KCardDialog::getDefaultCardDir();
++    int k;
++    dir = dir.remove( dir.length()-1, 1 );
++    k = dir.findRev( '/', -1 );
++    dir = dir.remove( k+1, dir.length()-k );
++    return dir;
+ }
+ 
+ void Settings::configureCardDecks( QWidget* parent )
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000033.html">[Schafkopf-devel] Commit Report - Schafkopf fix compilation on Qt &lt; 3.2.0
+</A></li>
+	<LI>Next message: <A HREF="000035.html">[Schafkopf-devel] Commit Report - Schafkopf beim ersten start ist nun unser kartenset
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#34">[ date ]</a>
+              <a href="thread.html#34">[ thread ]</a>
+              <a href="subject.html#34">[ subject ]</a>
+              <a href="author.html#34">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

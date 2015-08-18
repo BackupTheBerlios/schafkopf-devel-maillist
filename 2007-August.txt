@@ -1,0 +1,22 @@
+From Jan.Schubert at GMX.li  Sun Aug 26 01:11:51 2007
+From: Jan.Schubert at GMX.li (Jan Schubert)
+Date: Sun, 26 Aug 2007 01:11:51 +0200
+Subject: [Schafkopf-devel] Wie gehts nun weiter?
+Message-ID: <46D0B737.1090403@GMX.li>
+
+Hallole, Danke erstmal f?r Euer Schafkopf!
+
+Wie ist der aktuelle Stand bzgl. der angek?ndigten Weiterentwicklung im
+Zuge der Portierung auf KDE4? Als Betatester stehe ich gerne bereit :-).
+
+Noch ein paar Fragen zur aktuellen Version:
+- Ist es korrekt da? die nur Englisch ist? Finde ich prinzipiell OK aber
+ausgerechnet beim Schafkopfen etwas gew?hnungsbed?rftig?
+- Wie funktioniert der Netzwerkmodus der ja auf der WebSite erw?hnt wird
+als auch zu Beginn eines Spieles gew?hlt werden kann? Bei mir sind die
+Buttons alle inaktiv!?
+
+Danke,
+der Jan
+
+

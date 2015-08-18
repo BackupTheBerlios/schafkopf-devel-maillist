@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf fix initial window size on startup
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20fix%20initial%20window%20size%20on%20startup&In-Reply-To=%3C200503261556.j2QFum0c005590%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000099.html">
+   <LINK REL="Next"  HREF="000096.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf fix initial window size on startup</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20fix%20initial%20window%20size%20on%20startup&In-Reply-To=%3C200503261556.j2QFum0c005590%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf fix initial window size on startup">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Sat Mar 26 16:56:48 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000099.html">[Schafkopf-devel] Commit Report - Schafkopf cleaned up the preferences dialog
+</A></li>
+        <LI>Next message: <A HREF="000096.html">[Schafkopf-devel] Commit Report - Schafkopf uebersetzung
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#98">[ date ]</a>
+              <a href="thread.html#98">[ thread ]</a>
+              <a href="subject.html#98">[ subject ]</a>
+              <a href="author.html#98">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+fix initial window size on startup
+
+Modified Files:
+--------------
+    schafkopf/src:
+        schafkopf.cpp
+
+-------------- next part --------------
+Index: schafkopf.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopf.cpp,v
+retrieving revision 1.36
+retrieving revision 1.37
+diff -Lsrc/schafkopf.cpp -Lsrc/schafkopf.cpp -u -r1.36 -r1.37
+--- src/schafkopf.cpp
++++ src/schafkopf.cpp
+@@ -65,6 +65,8 @@
+ #endif // QT_VERSION
+ 
+     setCentralWidget( split );
++    // do not start with a too tiny window at the first start
++    resize( 800, 550 );
+     // save window size automatically
+     setAutoSaveSettings( &quot;SchafKopf&quot;, true );
+ 
+@@ -252,7 +254,6 @@
+         }
+     }
+ }
+-
+ 
+ void SchafKopf::saveConfig()
+ {
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000099.html">[Schafkopf-devel] Commit Report - Schafkopf cleaned up the preferences dialog
+</A></li>
+	<LI>Next message: <A HREF="000096.html">[Schafkopf-devel] Commit Report - Schafkopf uebersetzung
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#98">[ date ]</a>
+              <a href="thread.html#98">[ thread ]</a>
+              <a href="subject.html#98">[ subject ]</a>
+              <a href="author.html#98">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

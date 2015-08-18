@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] domseichter: Commit Report - Schafkopf spiel mit kurzen karten (i.e.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20spiel%20mit%20kurzen%20karten%20%28i.e.&In-Reply-To=%3C200507181217.j6ICHQqO032354%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000142.html">
+   <LINK REL="Next"  HREF="000144.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] domseichter: Commit Report - Schafkopf spiel mit kurzen karten (i.e.</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20spiel%20mit%20kurzen%20karten%20%28i.e.&In-Reply-To=%3C200507181217.j6ICHQqO032354%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] domseichter: Commit Report - Schafkopf spiel mit kurzen karten (i.e.">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Mon Jul 18 14:17:26 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000142.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf lenz, lenz, lenz....
+</A></li>
+        <LI>Next message: <A HREF="000144.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf Uebersetzung, Verzoegerung beim Erscheinen der
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#143">[ date ]</a>
+              <a href="thread.html#143">[ thread ]</a>
+              <a href="subject.html#143">[ subject ]</a>
+              <a href="author.html#143">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+spiel mit kurzen karten (i.e. 6) ist jetzt moeglich fuer unsere Fraenkischen Beutebayern, allerdings momentan nur per compiler option
+
+Modified Files:
+--------------
+    schafkopf/src:
+        schafkopfdef.h
+
+-------------- next part --------------
+Index: schafkopfdef.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopfdef.h,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -Lsrc/schafkopfdef.h -Lsrc/schafkopfdef.h -u -r1.12 -r1.13
+--- src/schafkopfdef.h
++++ src/schafkopfdef.h
+@@ -20,11 +20,22 @@
+ 
+ #ifndef SCHAFKOPF_DEF_H
+ #define SCHAFKOPF_DEF_H
+- 
++
+ #define PLAYERS   4
++
++// If you do want to play with only 6 cards
++// like it is done in Franken, please comment this line:
++#define SCHAFKOPF_LANG
++ 
++#ifdef SCHAFKOPF_LANG
+ #define NUMCARDS  8
+ #define TURNS     8
+ #define CARD_CNT  32
++#else
++#define NUMCARDS  6
++#define TURNS     6
++#define CARD_CNT  24
++#endif // SCHAFKOPF_LANG
+ 
+ /** Identify events from schafkopf in the Qt event loop
+   * using this ID.
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000142.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf lenz, lenz, lenz....
+</A></li>
+	<LI>Next message: <A HREF="000144.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf Uebersetzung, Verzoegerung beim Erscheinen der
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#143">[ date ]</a>
+              <a href="thread.html#143">[ thread ]</a>
+              <a href="subject.html#143">[ subject ]</a>
+              <a href="author.html#143">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

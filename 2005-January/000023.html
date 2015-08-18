@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-January/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20auf%20allgemeinen%20wunsch%20laesst%20sich%20das&In-Reply-To=%3C200501061547.45170.domseichter%40web.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000022.html">
+   <LINK REL="Next"  HREF="000024.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das</H1>
+    <B>Dominik Seichter</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20auf%20allgemeinen%20wunsch%20laesst%20sich%20das&In-Reply-To=%3C200501061547.45170.domseichter%40web.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das">domseichter at web.de
+       </A><BR>
+    <I>Thu Jan  6 15:47:44 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000022.html">[Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das
+</A></li>
+        <LI>Next message: <A HREF="000024.html">[Schafkopf-devel] Schafkopf 0.5 ebuild
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#23">[ date ]</a>
+              <a href="thread.html#23">[ thread ]</a>
+              <a href="subject.html#23">[ subject ]</a>
+              <a href="author.html#23">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am Thursday, 6. January 2005 15:32 schrieb Lorenz M&#246;senlechner:
+&gt;<i> Dominik Seichter wrote:
+</I>&gt;<i> &gt;  bool Settings::doublerHasToPlay() const
+</I>&gt;<i> &gt;  {
+</I>&gt;<i> &gt; -    bool b = false;
+</I>&gt;<i> &gt; +    bool b = true;
+</I>&gt;<i> &gt;      KConfig* config = kapp-&gt;config();
+</I>&gt;<i> &gt;      config-&gt;setGroup(&quot;SchafKopf&quot;);
+</I>&gt;<i> &gt;      b = config-&gt;readBoolEntry( &quot;DoublerHasToPlay&quot;, b );
+</I>&gt;<i> &gt; @@ -253,12 +253,28 @@
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;  bool Settings::doubleNextGame() const
+</I>&gt;<i> &gt;  {
+</I>&gt;<i> &gt; -    bool b = false;
+</I>&gt;<i> &gt; +    bool b = true;
+</I>&gt;<i> &gt;      KConfig* config = kapp-&gt;config();
+</I>&gt;<i> &gt;      config-&gt;setGroup(&quot;SchafKopf&quot;);
+</I>&gt;<i> &gt;      b = config-&gt;readBoolEntry( &quot;DoubleNextGame&quot;, b );
+</I>&gt;<i> &gt;      return b;
+</I>&gt;<i> &gt;  }
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Hmmm, ist das ein gutes DefaultSetting? Im 2. Fall ist es denke ich Ok,
+</I>&gt;<i> &gt; das wir nach dem zusammen schmeissen doppeln. Aber ich weiss nicht ob das
+</I>&gt;<i> &gt; im ersten Fall so gut ist (vor allem da ich privat immer ohne diese Regel
+</I>&gt;<i> &gt; gespielt habe wenn ich mich recht errinnere). Was meint der Rest?
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; CU Dom
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Am Thursday, 6. January 2005 01:07 schrieb <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">schafkopf-devel at berlios.de</A>:
+</I>&gt;<i> &gt;&gt;Log Message:
+</I>&gt;<i> &gt;&gt;-----------
+</I>&gt;<i> &gt;&gt;auf allgemeinen wunsch laesst sich das neuanordnen der karten nach jedem
+</I>&gt;<i> &gt;&gt;stich unter einstellungen-&gt;anzeige abschalten
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;Modified Files:
+</I>&gt;<i> &gt;&gt;--------------
+</I>&gt;<i> &gt;&gt;    schafkopf/po:
+</I>&gt;<i> &gt;&gt;        de.po
+</I>&gt;<i> &gt;&gt;    schafkopf/src:
+</I>&gt;<i> &gt;&gt;        gamecanvas.cpp
+</I>&gt;<i> &gt;&gt;        preferencesdlg.cpp
+</I>&gt;<i> &gt;&gt;        preferencesdlg.h
+</I>&gt;<i> &gt;&gt;        settings.cpp
+</I>&gt;<i> &gt;&gt;        settings.h
+</I>&gt;<i>
+</I>&gt;<i> Ich w&#252;rds so lassen. Wir habens immer so gespielt. Aber die
+</I>&gt;<i> default-settings sind ja eigentlich sowieso egal, weil einstellbar ;)
+</I>Ok, dann bin ich in diesen Fall &#252;berstimmt. Trotzdem sind die Default settings 
+nicht egal und sollten Optimal sein, da sie f&#252;r 90% der User nicht 
+einstellbar sind, da 90% zu bl&#246;d sind einen Settings Dialog zu finden oder 
+gar zu suchen :).
+
+CU Dom
+-- 
+**********************************************************************
+Dominik Seichter - <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>
+KRename  - <A HREF="http://www.krename.net">http://www.krename.net</A>  - Powerful batch renamer for KDE
+KBarcode - <A HREF="http://www.kbarcode.net">http://www.kbarcode.net</A> - Barcode and label printing
+KDE Mass Mailer - <A HREF="http://www.kmassmailer.net">http://www.kmassmailer.net</A> - Mass mailing for KDE
+SchafKopf - <A HREF="http://schafkopf.berlios.de">http://schafkopf.berlios.de</A> - Schafkopf, a card game,  for KDE
+**********************************************************************
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000022.html">[Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das
+</A></li>
+	<LI>Next message: <A HREF="000024.html">[Schafkopf-devel] Schafkopf 0.5 ebuild
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#23">[ date ]</a>
+              <a href="thread.html#23">[ thread ]</a>
+              <a href="subject.html#23">[ subject ]</a>
+              <a href="author.html#23">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,832 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf Einige Klassen f&#252;r die
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20Einige%20Klassen%20f%FCr%20die&In-Reply-To=%3C200502151447.j1FElnIe006077%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000069.html">
+   <LINK REL="Next"  HREF="000071.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf Einige Klassen f&#252;r die</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20Einige%20Klassen%20f%FCr%20die&In-Reply-To=%3C200502151447.j1FElnIe006077%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf Einige Klassen f&#252;r die">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Tue Feb 15 15:47:49 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000069.html">[Schafkopf-devel] Commit Report - Schafkopf TODO-Liste aktualisiert
+</A></li>
+        <LI>Next message: <A HREF="000071.html">[Schafkopf-devel] Commit Report - Schafkopf lokale sockets funzen jetz auch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#70">[ date ]</a>
+              <a href="thread.html#70">[ thread ]</a>
+              <a href="subject.html#70">[ subject ]</a>
+              <a href="author.html#70">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+Einige Klassen f&#252;r die Interprozesskommunikation &#252;ber Sockets. CommQSocket ist noch nicht getestet. 
+Wird wahrscheinlich nicht compilieren. Aber commsocketserver und commsocketclient haun hin. 
+Jetzt m&#252;ssen nur noch die spieler eigene threads werden (HumanPlayer im Hauptprogrammthread und mit
+CommQSocket) und die umstellung ist perfekt ;)
+
+Added Files:
+-----------
+    schafkopf/src:
+        commbase.h
+        commqsocketclient.cpp
+        commqsocketclient.h
+        commsocketclient.cpp
+        commsocketclient.h
+        commsocketserver.cpp
+        commsocketserver.h
+
+-------------- next part --------------
+--- /dev/null
++++ src/commsocketserver.h
+@@ -0,0 +1,129 @@
++/***************************************************************************
++ *   Copyright (C) 2004 by Dominik Seichter                                *
++ *   <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>                                                    *
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU General Public License as published by  *
++ *   the Free Software Foundation; either version 2 of the License, or     *
++ *   (at your option) any later version.                                   *
++ *                                                                         *
++ *   This program is distributed in the hope that it will be useful,       *
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++ *   GNU General Public License for more details.                          *
++ *                                                                         *
++ *   You should have received a copy of the GNU General Public License     *
++ *   along with this program; if not, write to the                         *
++ *   Free Software Foundation, Inc.,                                       *
++ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
++ ***************************************************************************/
++
++#ifndef COMMSOCKETSERVER_H
++#define COMMSOCKETSERVER_H
++
++#include &lt;vector&gt;
++#include &lt;semaphore.h&gt;
++#include &lt;pthread.h&gt;
++#include &lt;signal.h&gt;
++#include &lt;sys/socket.h&gt;
++#include &lt;netinet/in.h&gt;
++#include &lt;netdb.h&gt;
++#include &lt;exception&gt;
++
++#include &quot;commbase.h&quot;
++
++using namespace std;
++
++#define MAX_CONNECTIONS 10
++
++class ESocketError
++    : public exception
++{
++    public:
++        ESocketError()
++            : exception() {}
++        virtual const char *what()
++        {
++            return &quot;Socket error&quot;;
++        }
++};
++
++class EConnectError
++    : public ESocketError
++{
++    public:
++        EConnectError()
++            : ESocketError() {}
++        const char *what()
++        {
++            return &quot;Error while connecting&quot;;
++        }
++};
++
++class EConnectionClosed
++    : public ESocketError
++{
++    public:
++        EConnectionClosed()
++            : ESocketError() {}
++        const char *what()
++        {
++            return &quot;The connection was closed.&quot;;
++        }
++};
++
++class CommSocketServer 
++    : public CommBase
++{
++    public:
++        typedef enum ClientType { player=1, gui, debugger, unregister };
++        struct msgdata
++        {
++            msgtype msg;
++            ClientType type;
++        };
++        struct RegisterMessage
++        {
++            int client;
++            union
++            {
++                msgdata data;
++                char foo[MESSAGE_LENGTH];
++            };
++        };
++
++        CommSocketServer(const char *name, int port, bool global=false);
++        ~CommSocketServer();
++        bool waitMsg(int timeout=-1, int *rec=NULL);
++        bool receiveMsg(Message *msg);
++        bool sendMsg(const Message *msg, bool waitAck=false);
++        int clients(void);
++        ClientType getClientType(int index);
++    
++    private:
++        struct ClientSocket
++        {
++            int socket;
++            ClientType clientType;
++        };
++        struct ServerParams
++        {
++            vector&lt;ClientSocket&gt; clients;
++            sem_t syncSem;
++            sem_t waitSem;
++            pthread_t parent;
++            int serverSocket;
++            unsigned int port;
++            CommSocketServer *self;
++        };
++        
++        ServerParams serverParams;
++        pthread_t threadHandle;
++        
++        bool waitIncoming(int timeout=-1, int *rec=NULL);
++        static bool init_sockaddr(sockaddr_in *name, const char *hostname, unsigned int port);
++        static int create_socket(unsigned int port, bool global);
++        static void serverThread(ServerParams *params);
++};
++
++#endif
+--- /dev/null
++++ src/commsocketserver.cpp
+@@ -0,0 +1,218 @@
++
++#include &lt;iostream&gt;
++#include &lt;sys/poll.h&gt;
++#include &quot;commsocketserver.h&quot;
++
++CommSocketServer::CommSocketServer(const char *name, int port, bool global)
++    : CommBase(name)
++{
++    pthread_attr_t threadattr;
++
++    serverParams.serverSocket=create_socket(port, global);
++    serverParams.port=port;
++    serverParams.self=this;
++    sem_init(&amp;serverParams.syncSem, 0, 1); 
++    sem_init(&amp;serverParams.waitSem, 0, 0); 
++    serverParams.parent=pthread_self();
++    pthread_create(&amp;threadHandle, NULL, (void *(*)(void *))serverThread, &amp;serverParams);
++    pthread_detach(threadHandle);
++}
++
++CommSocketServer::~CommSocketServer()
++{
++    int i;
++    
++    pthread_kill(threadHandle, SIGTERM);
++    sem_wait(&amp;serverParams.syncSem);
++    for(i=0;i&lt;serverParams.clients.size();i++)
++        close(serverParams.clients[i].socket);
++    sem_post(&amp;serverParams.syncSem);
++    sem_destroy(&amp;serverParams.syncSem);
++    close(serverParams.serverSocket);
++}
++
++bool CommSocketServer::waitMsg(int timeout, int *rec)
++{
++    sem_wait(&amp;serverParams.waitSem);
++    sem_post(&amp;serverParams.waitSem);
++    return waitIncoming(timeout, rec);
++}
++
++bool CommSocketServer::receiveMsg(Message *msg)
++{
++    int n;
++    
++    if(!msg)
++        return false;
++    sem_wait(&amp;serverParams.syncSem);
++    n=read(serverParams.clients[msg-&gt;sender].socket, msg-&gt;data, MESSAGE_LENGTH);
++    sem_post(&amp;serverParams.syncSem);
++    if(n==0)
++    {
++        sem_wait(&amp;serverParams.syncSem);
++        close(serverParams.clients[msg-&gt;sender].socket);
++        serverParams.clients.erase(serverParams.clients.begin()+msg-&gt;sender);
++        sem_post(&amp;serverParams.syncSem);
++        sem_wait(&amp;serverParams.waitSem);
++        throw EConnectionClosed();
++    }
++    else if(n!=MESSAGE_LENGTH)
++        return false;
++    return true;
++}
++
++bool CommSocketServer::sendMsg(const Message *msg, bool waitAck)
++{
++    int n;
++    Message m;
++    Message ack;
++    
++    if(!msg)
++        return false;
++    memcpy(&amp;m, msg, sizeof(CommBase::Message));
++    if(waitAck)
++        m.msg = (CommBase::msgtype)((int)CommBase::msg_ack | (int)m.msg); 
++    sem_wait(&amp;serverParams.syncSem);
++    n=write(serverParams.clients[m.receiver].socket, m.data, MESSAGE_LENGTH);
++    sem_post(&amp;serverParams.syncSem);
++    if(n==0)
++    {
++        sem_wait(&amp;serverParams.syncSem);
++        close(serverParams.clients[m.sender].socket);
++        serverParams.clients.erase(serverParams.clients.begin()+m.sender);
++        sem_post(&amp;serverParams.syncSem);
++        throw EConnectionClosed();
++    }
++    else if(n!=MESSAGE_LENGTH)
++        return false;
++    if(waitAck)
++    {
++        for(;;)
++        {
++            ack.sender=m.receiver;
++            if(!receiveMsg(&amp;ack))
++                return false;
++            if(!(ack.msg &amp; CommBase::msg_ack))
++                continue;
++            break;
++        }
++    }
++    return true;
++}
++
++int CommSocketServer::clients(void)
++{
++    return serverParams.clients.size();
++}
++
++CommSocketServer::ClientType CommSocketServer::getClientType(int index)
++{
++    return serverParams.clients[index].clientType;
++}
++
++bool CommSocketServer::waitIncoming(int timeout, int *rec)
++{
++    int i, n;
++    pollfd *fds;
++
++    sem_wait(&amp;serverParams.syncSem);
++    fds=new pollfd[serverParams.clients.size()];
++    for(i=0;i&lt;serverParams.clients.size();i++)
++    {
++        fds[i].fd=serverParams.clients[i].socket;
++        fds[i].events=POLLIN | POLLHUP | POLLNVAL | POLLERR;
++        fds[i].revents=0;
++    }
++    n=poll(fds, serverParams.clients.size(), timeout);
++    sem_post(&amp;serverParams.syncSem);
++    if(!rec)
++    {
++        delete fds;
++        return n ? true : false;
++    }
++    if(!n)
++    {
++        delete fds;
++        return false;
++    }
++    sem_wait(&amp;serverParams.syncSem);
++    for(i=0;i&lt;serverParams.clients.size();i++)
++        if(fds[i].revents)
++            break;
++    sem_post(&amp;serverParams.syncSem);
++    *rec=i;
++    delete fds;
++    return true;
++}
++
++bool CommSocketServer::init_sockaddr(sockaddr_in *name, const char *hostname, unsigned int port)
++{
++    hostent *hostinfo;
++
++    name-&gt;sin_family = AF_INET;
++    name-&gt;sin_port = htons (port);
++    hostinfo = gethostbyname (hostname);
++    if (hostinfo == NULL)
++        return false;
++    name-&gt;sin_addr = *(struct in_addr *) hostinfo-&gt;h_addr;
++    return true;
++}
++
++int CommSocketServer::create_socket(unsigned int port, bool global)
++{
++    int sock;
++    sockaddr_in addr;
++    int set=1;
++    
++    sock=socket (global ? PF_INET : PF_LOCAL, SOCK_STREAM, 0);
++    if(sock&lt;0)
++        return -1;
++    if(!init_sockaddr(&amp;addr, &quot;localhost&quot;, port))
++    {
++        close(sock);
++        return -1;
++    }
++    if(bind(sock, (sockaddr *)&amp;addr, sizeof(sockaddr_in))&lt;0)
++    {
++        close(sock);
++        return -1;
++    }
++    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &amp;set, sizeof(int));
++    return sock;
++}
++
++void CommSocketServer::serverThread(ServerParams *params)
++{
++    fd_set fds;
++    ClientSocket client;
++    RegisterMessage msg;
++    int i;
++    char ch;
++    
++    for(;;)
++    {
++        FD_SET(params-&gt;serverSocket , &amp;fds);
++        select(params-&gt;serverSocket+1, &amp;fds, &amp;fds, &amp;fds, NULL);
++        if(listen(params-&gt;serverSocket, MAX_CONNECTIONS)&lt;0)
++            continue;
++        client.socket=accept(params-&gt;serverSocket, NULL, NULL);
++        sem_wait(&amp;params-&gt;syncSem);
++        params-&gt;clients.push_back(client);
++        msg.client=params-&gt;clients.size()-1;
++        sem_post(&amp;params-&gt;syncSem);
++        params-&gt;self-&gt;waitIncoming();
++        if(!params-&gt;self-&gt;receiveMsg((CommBase::Message *)&amp;msg))
++        {
++            sem_wait(&amp;params-&gt;syncSem);
++            close(params-&gt;clients[msg.client].socket);
++            params-&gt;clients.pop_back();
++            sem_post(&amp;params-&gt;syncSem);
++            continue;
++        }
++        sem_wait(&amp;params-&gt;syncSem);
++        params-&gt;clients[msg.client].clientType=msg.data.type;
++        sem_post(&amp;params-&gt;syncSem);
++        sem_post(&amp;params-&gt;waitSem);
++    }
++}
++
+--- /dev/null
++++ src/commsocketclient.h
+@@ -0,0 +1,45 @@
++/***************************************************************************
++ *   Copyright (C) 2004 by Dominik Seichter                                *
++ *   <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>                                                    *
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU General Public License as published by  *
++ *   the Free Software Foundation; either version 2 of the License, or     *
++ *   (at your option) any later version.                                   *
++ *                                                                         *
++ *   This program is distributed in the hope that it will be useful,       *
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++ *   GNU General Public License for more details.                          *
++ *                                                                         *
++ *   You should have received a copy of the GNU General Public License     *
++ *   along with this program; if not, write to the                         *
++ *   Free Software Foundation, Inc.,                                       *
++ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
++ ***************************************************************************/
++
++#ifndef COMMSOCKETCLIENT_H
++#define COMMSOCKETCLIENT_H 
++
++#include &quot;commbase.h&quot;
++#include &quot;commsocketserver.h&quot;
++
++class CommSocketClient 
++    : public CommBase
++{
++    public:
++        CommSocketClient(const char *hostname, unsigned int port, bool local, CommSocketServer::ClientType type); 
++        ~CommSocketClient(); 
++        bool waitMsg(int timeout=-1, int *rec=NULL); 
++        bool receiveMsg(Message *msg);
++        bool sendMsg(const Message *msg, bool waitAck=false);
++        
++    private:
++        int clientSocket;
++        
++        static int init_sockaddr (sockaddr_in *name, const char *hostname, unsigned int port);
++        static int open_socket(const char *hostname, unsigned int port, bool local);
++};
++
++#endif
++
+--- /dev/null
++++ src/commsocketclient.cpp
+@@ -0,0 +1,132 @@
++#include &lt;iostream&gt;
++#include &lt;sys/socket.h&gt;
++#include &lt;sys/poll.h&gt;
++#include &lt;netinet/in.h&gt;
++#include &lt;netdb.h&gt;
++#include &quot;commsocketclient.h&quot;
++#include &quot;commsocketserver.h&quot;
++
++CommSocketClient::CommSocketClient(const char *hostname, unsigned int port, bool local, CommSocketServer::ClientType type)
++    : CommBase(hostname)
++{
++    CommSocketServer::RegisterMessage msg;
++    
++    clientSocket=open_socket(hostname, port, local);
++    if(clientSocket&lt;0)
++        throw EConnectError();
++    msg.data.msg=CommBase::msg_msg;
++    msg.data.type=type;
++    sendMsg((CommBase::Message *)&amp;msg, false);
++}
++
++CommSocketClient::~CommSocketClient()
++{
++    close(clientSocket);
++}
++
++bool CommSocketClient::waitMsg(int timeout, int *rec)
++{
++    int i, n;
++    pollfd fds;
++
++    fds.fd=clientSocket;
++    fds.events=POLLIN | POLLHUP | POLLNVAL | POLLERR;
++    fds.revents=0;
++    n=poll(&amp;fds, 1, timeout);
++    if(!n)
++        return false;
++    if(fds.revents &amp; (POLLHUP | POLLNVAL | POLLERR))
++        throw ESocketError();
++    return true;
++}
++
++bool CommSocketClient::receiveMsg(Message *msg)
++{
++    int n;
++    
++    if(!msg)
++        return false;
++    n=read(clientSocket, msg-&gt;data, MESSAGE_LENGTH);
++    if(n==0)
++    {
++        close(clientSocket);
++        throw EConnectionClosed();
++    }
++    if(n!=MESSAGE_LENGTH)
++        return false;
++    return true;
++}
++
++bool CommSocketClient::sendMsg(const Message *msg, bool waitAck)
++{
++    int n;
++    Message ack;
++    Message m;
++    
++    if(!msg)
++        return false;
++    memcpy(&amp;m, msg, sizeof(Message));
++    if(waitAck)
++        m.msg = (CommBase::msgtype) ((int)CommBase::msg_ack | (int)m.msg); 
++    n=write(clientSocket, m.data, MESSAGE_LENGTH);
++    if(n==0)
++    {
++        close(clientSocket);
++        throw EConnectionClosed();
++    }
++    if(n!=MESSAGE_LENGTH)
++        return false;
++    if(waitAck)
++    {
++        for(;;)
++        {
++            ack.sender=m.receiver;
++            if(!receiveMsg(&amp;ack))
++                return false;
++            if(!(ack.msg &amp; CommBase::msg_ack))
++                continue;
++            break;
++        }
++    }
++    return true;
++}
++
++int CommSocketClient::init_sockaddr (sockaddr_in *name, const char *hostname, unsigned int port)
++{
++    struct hostent *hostinfo;
++
++    name-&gt;sin_family = AF_INET;
++    name-&gt;sin_port = htons (port);
++    hostinfo = gethostbyname (hostname);
++    if (hostinfo == NULL)
++    {
++        printf(&quot;Unbekanter host %s.\n&quot;, hostname);
++        return 0;
++    }
++    name-&gt;sin_addr = *(struct in_addr *) hostinfo-&gt;h_addr;
++    return 1;
++}
++
++int CommSocketClient::open_socket(const char *hostname, unsigned int port, bool local)
++{
++    int sock;
++    sockaddr_in addr;
++    
++    sock=socket(PF_INET, SOCK_STREAM, 0);
++    if(sock&lt;0)
++    {
++        return -1;
++    }
++    if(!init_sockaddr(&amp;addr, hostname, port))
++    {
++        close(sock);
++        return -1;
++    }
++    if(connect(sock, (sockaddr *)&amp;addr, sizeof(sockaddr_in))&lt;0)
++    {
++        close(sock);
++        return -1;
++    }
++    return sock;
++}
++
+--- /dev/null
++++ src/commbase.h
+@@ -0,0 +1,83 @@
++/***************************************************************************
++ *   Copyright (C) 2004 by Dominik Seichter                                *
++ *   <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>                                                    *
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU General Public License as published by  *
++ *   the Free Software Foundation; either version 2 of the License, or     *
++ *   (at your option) any later version.                                   *
++ *                                                                         *
++ *   This program is distributed in the hope that it will be useful,       *
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++ *   GNU General Public License for more details.                          *
++ *                                                                         *
++ *   You should have received a copy of the GNU General Public License     *
++ *   along with this program; if not, write to the                         *
++ *   Free Software Foundation, Inc.,                                       *
++ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
++ ***************************************************************************/
++
++#ifndef COMMBASE_H
++#define COMMBASE_H
++
++#include &lt;string&gt;
++
++using namespace std;
++
++#define MESSAGE_LENGTH 128
++
++class CommBase
++{
++    public:
++        typedef enum msgtype   { msg_broadcast = 0, 
++                                 msg_ack = 1 &lt;&lt; 1,
++                                 msg_ackbroadcast= CommBase::msg_broadcast | CommBase::msg_ack,
++                                 msg_msg = 1, 
++                                 msg_ackmsg = CommBase::msg_msg | CommBase::msg_ack,
++                                 msg_exit = 1 &lt;&lt; 2 };
++        struct Message
++        {
++            union
++            {
++                int receiver;
++                int sender;
++            };
++            union
++            {
++                CommBase::msgtype msg;
++                char data[MESSAGE_LENGTH];
++            };
++        };
++        
++        CommBase(const char *name) { this-&gt;name=name; }
++        virtual ~CommBase() {}
++        /// Waits for an incoming message. 
++        /**
++         * \param timeout Time to wait for an incoming message. -1 for no timeout. 0 only checks if a message is available. 
++         * \param *rec Contains a pointer to an int for the client who sent
++         * a message
++         * \return true if a message is waiting or false for no message.
++         */
++        virtual bool waitMsg(int timeout=-1, int *rec=NULL) = 0;
++        
++        /// Receives a message
++        /**
++         * \param *msg Pointer to CommBase::Message-struct for the received Message.
++         * \return true if a message was received. 
++         */
++        virtual bool receiveMsg(Message *msg) = 0;
++
++        /// Sends a message. 
++        /**
++         * \param *msg Pointer to the message to be sent. 
++         * \return true if the message was sent. 
++         */
++        virtual bool sendMsg(const Message *msg, bool waitAck=false) = 0;
++        
++    protected:
++        string name;
++};
++
++#endif
++
+--- /dev/null
++++ src/commqsocketclient.cpp
+@@ -0,0 +1,74 @@
++
++#include &quot;commqsocketclient.h&quot;
++#include &quot;commsocketserver.h&quot;
++
++CommQSocketClient::CommQSocketClient(const char *hostname, unsigned int port, CommSocketServer::ClientType type)
++    : CommBase(hostname), QObject()
++{
++    CommSocketServer::RegisterMessage msg;
++    
++    clientSocket.connectToHost(hostname, port);
++    if(!clientSocket.connected())
++        throw EConnectError();
++    msg.data.msg=CommBase::msg_msg;
++    msg.data.type=type;
++    sendMsg(&amp;msg, false);
++    connect(this, SIGNAL(readyRead()), this, SLOT(dataWaiting()));
++}
++
++CommQSocketClient::~CommQSocketClient()
++{
++}
++
++bool CommQSocketClient::waitMsg(int timeout, int *rec)
++{
++    if(clientSocket.waitForMore(timeout))
++        return true;
++    return false;
++}
++
++bool CommQSocketClient::receiveMsg(Message *msg)
++{
++    int n;
++    
++    if(!msg)
++        return false;
++    if(!clientSocket.connected())
++        throw EConnectionClosed();
++    n=clientSocket.readBlock(msg-&gt;data, MESSAGE_LENGTH);
++    if(n!=MESSAGE_LENGTH)
++        return false;
++    return true;
++}
++
++bool CommQSocketClient::sendMsg(const Message *msg, bool waitAck)
++{
++    int n;
++    Message ack;
++    Message m;
++    
++    if(!msg)
++        return false;
++    memcpy(&amp;m, msg, sizeof(CommBase::Message));
++    if(waitAck)
++        m.msg |= CommBase::msg_ack; 
++    if(!clientSocket.connected())
++        throw EConnectionClosed();
++    n=writeBlock(m.data, MESSAGE_LENGTH);
++    if(n!=MESSAGE_LENGTH)
++        return false;
++    if(waitAck)
++    {
++        for(;;)
++        {
++            ack.sender=m.receiver;
++            if(!receiveMsg(&amp;ack))
++                return false;
++            if(!(ack.msg &amp; CommBase::msg_ack))
++                continue;
++            break;
++        }
++    }
++    return true;
++}
++
+--- /dev/null
++++ src/commqsocketclient.h
+@@ -0,0 +1,51 @@
++/***************************************************************************
++ *   Copyright (C) 2004 by Dominik Seichter                                *
++ *   <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>                                                    *
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU General Public License as published by  *
++ *   the Free Software Foundation; either version 2 of the License, or     *
++ *   (at your option) any later version.                                   *
++ *                                                                         *
++ *   This program is distributed in the hope that it will be useful,       *
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++ *   GNU General Public License for more details.                          *
++ *                                                                         *
++ *   You should have received a copy of the GNU General Public License     *
++ *   along with this program; if not, write to the                         *
++ *   Free Software Foundation, Inc.,                                       *
++ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
++ ***************************************************************************/
++
++#ifndef COMMQSOCKETCLIENT_H
++#define COMMQSOCKETCLIENT_H 
++
++#include &lt;qobject.h&gt;
++#include &lt;qsocket.h&gt;
++
++#include &quot;commbase.h&quot;
++
++using namespace std;
++
++class CommQSocketClient 
++    : public CommBase, public QObject
++{
++    public:
++        CommQSocketClient(const char *hostname, unsigned int port, CommSocketServer::ClientType type);
++        ~CommQSocketServer();
++        bool waitMsg(int timeout=-1, int *rec=NULL); 
++        bool receiveMsg(Message *msg);
++        bool sendMsg(Message *msg, bool waitAck=false);
++        
++    protected:
++        QSocket clientSocket;
++        
++        virtual void msgReceived() = 0;
++
++    private slots:
++        void dataWaiting();
++};
++
++#endif
++
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000069.html">[Schafkopf-devel] Commit Report - Schafkopf TODO-Liste aktualisiert
+</A></li>
+	<LI>Next message: <A HREF="000071.html">[Schafkopf-devel] Commit Report - Schafkopf lokale sockets funzen jetz auch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#70">[ date ]</a>
+              <a href="thread.html#70">[ thread ]</a>
+              <a href="subject.html#70">[ subject ]</a>
+              <a href="author.html#70">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

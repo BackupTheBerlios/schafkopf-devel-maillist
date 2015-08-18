@@ -1,0 +1,56 @@
+From domseichter at web.de  Mon Sep 25 20:21:00 2006
+From: domseichter at web.de (Dominik Seichter)
+Date: Mon, 25 Sep 2006 20:21:00 +0200
+Subject: [Schafkopf-devel] Schafkopf
+In-Reply-To: <200609242014.54295.norbert.jeckle@web.de>
+References: <200609242014.54295.norbert.jeckle@web.de>
+Message-ID: <200609252021.03711.domseichter@web.de>
+
+Hallo Norbert,
+
+Du hast Recht! Sobald eine Muss-Spiel Situation eintritt, wird der Computer 
+immer ein Eichel Solo spielen. 
+Das ist ein Fehler in der aktuellen KI (besser es fehlt noch eine Funktion um 
+in diesem Falle sinnvoll entscheiden zu k?nnen was gespielt wird).
+
+Im Moment sieht es bei uns allen leider Zeitlich schlecht aus, daher kommen 
+wir kaum zu Verbesserungen an SchafKopf. Sobald es die Zeit zul?sst werden 
+wir uns aber Deinem Problem widmen.
+
+Danke f?r Dein Feedback!
+
+	Dom
+
+Am Sunday, 24. September 2006 20:14 schrieben Sie:
+> Hallo Dominik,
+> find es klasse dass es Schafkopf auf Linux gibt. Bin so ein alter
+> Schafkopfspieler der noch aus Spass an der Freud spielt.
+> Hab festgestellt dass das proggi unter bestimmten Bedingungen
+> aber nicht so ganz "ideal" entscheidet.
+> Situation wie folgt. Ein oder mehrere Spieler klopfen, jedoch
+> spielt keiner. Damit muss der, der als letzter oder einziger
+> geklopft hat spielen. Hier scheint die Logik irgendwo falsch
+> abzuzweigen, denn immer wird Eichel sticht gespielt, au?er ich
+> als menschlicher Spieler kann entscheiden. Da scheint es so als
+> ob die Software die Karten nicht analysiert sondern blind Solo
+> in Eichel spielen will!
+> Hoffe ihr k?nnt das mal nachvollziehen.
+> Ciao
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 191 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20060925/93cd5675/attachment.pgp>
+

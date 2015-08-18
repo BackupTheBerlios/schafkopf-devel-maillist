@@ -1,0 +1,1413 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] domseichter: Commit Report - Schafkopf forgot those files
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20forgot%20those%20files&In-Reply-To=%3C200602131559.k1DFxXCi029228%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000238.html">
+   <LINK REL="Next"  HREF="000240.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] domseichter: Commit Report - Schafkopf forgot those files</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20forgot%20those%20files&In-Reply-To=%3C200602131559.k1DFxXCi029228%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] domseichter: Commit Report - Schafkopf forgot those files">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Mon Feb 13 16:59:33 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000238.html">[Schafkopf-devel] Re: KDE Schafkopf 0.7
+</A></li>
+        <LI>Next message: <A HREF="000240.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf uebersetzung passt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#239">[ date ]</a>
+              <a href="thread.html#239">[ thread ]</a>
+              <a href="subject.html#239">[ subject ]</a>
+              <a href="author.html#239">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+forgot those files
+
+Added Files:
+-----------
+    schafkopf/admin:
+        deps.am
+        detect-autoconf.pl
+        doxygen.sh
+        oldinclude.m4.in
+        pkg.m4.in
+
+-------------- next part --------------
+--- /dev/null
++++ admin/deps.am
+@@ -0,0 +1,19 @@
++$(top_srcdir)/acinclude.m4: $(top_srcdir)/admin/acinclude.m4.in $(top_srcdir)/admin/libtool.m4.in $(top_srcdir)/admin/cvs.sh $(top_srcdir)/admin/pkg.m4.in
++	@cd $(top_srcdir) &amp;&amp; $(SHELL) admin/cvs.sh acinclude_m4
++
++$(top_srcdir)/configure.in: $(top_srcdir)/subdirs $(top_srcdir)/configure.files $(top_srcdir)/admin/cvs.sh
++	@cd $(top_srcdir) &amp;&amp; $(SHELL) admin/cvs.sh configure_in
++
++$(top_srcdir)/configure.files: $(top_srcdir)/subdirs $(CONF_FILES)
++	@cd $(top_srcdir) &amp;&amp; $(SHELL) admin/cvs.sh configure.files $(top_srcdir)/admin/cvs.sh
++
++$(top_srcdir)/Makefile.am: $(top_srcdir)/Makefile.am.in $(top_srcdir)/subdirs $(top_srcdir)/admin/cvs.sh
++	@cd $(top_srcdir) &amp;&amp; $(SHELL) admin/cvs.sh Makefile_am
++
++$(top_srcdir)/subdirs: $(top_srcdir)/Makefile.am.in $(top_srcdir)/admin/cvs.sh
++	@cd $(top_srcdir) &amp;&amp; $(SHELL) admin/cvs.sh subdirs
++
++# defining default rules for files that may not be present
++$(top_srcdir)/Makefile.am.in:
++$(CONF_FILES):
++
+--- /dev/null
++++ admin/pkg.m4.in
+@@ -0,0 +1,57 @@
++
++dnl PKG_CHECK_MODULES(GSTUFF, gtk+-2.0 &gt;= 1.3 glib = 1.3.4, action-if, action-not)
++dnl defines GSTUFF_LIBS, GSTUFF_CFLAGS, see pkg-config man page
++dnl also defines GSTUFF_PKG_ERRORS on error
++AC_DEFUN([PKG_CHECK_MODULES], [
++  succeeded=no
++
++  if test -z &quot;$PKG_CONFIG&quot;; then
++    AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
++  fi
++
++  if test &quot;$PKG_CONFIG&quot; = &quot;no&quot; ; then
++     echo &quot;*** The pkg-config script could not be found. Make sure it is&quot;
++     echo &quot;*** in your path, or set the PKG_CONFIG environment variable&quot;
++     echo &quot;*** to the full path to pkg-config.&quot;
++     echo &quot;*** Or see <A HREF="http://www.freedesktop.org/software/pkgconfig">http://www.freedesktop.org/software/pkgconfig</A> to get pkg-config.&quot;
++  else
++     PKG_CONFIG_MIN_VERSION=0.9.0
++     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
++        AC_MSG_CHECKING(for $2)
++
++        if $PKG_CONFIG --exists &quot;$2&quot; ; then
++            AC_MSG_RESULT(yes)
++            succeeded=yes
++
++            AC_MSG_CHECKING($1_CFLAGS)
++            $1_CFLAGS=`$PKG_CONFIG --cflags &quot;$2&quot;`
++            AC_MSG_RESULT($$1_CFLAGS)
++
++            AC_MSG_CHECKING($1_LIBS)
++            $1_LIBS=`$PKG_CONFIG --libs &quot;$2&quot;`
++            AC_MSG_RESULT($$1_LIBS)
++        else
++            $1_CFLAGS=&quot;&quot;
++            $1_LIBS=&quot;&quot;
++            ## If we have a custom action on failure, don't print errors, but 
++            ## do set a variable so people can do so.
++            $1_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors &quot;$2&quot;`
++            ifelse([$4], ,echo $$1_PKG_ERRORS,)
++        fi
++
++        AC_SUBST($1_CFLAGS)
++        AC_SUBST($1_LIBS)
++     else
++        echo &quot;*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer.&quot;
++        echo &quot;*** See <A HREF="http://www.freedesktop.org/software/pkgconfig">http://www.freedesktop.org/software/pkgconfig</A>&quot;
++     fi
++  fi
++
++  if test $succeeded = yes; then
++     ifelse([$3], , :, [$3])
++  else
++     ifelse([$4], , AC_MSG_ERROR([Library requirements ($2) not met; consider adjusting the PKG_CONFIG_PATH environment variable if your libraries are in a nonstandard prefix so pkg-config can find them.]), [$4])
++  fi
++])
++
++
+--- /dev/null
++++ admin/oldinclude.m4.in
+@@ -0,0 +1,192 @@
++###   -*- autoconf -*-
++
++dnl    This file is part of the KDE libraries/packages
++dnl    Copyright (C) 1997 Janos Farkas (<A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">chexum at shadow.banki.hu</A>)
++dnl              (C) 1997,98,99 Stephan Kulow (<A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">coolo at kde.org</A>)
++
++dnl    This file is free software; you can redistribute it and/or
++dnl    modify it under the terms of the GNU Library General Public
++dnl    License as published by the Free Software Foundation; either
++dnl    version 2 of the License, or (at your option) any later version.
++
++dnl    This library is distributed in the hope that it will be useful,
++dnl    but WITHOUT ANY WARRANTY; without even the implied warranty of
++dnl    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++dnl    Library General Public License for more details.
++
++dnl    You should have received a copy of the GNU Library General Public License
++dnl    along with this library; see the file COPYING.LIB.  If not, write to
++dnl    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
++dnl    Boston, MA 02110-1301, USA.
++
++AC_DEFUN([KDE_CHECK_MICO],
++[
++AC_REQUIRE([KDE_CHECK_LIBDL])
++AC_REQUIRE([KDE_MISC_TESTS])
++AC_MSG_CHECKING(for MICO)
++
++if test -z &quot;$MICODIR&quot;; then
++    kde_micodir=/usr/local
++ else
++    kde_micodir=&quot;$MICODIR&quot;
++fi
++
++AC_ARG_WITH(micodir,
++  [  --with-micodir=micodir  where mico is installed ],
++  kde_micodir=$withval,
++  kde_micodir=$kde_micodir
++)
++
++AC_CACHE_VAL(kde_cv_mico_incdir,
++[
++  mico_incdirs=&quot;$kde_micodir/include /usr/include /usr/local/include /usr/local/include /opt/local/include $kde_extra_includes&quot;
++AC_FIND_FILE(CORBA.h, $mico_incdirs, kde_cv_mico_incdir)
++
++])
++kde_micodir=`echo $kde_cv_mico_incdir | sed -e 's#/include##'`
++
++if test ! -r  $kde_micodir/include/CORBA.h; then
++  AC_MSG_ERROR([No CORBA.h found, specify another micodir])
++fi
++
++AC_MSG_RESULT($kde_micodir)
++
++MICO_INCLUDES=-I$kde_micodir/include
++AC_SUBST(MICO_INCLUDES)
++MICO_LDFLAGS=-L$kde_micodir/lib
++AC_SUBST(MICO_LDFLAGS)
++micodir=$kde_micodir
++AC_SUBST(micodir)
++
++AC_MSG_CHECKING([for MICO version])
++AC_CACHE_VAL(kde_cv_mico_version,
++[
++AC_LANG_C
++cat &gt;conftest.$ac_ext &lt;&lt;EOF
++#include &lt;stdio.h&gt;
++#include &lt;mico/version.h&gt;
++int main() {
++
++   printf(&quot;MICO_VERSION=%s\n&quot;,MICO_VERSION);
++   return (0);
++}
++EOF
++ac_compile='${CC-gcc} $CFLAGS $MICO_INCLUDES conftest.$ac_ext -o conftest'
++if AC_TRY_EVAL(ac_compile); then
++  if eval `./conftest 2&gt;&amp;5`; then
++    kde_cv_mico_version=$MICO_VERSION
++  else
++    AC_MSG_ERROR([your system is not able to execute a small application to
++    find MICO version! Check $kde_micodir/include/mico/version.h])
++  fi
++else
++  AC_MSG_ERROR([your system is not able to compile a small application to
++  find MICO version! Check $kde_micodir/include/mico/version.h])
++fi
++])
++
++dnl installed MICO version
++mico_v_maj=`echo $kde_cv_mico_version | sed -e 's/^\(.*\)\..*\..*$/\1/'`
++mico_v_mid=`echo $kde_cv_mico_version | sed -e 's/^.*\.\(.*\)\..*$/\1/'`
++mico_v_min=`echo $kde_cv_mico_version | sed -e 's/^.*\..*\.\(.*\)$/\1/'`
++
++if test &quot;x$1&quot; = &quot;x&quot;; then
++ req_version=&quot;2.3.0&quot;
++else
++ req_version=$1
++fi
++
++dnl required MICO version
++req_v_maj=`echo $req_version | sed -e 's/^\(.*\)\..*\..*$/\1/'`
++req_v_mid=`echo $req_version | sed -e 's/^.*\.\(.*\)\..*$/\1/'`
++req_v_min=`echo $req_version | sed -e 's/^.*\..*\.\(.*\)$/\1/'`
++
++if test &quot;$mico_v_maj&quot; -lt &quot;$req_v_maj&quot; || \
++   ( test &quot;$mico_v_maj&quot; -eq &quot;$req_v_maj&quot; &amp;&amp; \
++        test &quot;$mico_v_mid&quot; -lt &quot;$req_v_mid&quot; ) || \
++   ( test &quot;$mico_v_mid&quot; -eq &quot;$req_v_mid&quot; &amp;&amp; \
++        test &quot;$mico_v_min&quot; -lt &quot;$req_v_min&quot; )
++
++then
++  AC_MSG_ERROR([found MICO version $kde_cv_mico_version but version $req_version \
++at least is required. You should upgrade MICO.])
++else
++  AC_MSG_RESULT([$kde_cv_mico_version (minimum version $req_version, ok)])
++fi
++
++LIBMICO=&quot;-lmico$kde_cv_mico_version $LIBCRYPT $LIBSOCKET $LIBDL&quot;
++AC_SUBST(LIBMICO)
++if test -z &quot;$IDL&quot;; then
++  IDL='$(kde_bindir)/cuteidl'
++fi
++AC_SUBST(IDL)
++IDL_DEPENDENCIES='$(kde_includes)/CUTE.h'
++AC_SUBST(IDL_DEPENDENCIES)
++
++idldir=&quot;\$(includedir)/idl&quot;
++AC_SUBST(idldir)
++
++])
++
++AC_DEFUN([KDE_CHECK_MINI_STL],
++[
++AC_REQUIRE([KDE_CHECK_MICO])
++
++AC_MSG_CHECKING(if we use mico's mini-STL)
++AC_CACHE_VAL(kde_cv_have_mini_stl,
++[
++AC_LANG_SAVE
++AC_LANG_CPLUSPLUS
++kde_save_cxxflags=&quot;$CXXFLAGS&quot;
++CXXFLAGS=&quot;$CXXFLAGS $MICO_INCLUDES&quot;
++AC_TRY_COMPILE(
++[
++#include &lt;mico/config.h&gt;
++],
++[
++#ifdef HAVE_MINI_STL
++#error &quot;nothing&quot;
++#endif
++],
++kde_cv_have_mini_stl=no,
++kde_cv_have_mini_stl=yes)
++CXXFLAGS=&quot;$kde_save_cxxflags&quot;
++AC_LANG_RESTORE
++])
++
++if test &quot;x$kde_cv_have_mini_stl&quot; = &quot;xyes&quot;; then
++   AC_MSG_RESULT(yes)
++   $1
++else
++   AC_MSG_RESULT(no)
++   $2
++fi
++])
++
++])
++
++AC_DEFUN([KDE_CHECK_ANSI],
++[
++])
++
++AC_DEFUN([KDE_CHECK_INSURE],
++[
++  AC_ARG_ENABLE(insure, [  --enable-insure             use insure++ for debugging [default=no]],
++  [
++  if test $enableval = &quot;no&quot;; dnl
++	then ac_use_insure=&quot;no&quot;
++	else ac_use_insure=&quot;yes&quot;
++   fi
++  ], [ac_use_insure=&quot;no&quot;])
++
++  AC_MSG_CHECKING(if we will use Insure++ to debug)
++  AC_MSG_RESULT($ac_use_insure)
++  if test &quot;$ac_use_insure&quot; = &quot;yes&quot;; dnl
++       then CC=&quot;insure&quot;; CXX=&quot;insure&quot;; dnl CFLAGS=&quot;$CLAGS -fno-rtti -fno-exceptions &quot;????
++   fi
++])
++
++AC_DEFUN([KDE_CHECK_NEWLIBS],
++[
++
++])
+--- /dev/null
++++ admin/detect-autoconf.pl
+@@ -0,0 +1,173 @@
++#!/usr/bin/env perl
++
++# Try to locate best version of auto*
++# By Michael Pyne &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">michael.pyne at kdemail.net</A>&gt;
++#
++# Copyright (c) 2005.
++# This code is public domain.  You may use it however you like (including
++# relicensing).
++
++# Emulate the 'which' program.
++sub which
++{
++    my $prog = shift;
++    my @paths = split(/:/, $ENV{'PATH'});
++
++    for $path (@paths)
++    {
++	return &quot;$path/$prog&quot; if -x &quot;$path/$prog&quot;;
++    }
++
++    return &quot;&quot;;
++}
++
++# Subroutine to determine the highest installed version of the given program,
++# searching from the given paths.
++sub findBest
++{
++    my ($program, @paths) = @_;
++    my $best_version_found = '0'; # Deliberately a string.
++    my %versions;
++    my %minimumVersions = (
++ 	'autoconf' =&gt; '2.5',
++	'automake' =&gt; '1.6',
++    );
++
++    # Allow user to use environment variable to override search.
++    return $ENV{uc $program} if $ENV{uc $program};
++
++    for $prefix (@paths)
++    {
++	@files = glob &quot;$prefix/$program*&quot;;
++	for $file (@files)
++	{
++	    # Don't check non-executable scripts.
++	    next unless -x $file;
++
++	    ($version) = $file =~ /$prefix\/$program-?(.*)$/;
++	    $version =~ s/-|\.//g;
++
++	    # Special case some programs to make sure it has a minimum version.
++	    if (not $version and exists $minimumVersions{$program})
++	    {
++		my $min_version = $minimumVersions{$program};
++		my $versionOutput = `$program --version 2&gt;/dev/null | head -n 1`;
++
++		# If we can't run the script to get the version it likely won't work later.
++		next unless $versionOutput; 
++
++		# Use number.number for version (we don't need the excess in general).
++		($versionOutput) = ($versionOutput =~ /(\d\.\d)/);
++
++		# Use lt to do lexicographical comparison of strings (which should be
++		# equivalent and doesn't involve issues with floating point conversions).
++		if (not $versionOutput or $versionOutput lt $min_version)
++		{
++		    next;
++		}
++	    }
++
++	    # If no version suffix then use it in favor of a versioned autotool
++	    # since the ever-popular WANT_AUTOFOO should then work (in theory).
++	    return $file unless $version;
++
++	    # Emulate 'which', and abort if we've already seen this version.
++	    next if exists $versions{$version};
++
++	    # Save filename of program.
++	    $versions{$version} = $file;
++
++	    # Use string comparison so that e.g. 253a will be &gt; 253 but &lt; 254.
++	    if ($version gt $best_version_found)
++	    {
++		$best_version_found = $version;
++	    }
++	}
++    }
++
++    return $versions{$best_version_found};
++}
++
++# Find an appropriate &quot;which&quot; program for later use by the shell script calling
++# us.
++sub findWhich
++{
++    for $candidate ('type -p', 'which', 'type')
++    {
++	$test = `$candidate sh 2&gt;/dev/null`;
++	chomp $test;
++
++	return $candidate if -x $test;
++    }
++}
++
++# Uses which() to find a program unless the user provided its path in the
++# environment (the upper case program name is searched).
++sub findProgram
++{
++    $suffix = &quot;&quot;; # For use if @_ has only one param.
++    my ($program, $suffix) = @_;
++
++    return $ENV{uc $program} if $ENV{uc $program};
++    return which(&quot;$program$suffix&quot;);
++}
++
++# SCRIPT STARTS.
++
++# Search in path.
+<A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">+ at paths</A> = split(/:/, $ENV{'PATH'});
++
++# Make sure at least /usr/bin and /usr/local/bin are in this search.
++unshift @paths, '/usr/local/bin' unless grep $_ eq '/usr/local/bin', @paths;
++unshift @paths, '/usr/bin' unless grep $_ eq '/usr/bin', @paths;
++
++$autoconf = findBest('autoconf', @paths);
++($autoconf_suffix) = $autoconf =~ /.*autoconf(.*)$/;
++
++# Find matching autoconf companions.
++$autoheader = findProgram('autoheader', $autoconf_suffix);
++$autom4te = findProgram('autom4te', $autoconf_suffix);
++
++# Get best automake, and look for unsermake to possibly override it.
++$automake = findBest('automake', @paths);
++$unsermake = &quot;&quot;;
++# backward compatible: if $UNSERMAKE points to a path, use it
++$unsermake = findProgram('unsermake') if (defined($ENV{'UNSERMAKE'}) and $ENV{'UNSERMAKE'} =~ /\//);
++# new compatible: if it says 'yes', use the one from path
++$unsermake = which('unsermake') if ($ENV{'UNSERMAKE'} ne 'no');
++
++($automake_suffix) = $automake =~ /.*automake(.*)$/;
++
++# Use unsermake if we found it.
++$automake = &quot;$unsermake -c&quot; if $unsermake;
++
++# Find matching automake companions.
++$aclocal = findProgram('aclocal', $automake_suffix);
++
++$which = findWhich();
++
++# Make sure we have all of the needed programs.
++for $i (qw'autoconf autoheader autom4te automake aclocal')
++{
++    unless(${$i})
++    {
++	print &quot;# Unable to find $i!!\n&quot;;
++	exit 1;
++    }
++}
++
++# Print results in eval-able form.
++print &lt;&lt;EOF;
++AUTOCONF=&quot;$autoconf&quot;
++AUTOHEADER=&quot;$autoheader&quot;
++AUTOM4TE=&quot;$autom4te&quot;
++
++AUTOMAKE=&quot;$automake&quot;
++ACLOCAL=&quot;$aclocal&quot;
++
++WHICH=&quot;$which&quot;
++
++export AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL WHICH
++EOF
++
++exit 0;
+--- /dev/null
++++ admin/doxygen.sh
+@@ -0,0 +1,883 @@
++#! /bin/sh
++#
++# doxygen.sh Copyright (C) 2005 by Adriaan de Groot
++#            Based on some code from Doxyfile.am, among other things.
++# License:   GPL version 2.
++#            See file COPYING in kdelibs for details.
++
++echo &quot;*** doxygen.sh&quot;
++
++# Recurse handling is a little complicated, since normally
++# subdir (given on the command-line) processing doesn't recurse
++# but you can force it to do so.
++recurse=1
++recurse_given=NO
++use_modulename=1
++cleanup=YES
++
++while test -n &quot;$1&quot; ; do
++case &quot;x$1&quot; in
++&quot;x--no-cleanup&quot; )
++	cleanup=NO
++	;;
++&quot;x--no-recurse&quot; )
++	recurse=0
++	recurse_given=YES
++	;;
++&quot;x--recurse&quot; )
++	recurse=1
++	recurse_given=YES
++	;;
++&quot;x--no-modulename&quot; )
++	use_modulename=0
++	;;
++&quot;x--modulename&quot; )
++	use_modulename=1
++	;;
++&quot;x--help&quot; )
++	echo &quot;doxygen.sh usage:&quot;
++	echo &quot;doxygen.sh [--no-recurse] [--no-modulename] &lt;srcdir&gt; [&lt;subdir&gt;]&quot;
++	exit 2
++	;;
++x--doxdatadir=* )
++	DOXDATA=`echo $1 | sed -e 's+--doxdatadir=++'`
++	;;
++x--installdir=*)
++	PREFIX=`echo $1 | sed -e 's+--installdir=++'`
++	;;
++x--* )
++	echo &quot;Unknown option: $1&quot;
++	exit 1
++	;;
++* )
++	top_srcdir=&quot;$1&quot;
++	break
++	;;
++esac
++shift
++done
++
++
++### Sanity check the mandatory &quot;top srcdir&quot; argument.
++if test -z &quot;$top_srcdir&quot; ; then
++	echo &quot;Usage: doxygen.sh &lt;top_srcdir&gt;&quot;
++	exit 1
++fi
++if test ! -d &quot;$top_srcdir&quot; ; then
++	echo &quot;top_srcdir ($top_srcdir) is not a directory.&quot;
++	exit 1
++fi
++
++### Normalize top_srcdir so it is an absolute path.
++if expr &quot;x$top_srcdir&quot; : &quot;x/&quot; &gt; /dev/null ; then
++	# top_srcdir is absolute already
++	:
++else
++	top_srcdir=`cd &quot;$top_srcdir&quot; 2&gt; /dev/null &amp;&amp; pwd`
++	if test ! -d &quot;$top_srcdir&quot; ; then
++		echo &quot;top_srcdir ($top_srcdir) is not a directory.&quot;
++		exit 1
++	fi
++fi
++
++
++
++### Sanity check and guess QTDOCDIR.
++if test -z &quot;$QTDOCDIR&quot; ; then
++	if test -z &quot;$QTDIR&quot; ; then
++		for i in /usr/X11R6/share/doc/qt/html
++		do
++			QTDOCDIR=&quot;$i&quot;
++			test -d &quot;$QTDOCDIR&quot; &amp;&amp; break
++		done
++	else
++		for i in share/doc/qt/html doc/html
++		do
++			QTDOCDIR=&quot;$QTDIR/$i&quot;
++			test -d &quot;$QTDOCDIR&quot; &amp;&amp; break
++		done
++	fi
++fi
++if test -z &quot;$QTDOCDIR&quot;  || test ! -d &quot;$QTDOCDIR&quot; ; then
++	if test -z &quot;$QTDOCDIR&quot; ; then
++		echo &quot;* QTDOCDIR could not be guessed.&quot;
++	else
++		echo &quot;* QTDOCDIR does not name a directory.&quot;
++	fi
++	if test -z &quot;$QTDOCTAG&quot; ; then
++		echo &quot;* QTDOCDIR set to \&quot;\&quot;&quot;
++		QTDOCDIR=&quot;&quot;
++	else
++		echo &quot;* But I'll use $QTDOCDIR anyway because of QTDOCTAG.&quot;
++	fi
++fi
++
++### Get the &quot;top srcdir&quot;, also its name, and handle the case that subdir &quot;.&quot;
++### is given (which would be top_srcdir then, so it's equal to none-given
++### but no recursion either).
++###
++# top_srcdir=&quot;$1&quot; # Already set by options processing
++module_name=`basename &quot;$top_srcdir&quot;`
++subdir=&quot;$2&quot;
++if test &quot;x.&quot; = &quot;x$subdir&quot; ; then
++	subdir=&quot;&quot;
++	if test &quot;x$recurse_given&quot; = &quot;xNO&quot; ; then
++		recurse=0
++	fi
++fi
++if test &quot;x&quot; != &quot;x$subdir&quot; ; then
++	# If no recurse option given explicitly, default to
++	# no recurse when processing subdirs given on the command-line.
++	if test &quot;x$recurse_given&quot; = &quot;xNO&quot; ; then
++		recurse=0
++	fi
++fi
++
++if test -z &quot;$DOXDATA&quot; || test ! -d &quot;$DOXDATA&quot; ; then
++	if test -n &quot;$DOXDATA&quot; ; then
++		echo &quot;* \$DOXDATA is '$DOXDATA' which does not name a directory&quot;
++	fi
++	DOXDATA=&quot;$top_srcdir/doc/common&quot;
++fi
++
++if test ! -d &quot;$DOXDATA&quot; ; then
++	echo &quot;* \$DOXDATA does not name a directory ( or is unset ), tried \&quot;$DOXDATA\&quot;&quot;
++	exit 1
++fi
++
++if test -n &quot;$PREFIX&quot; &amp;&amp; test ! -d &quot;$PREFIX&quot; ; then
++	echo &quot;* \$PREFIX does not name a directory, tried \&quot;$PREFIX\&quot;&quot;
++	echo &quot;* \$PREFIX is disabled.&quot;
++	PREFIX=&quot;&quot;
++fi
++
++### We need some values from top-level files, which
++### are not preserved between invocations of this
++### script, so factor it out for easy use.
++create_doxyfile_in() 
++{
++	eval `grep 'VERSION=&quot;' &quot;$top_srcdir/admin/cvs.sh&quot;`
++	echo &quot;PROJECT_NUMBER = $VERSION&quot; &gt; Doxyfile.in
++	grep ^KDE_INIT_DOXYGEN &quot;$top_srcdir/configure.in.in&quot; | \
++		sed -e 's+[^[]*\[\([^]]*\)+PROJECT_NAME = &quot;\1&quot;+' \
++			-e 's+].*++' &gt;&gt; Doxyfile.in
++}
++
++apidoxdir=&quot;$module_name&quot;-apidocs
++test &quot;x$use_modulename&quot; = &quot;x0&quot; &amp;&amp; apidoxdir=&quot;apidocs&quot;
++
++### If we're making the top subdir, create the structure
++### for the apidox and initialize it. Otherwise, just use the
++### structure assumed to be there.
++if test -z &quot;$subdir&quot; ; then
++	if test ! -d &quot;$apidoxdir&quot; ; then
++		mkdir &quot;$apidoxdir&quot; &gt; /dev/null 2&gt;&amp;1
++	fi
++	cd &quot;$apidoxdir&quot; &gt; /dev/null 2&gt;&amp;1 || { 
++		echo &quot;Cannot create and cd into $apidoxdir&quot;
++		exit 1
++	}
++
++	test -f &quot;Doxyfile.in&quot; || create_doxyfile_in
++
++	# Copy in logos and the like
++	for i in &quot;favicon.ico&quot; &quot;kde_gear_64.png&quot;
++	do
++		cp &quot;$DOXDATA/$i&quot; . &gt; /dev/null 2&gt; /dev/null
++	done
++	for i in &quot;$top_srcdir/doc/api/Dox-&quot;*.png
++	do
++		T=`basename &quot;$i&quot; | sed -e 's+Dox-++'`
++		test -f &quot;$i&quot; &amp;&amp; cp &quot;$i&quot; &quot;./$T&quot; &gt; /dev/null 2&gt; /dev/null
++	done
++
++	top_builddir=&quot;.&quot;
++	srcdir=&quot;$1&quot;
++	subdir=&quot;.&quot;
++else
++	cd &quot;$apidoxdir&quot; &gt; /dev/null 2&gt;&amp;1 || {
++		echo &quot;Cannot cd into $apidoxdir -- maybe you need to&quot;
++		echo &quot;build the top-level dox first.&quot;
++		exit 1
++	}
++
++	if test &quot;x1&quot; = &quot;x$recurse&quot; ; then
++		# OK, so --recurse was requested
++		if test ! -f &quot;subdirs.top&quot; ; then
++			echo &quot;* No subdirs.top available in the $apidoxdir.&quot;
++			echo &quot;* The --recurse option will be ignored.&quot;
++			recurse=0
++		fi
++	fi
++fi
++
++### Read a single line (TODO: support \ continuations) from the Makefile.am.
++### Used to extract variable assignments from it.
++extract_line()
++{
++	file=&quot;$2&quot; ; test -z &quot;$file&quot; &amp;&amp; file=&quot;$srcdir/Makefile.am&quot;
++	pattern=`echo &quot;$1&quot; | tr + .`
++	grep &quot;^$1&quot; &quot;$file&quot; | \
++		sed -e &quot;s+$pattern.*=\s*++&quot;
++}
++
++### Handle the COMPILE_{FIRST,LAST,BEFORE,AFTER} part of Makefile.am
++### in the toplevel. Copied from admin/cvs.sh. Licence presumed LGPL).
++create_subdirs()
++{
++echo &quot;* Sorting top-level subdirs&quot;
++dirs=
++idirs=
++if test -f &quot;$top_srcdir/inst-apps&quot;; then
++   idirs=`cat &quot;$top_srcdir/&quot;inst-apps`
++else
++   idirs=`cd &quot;$top_srcdir&quot; &amp;&amp; ls -1 | sort`
++fi
++
++compilefirst=&quot;&quot;
++compilelast=&quot;&quot;
++if test -f &quot;$top_srcdir/&quot;Makefile.am.in ; then
++	compilefirst=`sed -ne 's#^COMPILE_FIRST[ ]*=[ ]*##p' &quot;$top_srcdir/&quot;Makefile.am.in | head -n 1`
++	compilelast=`sed -ne 's#^COMPILE_LAST[ ]*=[ ]*##p' &quot;$top_srcdir/&quot;Makefile.am.in | head -n 1`
++fi
++for i in $idirs; do
++    if test -f &quot;$top_srcdir/$i&quot;/Makefile.am; then
++       case &quot; $compilefirst $compilelast &quot; in
++         *&quot; $i &quot;*) ;;
++         *) dirs=&quot;$dirs $i&quot;
++       esac
++    fi
++done
++
++: &gt; ./_SUBDIRS
++
++for d in $compilefirst; do
++   echo $d &gt;&gt; ./_SUBDIRS
++done
++
++(for d in $dirs; do
++   list=&quot;&quot;
++   if test -f &quot;$top_srcdir/&quot;Makefile.am.in ; then
++	   list=`sed -ne &quot;s#^COMPILE_BEFORE_$d&quot;&quot;[ ]*=[ ]*##p&quot; &quot;$top_srcdir/&quot;Makefile.am.in | head -n 1`
++   fi
++   for s in $list; do
++      echo $s $d
++   done
++   list=&quot;&quot;
++   if test -f &quot;$top_srcdir/&quot;Makefile.am.in ; then
++	   list=`sed -ne &quot;s#^COMPILE_AFTER_$d&quot;&quot;[ ]*=[ ]*##p&quot; &quot;$top_srcdir/&quot;Makefile.am.in | head -n 1`
++   fi
++   for s in $list; do
++      echo $d $s
++   done
++   echo $d $d
++done ) | tsort &gt;&gt; ./_SUBDIRS
++
++for d in $compilelast; do
++   echo $d &gt;&gt; ./_SUBDIRS
++done
++
++test -r _SUBDIRS &amp;&amp; mv _SUBDIRS subdirs.top || true
++}
++
++
++### Add HTML header, footer, CSS tags to Doxyfile.
++### Assumes $subdir is set. Argument is a string
++### to stick in front of the file if needed.
++apidox_htmlfiles()
++{
++	dox_header=&quot;$top_srcdir/doc/api/$1header.html&quot;
++	dox_footer=&quot;$top_srcdir/doc/api/$1footer.html&quot;
++	dox_css=&quot;$top_srcdir/doc/api/doxygen.css&quot;
++	test -f &quot;$dox_header&quot; || dox_header=&quot;$DOXDATA/$1header.html&quot;
++	test -f &quot;$dox_footer&quot; || dox_footer=&quot;$DOXDATA/$1footer.html&quot;
++	test -f &quot;$dox_css&quot; || dox_css=&quot;$DOXDATA/doxygen.css&quot;
++
++	echo &quot;HTML_HEADER            = $dox_header&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot; ; \
++	echo &quot;HTML_FOOTER            = $dox_footer&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot; ; \
++	echo &quot;HTML_STYLESHEET        = $dox_css&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++}
++
++apidox_specials()
++{
++	line=`extract_line DOXYGEN_PROJECTNAME &quot;$1&quot;`
++	test -n &quot;$line&quot; &amp;&amp; echo &quot;PROJECT_NAME = \&quot;$line\&quot;&quot; &gt;&gt; &quot;$2&quot;
++}
++
++apidox_local()
++{
++	for i in &quot;$top_srcdir/doc/api/Doxyfile.local&quot;
++	do
++		if test -f &quot;$i&quot; ; then
++			cat &quot;$i&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++			break
++		fi
++	done
++}
++
++### Post-process HTML files by substituting in the menu files
++#
++# In non-top directories, both &lt;!-- menu --&gt; and &lt;!-- gmenu --&gt;
++# are calculated and replaced. Top directories get an empty &lt;!-- menu --&gt;
++# if any.
++doxyndex()
++{
++	# Special case top-level to have an empty MENU.
++	if test &quot;x$subdir&quot; = &quot;x.&quot; ; then
++		MENU=&quot;&quot;
++		htmldir=&quot;.&quot;
++		htmltop=&quot;$top_builddir&quot; # Just ., presumably
++		echo &quot;* Post-processing top-level files&quot;
++	else
++		MENU=&quot;&lt;ul&gt;&quot;
++		htmldir=&quot;$subdir/html&quot;
++		htmltop=&quot;$top_builddir..&quot; # top_builddir ends with /
++		echo &quot;* Post-processing files in $htmldir&quot;
++
++		# Build a little PHP file that maps class names to file
++		# names, for the quick-class-picker functionality.
++		# (The quick-class-picker is disabled due to styling
++		# problems in IE &amp; FF).
++		(
++		echo &quot;&lt;?php \$map = array(&quot;;  \
++		for htmlfile in `find $htmldir/ -type f -name &quot;class[A-Z]*.html&quot; | grep -v &quot;\-members.html$&quot;`; do
++			classname=`echo $htmlfile | sed -e &quot;s,.*/class\\(.*\\).html,\1,&quot; -e &quot;s,_1_1,::,g&quot; -e &quot;s,_01, ,g&quot; -e &quot;s,_4,&gt;,g&quot; -e &quot;s+_00+,+g&quot; -e &quot;s+_3+&lt;+g&quot; | tr &quot;[A-Z]&quot; &quot;[a-z]&quot;`
++			echo &quot;  \&quot;$classname\&quot; =&gt; \&quot;$htmlfile\&quot;,&quot;
++		done | sort ; \
++		echo &quot;) ?&gt;&quot;
++		) &gt; &quot;$subdir/classmap.inc&quot;
++
++		# This is a list of pairs, with / separators so we can use
++		# basename and dirname (a crude shell hack) to split them
++		# into parts. For each, if the file part exists (as a html
++		# file) tack it onto the MENU variable as a &lt;li&gt; with link.
++		for i in &quot;Main Page/index&quot; \
++			&quot;Modules/modules&quot; \
++			&quot;Namespace List/namespaces&quot; \
++			&quot;Class Hierarchy/hierarchy&quot; \
++			&quot;Alphabetical List/classes&quot; \
++			&quot;Class List/annotated&quot; \
++			&quot;File List/files&quot; \
++			&quot;Directories/dirs&quot; \
++			&quot;Namespace Members/namespacemembers&quot; \
++			&quot;Class Members/functions&quot; \
++			&quot;Related Pages/pages&quot;
++		do
++			NAME=`dirname &quot;$i&quot;`
++			FILE=`basename &quot;$i&quot;`
++			test -f &quot;$htmldir/$FILE.html&quot; &amp;&amp; MENU=&quot;$MENU&lt;li&gt;&lt;a href=\&quot;$FILE.html\&quot;&gt;$NAME&lt;/a&gt;&lt;/li&gt;&quot;
++		done
++
++		MENU=&quot;$MENU&lt;/ul&gt;&quot;
++	fi
++
++
++	# Get the list of global Menu entries.
++	GMENU=`cat subdirs | tr -d '\n'`
++
++	PMENU=`grep '&lt;!-- pmenu' &quot;$htmldir/index.html&quot; | sed -e 's+.*pmenu *++' -e 's+ *--&gt;++' | awk '{ c=split($0,a,&quot;/&quot;); for (j=1; j&lt;=c; j++) { printf &quot; / &lt;a href=\&quot;&quot;; if (j==c) { printf(&quot;.&quot;); } for (k=j; k&lt;c; k++) { printf &quot;../&quot;; } if (j&lt;c) { printf(&quot;../html/index.html&quot;); } printf &quot;\&quot;&gt;%s&lt;/a&gt;\n&quot; , a[j]; } }' | tr -d '\n'`
++
++	# Map the PHP file into HTML options so that
++	# it can be substituted in for the quick-class-picker.
++	CMENU=&quot;&quot;
++	# For now, leave the CMENU disabled
++	CMENUBEGIN=&quot;&lt;!--&quot;
++	CMENUEND=&quot;--&gt;&quot;
++
++	if test &quot;x$subdir&quot; = &quot;x.&quot; ; then
++		# Disable CMENU on toplevel anyway
++		CMENUBEGIN=&quot;&lt;!--&quot;
++		CMENUEND=&quot;--&gt;&quot;
++	else
++		test -f &quot;$subdir/classmap.inc&quot; &amp;&amp; \
++		CMENU=`grep '=&gt;' &quot;$subdir/classmap.inc&quot; | sed -e 's+&quot;\([^&quot;]*\)&quot; =&gt; &quot;'&quot;$subdir/html/&quot;'\([^&quot;]*\)&quot;+&lt;option value=&quot;\2&quot;&gt;\1&lt;\/option&gt;+' | tr -d '\n'`
++
++		if test -f &quot;$subdir/classmap.inc&quot; &amp;&amp; grep &quot;=&gt;&quot; &quot;$subdir/classmap.inc&quot; &gt; /dev/null 2&gt;&amp;1 ; then
++			# Keep the menu, it's useful
++			:
++		else
++			CMENUBEGIN=&quot;&lt;!--&quot;
++			CMENUEND=&quot;--&gt;&quot;
++		fi
++	fi
++
++	# Now substitute in the MENU in every file. This depends
++	# on HTML_HEADER (ie. header.html) containing the
++	# &lt;!-- menu --&gt; comment.
++	for i in &quot;$htmldir&quot;/*.html
++	do
++		if test -f &quot;$i&quot; ; then
++			sed -e &quot;s+&lt;!-- menu --&gt;+$MENU+&quot; \
++				-e &quot;s+&lt;!-- gmenu --&gt;+$GMENU+&quot; \
++				-e &quot;s+&lt;!-- pmenu.*--&gt;+$PMENU+&quot; \
++				-e &quot;s+&lt;!-- cmenu.begin --&gt;+$CMENUBEGIN+&quot; \
++				-e &quot;s+&lt;!-- cmenu.end --&gt;+$CMENUEND+&quot; \
++				&lt; &quot;$i&quot;  | sed -e &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">s+ at topdir</A>@+$htmltop+g&quot; &gt; &quot;$i.new&quot; &amp;&amp; mv &quot;$i.new&quot; &quot;$i&quot;
++			sed -e &quot;s+&lt;!-- cmenu --&gt;+$CMENU+&quot; &lt; &quot;$i&quot; &gt; &quot;$i.new&quot;
++			test -s &quot;$i.new&quot; &amp;&amp; mv &quot;$i.new&quot; &quot;$i&quot;
++		fi
++	done
++}
++
++
++
++
++
++
++### Handle the Doxygen processing of a toplevel directory.
++apidox_toplevel()
++{
++	echo &quot;&quot;
++	echo &quot;*** Creating API documentation main page for $module_name&quot;
++	echo &quot;*&quot;
++	rm -f &quot;Doxyfile&quot;
++	for i in &quot;$top_srcdir/doc/api/Doxyfile.global&quot; \
++		&quot;$top_srcdir/admin/Doxyfile.global&quot; \
++		&quot;$DOXDATA/Doxyfile.global&quot;
++	do
++		if test -f &quot;$i&quot; ; then
++			cp &quot;$i&quot; Doxyfile
++			break
++		fi
++	done
++
++	if test ! -f &quot;Doxyfile&quot; ; then
++		echo &quot;* Cannot create Doxyfile.&quot;
++		exit 1
++	fi
++
++	cat &quot;$top_builddir/Doxyfile.in&quot; &gt;&gt; Doxyfile
++
++
++	echo &quot;INPUT                  = $top_srcdir&quot; &gt;&gt; Doxyfile
++	echo &quot;OUTPUT_DIRECTORY       = $top_builddir&quot; &gt;&gt; Doxyfile ; \
++	echo &quot;FILE_PATTERNS          = *.dox&quot; &gt;&gt; Doxyfile ; \
++	echo &quot;RECURSIVE              = NO&quot; &gt;&gt; Doxyfile ; \
++	echo &quot;ALPHABETICAL_INDEX     = NO&quot; &gt;&gt; Doxyfile ; \
++	echo &quot;HTML_OUTPUT            = .&quot; &gt;&gt; Doxyfile ; \
++	apidox_htmlfiles &quot;main&quot;
++
++	# KDevelop has a top-level Makefile.am with settings.
++	for i in &quot;$top_srcdir/Makefile.am.in&quot; &quot;$top_srcdir/Makefile.am&quot;
++	do
++		if test -f &quot;$i&quot; ; then
++			grep '^DOXYGEN_SET_' &quot;$i&quot; | \
++				sed -e 's+DOXYGEN_SET_++' -e &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">s+ at topdir</A>@+$top_srcdir+&quot; &gt;&gt; Doxyfile
++			apidox_specials &quot;$srcdir/Makefile.am&quot; &quot;$subdir/Doxyfile&quot;
++
++			break
++		fi
++	done
++
++	apidox_local
++
++	doxygen Doxyfile
++
++	( cd &quot;$top_srcdir&quot; &amp;&amp; grep -l ^include.*Doxyfile.am `find . -name Makefile.am` ) | sed -e 's+/Makefile.am$++' -e 's+^\./++' | sort &gt; subdirs.in
++	for i in `cat subdirs.in`
++	do
++		test &quot;x.&quot; = &quot;x$i&quot; &amp;&amp; continue;
++
++		dir=`dirname &quot;$i&quot;`
++		file=`basename &quot;$i&quot;`
++		if test &quot;x.&quot; = &quot;x$dir&quot; ; then
++			dir=&quot;&quot;
++		else
++			dir=&quot;$dir/&quot;
++		fi
++		indent=`echo &quot;$dir&quot; | sed -e 's+[^/]*/+\&nbsp;\&nbsp;+g' | sed -e 's+&amp;+\\\&amp;+g'`
++		entryname=`extract_line DOXYGEN_SET_PROJECT_NAME &quot;$top_srcdir/$dir/$file/Makefile.am&quot;`
++		test -z &quot;$entryname&quot; &amp;&amp; entryname=&quot;$file&quot;
++
++		if grep DOXYGEN_EMPTY &quot;$top_srcdir/$dir/$file/Makefile.am&quot; &gt; /dev/null 2&gt;&amp;1 ; then
++			echo &quot;&lt;li&gt;$indent$file&lt;/li&gt;&quot;
++		else
++			echo &quot;&lt;li&gt;$indent&lt;a href=\&quot;@topdir@/$dir$file/html/index.html\&quot;&gt;$entryname&lt;/a&gt;&lt;/li&gt;&quot;
++		fi
++	done &gt; subdirs
++
++	doxyndex
++}
++
++### Handle the Doxygen processing of a non-toplevel directory.
++apidox_subdir()
++{
++	echo &quot;&quot;
++	echo &quot;*** Creating apidox in $subdir&quot;
++	echo &quot;*&quot;
++	rm -f &quot;$subdir/Doxyfile&quot;
++	if test ! -d &quot;$top_srcdir/$subdir&quot; ; then
++		echo &quot;* No source (sub)directory $subdir&quot;
++		return
++	fi
++	for i in &quot;$top_srcdir/doc/api/Doxyfile.global&quot; \
++		&quot;$top_srcdir/admin/Doxyfile.global&quot; \
++		&quot;$DOXDATA/Doxyfile.global&quot;
++	do
++		if test -f &quot;$i&quot; ; then
++			cp &quot;$i&quot; &quot;$subdir/Doxyfile&quot;
++			break
++		fi
++	done
++
++
++	test -f &quot;Doxyfile.in&quot; || create_doxyfile_in
++	cat &quot;Doxyfile.in&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++
++	echo &quot;PROJECT_NAME           = \&quot;$subdir\&quot;&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++	echo &quot;INPUT                  = $srcdir&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++	echo &quot;OUTPUT_DIRECTORY       = .&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++	if grep -l &quot;$subdir/&quot; subdirs.in &gt; /dev/null 2&gt;&amp;1 ; then
++		echo &quot;RECURSIVE              = NO&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++	fi
++	echo &quot;HTML_OUTPUT            = $subdir/html&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++	echo &quot;GENERATE_TAGFILE       = $subdir/$subdirname.tag&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++	test -d &quot;$top_srcdir/doc/api&quot; &amp;&amp; \
++		echo &quot;IMAGE_PATH             = $top_srcdir/doc/api&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++
++	apidox_htmlfiles &quot;&quot;
++
++	# Makefile.ams may contain overrides to our settings,
++	# so copy them in.
++	grep '^DOXYGEN_SET_' &quot;$srcdir/Makefile.am&quot; | \
++		sed -e 's+DOXYGEN_SET_++' &gt;&gt; &quot;$subdir/Doxyfile&quot;
++	apidox_specials &quot;$srcdir/Makefile.am&quot; &quot;$subdir/Doxyfile&quot;
++
++	excludes=`extract_line DOXYGEN_EXCLUDE`
++	if test -n &quot;$excludes&quot;; then
++		patterns=&quot;&quot;
++		dirs=&quot;&quot;
++		for item in `echo &quot;$excludes&quot;`; do
++			if test -d &quot;$top_srcdir/$subdir/$item&quot;; then
++				dirs=&quot;$dirs $top_srcdir/$subdir/$item/&quot;
++			else
++				patterns=&quot;$patterns $item&quot;
++			fi
++		done
++		echo &quot;EXCLUDE_PATTERNS      += $patterns&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++		echo &quot;EXCLUDE               += $dirs&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++	fi
++
++	echo &quot;TAGFILES = \\&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++	## For now, don't support \ continued references lines
++	tags=`extract_line DOXYGEN_REFERENCES`
++	for i in $tags qt ; do
++		tagsubdir=`dirname $i` ; tag=`basename $i`
++		tagpath=&quot;&quot;
++		not_found=&quot;&quot;
++
++		if test &quot;x$tagsubdir&quot; = &quot;x.&quot; ; then
++			tagsubdir=&quot;&quot;
++		else
++			tagsubdir=&quot;$tagsubdir/&quot;
++		fi
++
++		# Find location of tag file
++		if test -f &quot;$tagsubdir$tag/$tag.tag&quot; ; then
++			file=&quot;$tagsubdir$tag/$tag.tag&quot;
++			loc=&quot;$tagsubdir$tag/html&quot;
++		else
++			# This checks for dox built with_out_ --no-modulename
++			# in the same build dir as this dox run was started in.
++			file=`ls -1 ../*-apidocs/&quot;$tagsubdir$tag/$tag.tag&quot; 2&gt; /dev/null`
++
++			if test -n &quot;$file&quot; ; then
++				loc=`echo &quot;$file&quot; | sed -e &quot;s/$tag.tag\$/html/&quot;`
++			else
++				# If the tag file doesn't exist yet, but should
++				# because we have the right dirs here, queue
++				# this directory for re-processing later.
++				if test -d &quot;$top_srcdir/$tagsubdir$tag&quot; ; then
++					echo &quot;* Need to re-process $subdir for tag $i&quot;
++					echo &quot;$subdir&quot; &gt;&gt; &quot;subdirs.later&quot;
++				else
++					# Re-check in $PREFIX if needed.
++					test -n &quot;$PREFIX&quot; &amp;&amp; \
++					file=`cd &quot;$PREFIX&quot; &amp;&amp; \
++					ls -1 *-apidocs/&quot;$tagsubdir$tag/$tag.tag&quot; 2&gt; /dev/null`
++
++					# If something is found, patch it up. The location must be
++					# relative to the installed location of the dox and the
++					# file must be absolute.
++					if test -n &quot;$file&quot; ; then
++						loc=`echo &quot;../$file&quot; | sed -e &quot;s/$tag.tag\$/html/&quot;`
++						file=&quot;$PREFIX/$file&quot;
++						echo &quot;* Tags for $tagsubdir$tag will only work when installed.&quot;
++						not_found=&quot;YES&quot;
++					fi
++				fi
++			fi
++		fi
++		if test &quot;$tag&quot; = &quot;qt&quot; ; then
++			if test -z &quot;$QTDOCDIR&quot; ; then
++				echo &quot;  $file&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++			else
++				if test -z &quot;$file&quot; ; then
++					# Really no Qt tags
++					echo &quot;&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++				else
++					echo &quot;  $file=$QTDOCDIR&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++				fi
++			fi
++		else
++			if test -n &quot;$file&quot;  ; then
++				test -z &quot;$not_found&quot; &amp;&amp; echo &quot;* Found tag $file&quot;
++				echo &quot;  $file=../$top_builddir$loc \\&quot; &gt;&gt; &quot;$subdir/Doxyfile&quot;
++			fi
++		fi
++	done
++
++	apidox_local
++
++	if grep '^DOXYGEN_EMPTY' &quot;$srcdir/Makefile.am&quot; &gt; /dev/null 2&gt;&amp;1 ; then
++		# This directory is empty, so don't process it, but
++		# *do* handle subdirs that might have dox.
++		:
++	else
++		# Regular processing
++		doxygen &quot;$subdir/Doxyfile&quot;
++		doxyndex
++	fi
++}
++
++### Run a given subdir by setting up global variables first.
++do_subdir()
++{
++	subdir=`echo &quot;$1&quot; | sed -e 's+/$++'`
++	srcdir=&quot;$top_srcdir/$subdir&quot;
++	subdirname=`basename &quot;$subdir&quot;`
++	mkdir -p &quot;$subdir&quot; 2&gt; /dev/null
++	if test ! -d &quot;$subdir&quot; ; then
++		echo &quot;Can't create dox subdirectory $subdir&quot;
++		return
++	fi
++	top_builddir=`echo &quot;/$subdir&quot; | sed -e 's+/[^/]*+../+g'`
++	apidox_subdir
++}
++
++
++### Create installdox-slow in the toplevel
++create_installdox()
++{
++# Fix up the installdox script so it accepts empty args
++#
++# This code is copied from the installdox generated by Doxygen,
++# copyright by Dimitri van Heesch and released under the GPL.
++# This does a _slow_ update of the dox, because it loops
++# over the given substitutions instead of assuming all the
++# needed ones are given.
++#
++cat &lt;&lt;\EOF
++#! /usr/bin/env perl
++
++%subst = () ;
++$quiet   = 0;
++
++if (open(F,&quot;search.cfg&quot;))
++{
++  $_=&lt;F&gt; ; s/[ \t\n]*$//g ; $subst{&quot;_doc&quot;} = $_;
++  $_=&lt;F&gt; ; s/[ \t\n]*$//g ; $subst{&quot;_cgi&quot;} = $_;
++}
++
++while ( @ARGV ) {
++  $_ = shift @ARGV;
++  if ( s/^-// ) {
++    if ( /^l(.*)/ ) {
++      $v = ($1 eq &quot;&quot;) ? shift @ARGV : $1;
++      ($v =~ /\/$/) || ($v .= &quot;/&quot;);
++      $_ = $v;
++      if ( /(.+)\@(.+)/ ) {
++          $subst{$1} = $2;
++      } else {
++        print STDERR &quot;Argument $_ is invalid for option -l\n&quot;;
++        &amp;usage();
++      }
++    }
++    elsif ( /^q/ ) {
++      $quiet = 1;
++    }
++    elsif ( /^\?|^h/ ) {
++      &amp;usage();
++    }
++    else {
++      print STDERR &quot;Illegal option -$_\n&quot;;
++      &amp;usage();
++    }
++  }
++  else {
++    push (@files, $_ );
++  }
++}
++
++
++if ( ! @files ) {
++  if (opendir(D,&quot;.&quot;)) {
++    foreach $file ( readdir(D) ) {
++      $match = &quot;.html&quot;;
++      next if ( $file =~ /^\.\.?$/ );
++      ($file =~ /$match/) &amp;&amp; (push @files, $file);
++      ($file =~ &quot;tree.js&quot;) &amp;&amp; (push @files, $file);
++    }
++    closedir(D);
++  }
++}
++
++if ( ! @files ) {
++  print STDERR &quot;Warning: No input files given and none found!\n&quot;;
++}
++
++foreach $f (@files)
++{
++  if ( ! $quiet ) {
++    print &quot;Editing: $f...\n&quot;;
++  }
++  $oldf = $f;
++  $f   .= &quot;.bak&quot;;
++  unless (rename $oldf,$f) {
++    print STDERR &quot;Error: cannot rename file $oldf\n&quot;;
++    exit 1;
++  }
++  if (open(F,&quot;&lt;$f&quot;)) {
++    unless (open(G,&quot;&gt;$oldf&quot;)) {
++      print STDERR &quot;Error: opening file $oldf for writing\n&quot;;
++      exit 1;
++    }
++    if ($oldf ne &quot;tree.js&quot;) {
++      while (&lt;F&gt;) {
++	foreach $sub (keys %subst) {
++          s/doxygen\=\&quot;$sub\:([^ \&quot;\t\&gt;\&lt;]*)\&quot; (href|src)=\&quot;\1/doxygen\=\&quot;$sub:$subst{$sub}\&quot; \2=\&quot;$subst{$sub}/g;
++          print G &quot;$_&quot;;
++	}
++      }
++    }
++    else {
++      while (&lt;F&gt;) {
++	foreach $sub (keys %subst) {
++          s/\&quot;$sub\:([^ \&quot;\t\&gt;\&lt;]*)\&quot;, \&quot;\1/\&quot;$sub:$subst{$sub}\&quot; ,\&quot;$subst{$sub}/g;
++          print G &quot;$_&quot;;
++	}
++      }
++    }
++  }
++  else {
++    print STDERR &quot;Warning file $f does not exist\n&quot;;
++  }
++  unlink $f;
++}
++
++sub usage {
++  print STDERR &quot;Usage: installdox [options] [html-file [html-file ...]]\n&quot;;
++  print STDERR &quot;Options:\n&quot;;
++  print STDERR &quot;     -l tagfile\@linkName   tag file + URL or directory \n&quot;;
++  print STDERR &quot;     -q                    Quiet mode\n\n&quot;;
++  exit 1;
++}
++EOF
++}
++
++# Do only the subdirs that match the RE passed in as $1
++do_subdirs_re()
++{
++	RE=`echo &quot;$1&quot; | sed -e 's+/$++'`
++
++	# Here's a queue of dirs to re-process later when
++	# all the rest have been done already.
++	&gt; subdirs.later
++
++	# subdirs.top lists _all_ subdirs of top in the order they
++	# should be handled; subdirs.in lists those dirs that contain
++	# dox. So the intersection of the two is the ordered list
++	# of top-level subdirs that contain dox.
++	#
++	# subdirs.top also doesn't contain &quot;.&quot;, so that special
++	# case can be ignored in the loop.
++
++
++	(
++	for i in `grep &quot;^$RE&quot; subdirs.top`
++	do
++		if test &quot;x$i&quot; = &quot;x.&quot; ; then
++			continue
++		fi
++		# Calculate intersection of this element and the
++		# set of dox dirs.
++		if grep &quot;^$i\$&quot; subdirs.in &gt; /dev/null 2&gt;&amp;1 ; then
++			echo &quot;$i&quot;
++			mkdir -p &quot;$i&quot; 2&gt; /dev/null
++
++			# Handle the subdirs of this one
++			for j in `grep &quot;$i/&quot; subdirs.in`
++			do
++				echo &quot;$j&quot;
++				mkdir -p &quot;$j&quot; 2&gt; /dev/null
++			done
++		fi
++	done
++
++	# Now we still need to handle whatever is left
++	for i in `cat subdirs.in`
++	do
++		test -d &quot;$i&quot; || echo &quot;$i&quot;
++		mkdir -p &quot;$i&quot; 2&gt; /dev/null
++	done
++	) &gt; subdirs.sort
++	for i in `cat subdirs.sort`
++	do
++		do_subdir &quot;$i&quot;
++	done
++
++	if test -s &quot;subdirs.later&quot; ; then
++		sort subdirs.later | uniq &gt; subdirs.sort
++		for i in `cat subdirs.sort`
++		do
++			: &gt; subdirs.later
++			echo &quot;*** Reprocessing $i&quot;
++			do_subdir &quot;$i&quot;
++			test -s &quot;subdirs.later&quot; &amp;&amp; echo &quot;* Some tag files were still not found.&quot;
++		done
++	fi
++}
++
++if test &quot;x.&quot; = &quot;x$top_builddir&quot; ; then
++	apidox_toplevel
++	create_subdirs
++	create_installdox &gt; installdox-slow
++	if test &quot;x$recurse&quot; = &quot;x1&quot; ; then
++		if test &quot;x$module_name&quot; = &quot;xkdelibs&quot; ; then
++			if test -z &quot;$QTDOCTAG&quot; &amp;&amp; test -d &quot;$QTDOCDIR&quot; &amp;&amp; \
++				test ! -f &quot;qt/qt.tag&quot; ; then
++				# Special case: create a qt tag file.
++				echo &quot;*** Creating a tag file for the Qt library:&quot;
++				mkdir qt
++				doxytag -t qt/qt.tag &quot;$QTDOCDIR&quot; &gt; /dev/null 2&gt;&amp;1
++			fi
++		fi
++		if test -n &quot;$QTDOCTAG&quot; &amp;&amp; test -r &quot;$QTDOCTAG&quot; ; then
++			echo &quot;*** Copying tag file for the Qt library:&quot;
++			mkdir qt
++			cp &quot;$QTDOCTAG&quot; qt/qt.tag
++		fi
++
++		do_subdirs_re &quot;.&quot;
++
++	fi
++else
++	if test &quot;x$recurse&quot; = &quot;x1&quot; ; then
++		do_subdirs_re &quot;$subdir&quot;
++	else
++		do_subdir &quot;$subdir&quot;
++	fi
++fi
++
++
++# At the end of a run, clean up stuff.
++if test &quot;YES&quot; = &quot;$cleanup&quot; ; then
++	rm -f subdirs.in  subdirs.later subdirs.sort subdirs.top Doxyfile.in
++	rm -f `find . -name Doxyfile`
++	rm -f qt/qt.tag
++	rmdir qt &gt; /dev/null 2&gt;&amp;1
++fi
++
++
++exit 0
++
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000238.html">[Schafkopf-devel] Re: KDE Schafkopf 0.7
+</A></li>
+	<LI>Next message: <A HREF="000240.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf uebersetzung passt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#239">[ date ]</a>
+              <a href="thread.html#239">[ thread ]</a>
+              <a href="subject.html#239">[ subject ]</a>
+              <a href="author.html#239">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

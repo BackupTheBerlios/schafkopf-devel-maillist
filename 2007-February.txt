@@ -1,0 +1,438 @@
+From domseichter at web.de  Thu Feb  8 21:55:55 2007
+From: domseichter at web.de (Dominik Seichter)
+Date: Thu, 8 Feb 2007 21:55:55 +0100
+Subject: [Schafkopf-devel] schafkopf
+In-Reply-To: <20070207215221.GP18794@albany.tokkee.org>
+References: <20070206230212.GN18794@albany.tokkee.org>
+	<200702071227.09155.domseichter@web.de>
+	<20070207215221.GP18794@albany.tokkee.org>
+Message-ID: <200702082155.58497.domseichter@web.de>
+
+Hallo Sebastian,
+
+Nein, ich w?rde Schafkop _leider_ bei weitem noch nicht als fertig bezeichnen. 
+Wir haben noch viele Ideen, zum Beispiel f?r eine besser KI und f?r den 
+Netzwerkmodus. Leider haben wir im Moment aus beruflichen/studientechnischen 
+Gr?nden alle keine Zeit um an Schafkopf zu arbeiten.
+
+WIr sind trotzdem froh, es immerhin so weit geschafft zu haben, dass man ein 
+bischen schafkopfen kann unter Linux, wenn auch mti einigen kleinen Fehlern.
+
+	Dom
+
+Am Wednesday 07 February 2007 schrieben Sie:
+> Hi Dom,
+>
+> Danke fuer die schnelle Antwort :-)
+>
+> On Wed, Feb 07, 2007 at 12:27:05PM +0100, Dominik Seichter wrote:
+> > Die admin/cvs-clean.pl kommt aus dem KDE Buildsystem. Wird also nur zum
+> > Builden verwendet und gebraucht. Daher sollte es bei einem Bin?ren deb
+> > keine Lizenzprobleme geben, denke ich.
+>
+> Ah gut... wenn es nur zum Bauen verwendet wird, dann sollte mit der GPL
+> sowieso kein Konflikt bestehen (auch wenn Debian zusaetzlich zu den
+> Binaerpaketen auch Sourcepakete verteilt ;-)...
+>
+> Das letzte Release von schafkopf ist schon ne Weile her und auch im CVS hat
+> sich seither, wie ich das gesehen habe, nichts getan. Ist schafkopf schon
+> in einem Status, den du als "fertig" bezeichnen wuerdest?
+>
+> Gruss,
+> Sebastian
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20070208/1ec45688/attachment.pgp>
+
+From domseichter at web.de  Fri Feb  9 08:58:40 2007
+From: domseichter at web.de (Dominik Seichter)
+Date: Fri, 9 Feb 2007 08:58:40 +0100
+Subject: [Schafkopf-devel] schafkopf
+In-Reply-To: <20070209071815.GV18794@albany.tokkee.org>
+References: <20070206230212.GN18794@albany.tokkee.org>
+	<200702082155.58497.domseichter@web.de>
+	<20070209071815.GV18794@albany.tokkee.org>
+Message-ID: <200702090858.43471.domseichter@web.de>
+
+Hallo,
+
+Patches einspielen und evtl. auch ein neues Release machen ist nat?rlich kein 
+Problem. Und wenn wir Zeit finden, fixen wir nat?rlich auch alle bugs die wir 
+finden!
+
+Auf das Directory-Listing haben wir leider keinen einfluss :( Aber Du k?nntest 
+unser Projekt ja zum Beispiel unter http://freshmeat.net/projects/schafkopf/ 
+abonnieren, dann bekommst Du auch eine E-Mail wenn wir eine neue Version 
+ver?ffentlichen.
+
+	Dom
+
+Am Friday 09 February 2007 schrieben Sie:
+> Hallo Dom,
+>
+> On Thu, Feb 08, 2007 at 09:55:55PM +0100, Dominik Seichter wrote:
+> > Nein, ich w?rde Schafkop _leider_ bei weitem noch nicht als fertig
+> > bezeichnen. Wir haben noch viele Ideen, zum Beispiel f?r eine besser KI
+> > und f?r den Netzwerkmodus. Leider haben wir im Moment aus
+> > beruflichen/studientechnischen Gr?nden alle keine Zeit um an Schafkopf zu
+> > arbeiten.
+>
+> Achso... diese Gruende kenn ich leider nur zu gut... :-/
+>
+> > WIr sind trotzdem froh, es immerhin so weit geschafft zu haben, dass man
+> > ein bischen schafkopfen kann unter Linux, wenn auch mti einigen kleinen
+> > Fehlern.
+>
+> Das klingt immerhin so, als ob ich nen Ansprechpartner fuer Patches und
+> ggf. Bug-Reports hab, was fuer mich schon mal wichtig ist :-)
+>
+> Unter http://download.berlios.de/schafkopf/ bekomm ich kein
+> Directory-Listing. Hast du da Einfluss drauf und kannst das evtl. aendern?
+> Dann koennte ich automatisch nach neuen Versionen checken. Waer echt super.
+>
+> Gruss,
+> Sebastian
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20070209/cc3201d6/attachment.pgp>
+
+From domseichter at web.de  Sun Feb 11 16:03:15 2007
+From: domseichter at web.de (Dominik Seichter)
+Date: Sun, 11 Feb 2007 16:03:15 +0100
+Subject: [Schafkopf-devel] Fehlermeldung
+In-Reply-To: <45CF2E6C.1070904@freenet.de>
+References: <45CF2E6C.1070904@freenet.de>
+Message-ID: <200702111603.18341.domseichter@web.de>
+
+Hallo,
+
+Das von Dir verwendete RPM ist f?r OpenSuSE 10.0 gebaut worden. Daher bin ich 
+mir nicht sicher ob das auf SuSE 10.2 ?berhaupt funktionieren kann. Du kannst 
+versuchen es als root ?ber die Kommandozeile mit folgedem Befehl zu 
+installieren:
+
+rpm -Uhv --nodeps schafkopf-0.7.0-oc2pus.1.i586.rpm
+
+Wenn schafkopf dann noch nicht l?uft w?rde ich Dir empfehlen es aus den 
+Sourcen zu kompilieren.
+
+	Dom
+
+Am Sunday 11 February 2007 schrieb konrad burner:
+> Hallo,
+>
+> ich hoffe ich habe die richtige Adresse zu Schafkopf.Berilos
+> herausgefunden, im Forum fand ich nichts zu meinem Problem und dies
+> d?rfte mehrere betreffen.
+> Wenn nicht dann, Sorry.
+>
+> beim installieren auf openSUSE 10.2 erhalte ich die angeh?ngte
+> Fehlermeldung:
+>
+> Gibt es eine L?sung?
+>
+> Gr??e
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20070211/90814119/attachment.pgp>
+
+From domseichter at web.de  Mon Feb 12 18:38:34 2007
+From: domseichter at web.de (Dominik Seichter)
+Date: Mon, 12 Feb 2007 18:38:34 +0100
+Subject: [Schafkopf-devel] Fehlermeldung
+In-Reply-To: <45D08FDF.9070604@freenet.de>
+References: <45CF2E6C.1070904@freenet.de>
+	<200702111603.18341.domseichter@web.de>
+	<45D08FDF.9070604@freenet.de>
+Message-ID: <200702121838.37372.domseichter@web.de>
+
+Hallo,
+
+W?rdest Du bitte keine HTML Mails verschicken? Danke :)
+
+In der Fehlermeldung steht, dass Du die Packete kdebase3-devel kdelibs3-devel 
+und qt3-devel installieren sollst. Was ist das Problem?
+
+CU Dom
+
+Am Monday 12 February 2007 schrieben Sie:
+>  Hallo,
+>
+>  Danke f?r Deine rasche Antwort, leider hatte ich mit dem ersten Tipp egal
+> von wo aus ich ihn startete keinen Erfolg.
+>
+>  Weil ich nicht wusste wie man kompiliert habe ich mich erst schlau
+> gemacht, leider kam ich maximal bis zu angeh?ngter Meldung.
+>
+>  K?nntest Du nicht daf?r sorgen, dass auf der Downloadseite auch f?r
+> openSUSE 10.2 ein RPM bereitsteht!
+>
+>  Konrad
+>
+>
+>  Dominik Seichter schrieb:
+> Hallo,
+>
+> Das von Dir verwendete RPM ist f?r OpenSuSE 10.0 gebaut worden. Daher bin
+> ich mir nicht sicher ob das auf SuSE 10.2 ?berhaupt funktionieren kann. Du
+> kannst versuchen es als root ?ber die Kommandozeile mit folgedem Befehl zu
+> installieren:
+>
+> rpm -Uhv --nodeps schafkopf-0.7.0-oc2pus.1.i586.rpm
+>
+> Wenn schafkopf dann noch nicht l?uft w?rde ich Dir empfehlen es aus den
+> Sourcen zu kompilieren.
+>
+>         Dom
+>
+> Am Sunday 11 February 2007 schrieb konrad burner:
+>
+> Hallo,
+>
+> ich hoffe ich habe die richtige Adresse zu Schafkopf.Berilos
+> herausgefunden, im Forum fand ich nichts zu meinem Problem und dies
+> d?rfte mehrere betreffen.
+> Wenn nicht dann, Sorry.
+>
+> beim installieren auf openSUSE 10.2 erhalte ich die angeh?ngte
+> Fehlermeldung:
+>
+> Gibt es eine L?sung?
+>
+> Gr??e
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20070212/7433cd9c/attachment.pgp>
+
+From domseichter at web.de  Tue Feb 13 00:23:06 2007
+From: domseichter at web.de (Dominik Seichter)
+Date: Tue, 13 Feb 2007 00:23:06 +0100
+Subject: [Schafkopf-devel] Fehlermeldung
+In-Reply-To: <45D0B776.7030905@freenet.de>
+References: <45CF2E6C.1070904@freenet.de>
+	<200702121838.37372.domseichter@web.de>
+	<45D0B776.7030905@freenet.de>
+Message-ID: <200702130023.09677.domseichter@web.de>
+
+Hallo Konrad,
+
+google nach kdebase3-devel opensuse 10.2 brachte mir folgenden Treffer:
+
+http://lisa.gov.pt/ftp/suse/10.2/repo/oss/suse/i586/
+
+dort findest Du die Packete.
+
+CU Dom
+
+Am Monday 12 February 2007 schrieben Sie:
+> Hallo Dominik,
+>
+> ich hoffe dies ist keine html Mail mehr.
+>
+> Die Fehlermeldung habe ich gelesen. Laut Yast sind alle Drei Pakete,
+> allerdings ohne -devel bereits installiert, mit dieser Erweiterung sind
+> diese erst gar nicht auf der DVD vorhanden.
+>
+> Danke, dass Du immer so schnell reagierst, ich werde Wohl besser auf
+> eine angepasste Version warten.
+>
+> Konrad
+>
+> Dominik Seichter schrieb:
+> > Hallo,
+> >
+> > W?rdest Du bitte keine HTML Mails verschicken? Danke :)
+> >
+> > In der Fehlermeldung steht, dass Du die Packete kdebase3-devel
+> > kdelibs3-devel und qt3-devel installieren sollst. Was ist das Problem?
+> >
+> > CU Dom
+> >
+> > Am Monday 12 February 2007 schrieben Sie:
+> >>  Hallo,
+> >>
+> >>  Danke f?r Deine rasche Antwort, leider hatte ich mit dem ersten Tipp
+> >> egal von wo aus ich ihn startete keinen Erfolg.
+> >>
+> >>  Weil ich nicht wusste wie man kompiliert habe ich mich erst schlau
+> >> gemacht, leider kam ich maximal bis zu angeh?ngter Meldung.
+> >>
+> >>  K?nntest Du nicht daf?r sorgen, dass auf der Downloadseite auch f?r
+> >> openSUSE 10.2 ein RPM bereitsteht!
+> >>
+> >>  Konrad
+> >>
+> >>
+> >>  Dominik Seichter schrieb:
+> >> Hallo,
+> >>
+> >> Das von Dir verwendete RPM ist f?r OpenSuSE 10.0 gebaut worden. Daher
+> >> bin ich mir nicht sicher ob das auf SuSE 10.2 ?berhaupt funktionieren
+> >> kann. Du kannst versuchen es als root ?ber die Kommandozeile mit
+> >> folgedem Befehl zu installieren:
+> >>
+> >> rpm -Uhv --nodeps schafkopf-0.7.0-oc2pus.1.i586.rpm
+> >>
+> >> Wenn schafkopf dann noch nicht l?uft w?rde ich Dir empfehlen es aus den
+> >> Sourcen zu kompilieren.
+> >>
+> >>         Dom
+> >>
+> >> Am Sunday 11 February 2007 schrieb konrad burner:
+> >>
+> >> Hallo,
+> >>
+> >> ich hoffe ich habe die richtige Adresse zu Schafkopf.Berilos
+> >> herausgefunden, im Forum fand ich nichts zu meinem Problem und dies
+> >> d?rfte mehrere betreffen.
+> >> Wenn nicht dann, Sorry.
+> >>
+> >> beim installieren auf openSUSE 10.2 erhalte ich die angeh?ngte
+> >> Fehlermeldung:
+> >>
+> >> Gibt es eine L?sung?
+> >>
+> >> Gr??e
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20070213/fe48b882/attachment.pgp>
+
+From domseichter at web.de  Tue Feb 13 00:26:25 2007
+From: domseichter at web.de (Dominik Seichter)
+Date: Tue, 13 Feb 2007 00:26:25 +0100
+Subject: [Schafkopf-devel] schafkopf und Qt
+In-Reply-To: <20070212121436.GB16013@albany.tokkee.org>
+References: <20070212121436.GB16013@albany.tokkee.org>
+Message-ID: <200702130026.27635.domseichter@web.de>
+
+Hallo Sebastian,
+
+So ein Aufwand ist immer schwer abzusch?tzen. SchafKopf verwendet KDE nur f?r 
+die Kartensets und f?r ein paar Dialoge. Die Dialoge sind schnell umgestell, 
+die Untersch?tzung von Kartensets die aus KDEGames kommt ist etwas 
+schwieriger. Allerdings w?re das f?r Dich denke ich ein guter Einstieg in die 
+Qt programmierung. Von daher w?rde ich Dir empfehlen es zu probieren.
+
+Nochmals kurz: Schafkopf verwendet KDE nicht f?r zentrale Dinge, die 
+Anpassungs sind nicht schwierig aber evtl. Zeitaufwendig.
+
+Bei Fragen k?nnen wir Dir nat?rlich gerne auf der Mailingliste weiterhelfen.
+
+	Dom
+
+Am Monday 12 February 2007 schrieben Sie:
+> Hallo Dom,
+>
+> Meinst du, es ist ein grosses Problem, schafkopf so weit umzuschreiben,
+> dass es ohne den KDE-Libs (also nur mit reinem Qt) auskommt? Ich wuerde
+> gern fuer Debian irgendwann zwei Pakete zur Verfuegung stellen, damit nicht
+> jeder zwangsweise das komplette KDE-Basissystem installieren muss.
+>
+> Ich habe bislang noch nie etwas fuer KDE programmiert und weiss deshalb
+> nicht, wieviel da hinzukommt, was in reinem Qt nur mit viel Aufwand zu
+> ersetzen waere, deshalb wuerde ich von dir gerne eine Meinung hoeren,
+> wieviel Aufwand du dafuer rechnen wuerdest. Die Implementierung wuerde ich
+> dann irgendwann uebernehmen.
+>
+> Gruss,
+> Sebastian
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20070213/0c2f8cea/attachment.pgp>
+

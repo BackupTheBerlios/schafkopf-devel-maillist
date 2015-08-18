@@ -1,0 +1,663 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf Results ist keine Virtuelle Klasse mehr und
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20Results%20ist%20keine%20Virtuelle%20Klasse%20mehr%20und&In-Reply-To=%3C200502211246.j1LCkHqo018284%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000083.html">
+   <LINK REL="Next"  HREF="000085.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf Results ist keine Virtuelle Klasse mehr und</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20Results%20ist%20keine%20Virtuelle%20Klasse%20mehr%20und&In-Reply-To=%3C200502211246.j1LCkHqo018284%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf Results ist keine Virtuelle Klasse mehr und">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Mon Feb 21 13:46:17 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000083.html">[Schafkopf-devel] Commit Report - Schafkopf Werden nicht gebraucht.
+</A></li>
+        <LI>Next message: <A HREF="000085.html">[Schafkopf-devel] Commit Report - Schafkopf code im cvs sollte sich kompilieren lassen...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#84">[ date ]</a>
+              <a href="thread.html#84">[ thread ]</a>
+              <a href="subject.html#84">[ subject ]</a>
+              <a href="author.html#84">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+Results ist keine Virtuelle Klasse mehr und enth&#228;lt jetzt den Code aus Money- und PointResults.
+Results funzt jetzt jetzt auch wenn es keinen Spieler gibt, wie zum Beispiel beim Ramsch.
+
+Auserdem kann jetzt Theoretisch Ramsch gespielt werden. Ist allerdings nicht schwer zu gewinnen, da die KI Versucht so viel zu stechen wie m&#246;glich :).
+
+Modified Files:
+--------------
+    schafkopf/src:
+        Makefile.am
+        computerplayer.cpp
+        game.cpp
+        gamecanvas.cpp
+        gameinfo.cpp
+        preferencesdlg.cpp
+        results.cpp
+        results.h
+        schafkopf.cpp
+        settings.cpp
+        settings.h
+
+-------------- next part --------------
+Index: settings.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.cpp,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -Lsrc/settings.cpp -Lsrc/settings.cpp -u -r1.19 -r1.20
+--- src/settings.cpp
++++ src/settings.cpp
+@@ -19,8 +19,6 @@
+  ***************************************************************************/
+ #include &quot;settings.h&quot;
+ 
+-#include &quot;moneyresults.h&quot;
+-#include &quot;pointresults.h&quot;
+ #include &quot;schafkopfdef.h&quot;
+ 
+ #include &lt;kapplication.h&gt;
+@@ -188,19 +186,6 @@
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup( &quot;SchafKopf&quot; );
+     return config-&gt;readNumEntry(&quot;ResultMode&quot;, MONEY );
+-}
+-
+-Results* Settings::results() const
+-{
+-    QMutexLocker locker( m_mutex );
+-    
+-    int r = resultsType();
+-    if( r == MONEY )
+-        return new MoneyResults();
+-    else if( r == POINTS )
+-        return new PointResults();
+-        
+-    return NULL;
+ }
+ 
+ void Settings::setMoneyResults( const t_ResultValues* r )
+Index: schafkopf.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopf.cpp,v
+retrieving revision 1.35
+retrieving revision 1.36
+diff -Lsrc/schafkopf.cpp -Lsrc/schafkopf.cpp -u -r1.35 -r1.36
+--- src/schafkopf.cpp
++++ src/schafkopf.cpp
+@@ -384,7 +384,8 @@
+         lblDoubled-&gt;setText( QString::null );
+         return;
+     }
+-    
++
++
+     QString sDoubled;
+     for(unsigned int i=0;i&lt;PLAYERS;i++)
+     {
+Index: results.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/results.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -Lsrc/results.h -Lsrc/results.h -u -r1.6 -r1.7
+--- src/results.h
++++ src/results.h
+@@ -20,8 +20,10 @@
+ #ifndef RESULTS_H
+ #define RESULTS_H
+ 
++#include &lt;qptrlist.h&gt;
+ #include &lt;qstring.h&gt;
+ 
++class Game;
+ class GameInfo;
+ class Player;
+ 
+@@ -35,26 +37,30 @@
+ 
+ class Results{
+     public:
+-        virtual ~Results() {}
++        Results();
++        ~Results() {}
+         
+         void setLaufende( int l ) { m_laufende = l; }
+-        void setGameInfo( GameInfo* info ) { m_gameinfo = info; }
+-
++        void setGame( Game* game );
++        
+         /** get a message of the game results, which can be displayed
+           * to the user.
+           */
+         QString result();
+-        virtual double points( Player* player ) = 0;
+-        virtual QString formatedPoints( Player* player ) = 0;
++        double points( Player* player );
++        QString formatedPoints( Player* player );
+         
+         double klopfen(int anzahl, double betrag);
+     
+     protected:        
+-        Results();
+-				        
+         void parse();
+ 
++        QPtrList&lt;Player&gt; m_winners;
++        QPtrList&lt;Player&gt; m_losers;
++        
+         GameInfo* m_gameinfo;
++        Game* m_game;
++        
+         int m_laufende;
+         
+         int m_points;
+Index: Makefile.am
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/Makefile.am,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -Lsrc/Makefile.am -Lsrc/Makefile.am -u -r1.16 -r1.17
+--- src/Makefile.am
++++ src/Makefile.am
+@@ -3,10 +3,9 @@
+ 
+ # these are the headers for your project
+ noinst_HEADERS = schafkopf.h card.h cardlist.h player.h game.h settings.h \
+-			computerplayer.h humanplayer.h gamecanvas.h canvascard.h timer.h stichdlg.h gameinfo.h \
+-			canvasplayer.h results.h moneyresults.h pointresults.h openbook.h 		schafkopfdef.h \
+-	newgamewizard.h selectgamewizard.h selectgametypebox.h 	selectgamecolorbox.h \
+-	preferencesdlg.h
++	computerplayer.h humanplayer.h gamecanvas.h canvascard.h timer.h stichdlg.h gameinfo.h \
++	canvasplayer.h results.h openbook.h schafkopfdef.h newgamewizard.h selectgamewizard.h \
++	selectgametypebox.h selectgamecolorbox.h preferencesdlg.h
+ 
+ # let automoc handle all of the meta source files (moc)
+ METASOURCES = AUTO
+@@ -25,10 +24,10 @@
+ 
+ # the application source, library search path, and link libraries
+ schafkopf_SOURCES = main.cpp schafkopf.cpp card.cpp cardlist.cpp player.cpp \
+-			game.cpp settings.cpp computerplayer.cpp humanplayer.cpp gamecanvas.cpp \
+-			canvascard.cpp timer.cpp stichdlg.cpp gameinfo.cpp canvasplayer.cpp 		results.cpp \
+-	moneyresults.cpp pointresults.cpp openbook.cpp newgamewizard.cpp 	selectgamewizard.cpp \
+-	selectgametypebox.cpp selectgamecolorbox.cpp preferencesdlg.cpp
++	game.cpp settings.cpp computerplayer.cpp humanplayer.cpp gamecanvas.cpp \
++	canvascard.cpp timer.cpp stichdlg.cpp gameinfo.cpp canvasplayer.cpp results.cpp \
++	openbook.cpp newgamewizard.cpp selectgamewizard.cpp selectgametypebox.cpp \
++	selectgamecolorbox.cpp preferencesdlg.cpp
+ schafkopf_LDFLAGS = $(KDE_RPATH) $(all_libraries)
+ schafkopf_LDADD = -lkdegames $(LIB_KDEUI)
+ 
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.45
+retrieving revision 1.46
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.45 -r1.46
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -254,6 +254,9 @@
+             {
+                 m_result = card-&gt;card()-&gt;id();
+                 disconnect( this, SIGNAL(clicked( QCanvasItem* )), this, SLOT(cardClicked(QCanvasItem*)));
++                
++                // be sure that focusOutEvent does not use its parameter
++                focusOutEvent( NULL );
+                 EXIT_LOOP();
+             }
+         }
+Index: computerplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.cpp,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -Lsrc/computerplayer.cpp -Lsrc/computerplayer.cpp -u -r1.29 -r1.30
+--- src/computerplayer.cpp
++++ src/computerplayer.cpp
+@@ -109,7 +109,9 @@
+ 			if(m_game-&gt;findIndex(mitspieler)==m_game-&gt;gameInfo()-&gt;spieler())
+ 				break;
+ 	}
+-	else if(m_game-&gt;gameInfo()-&gt;mode()!=GameInfo::RUFSPIEL &amp;&amp; m_game-&gt;gameInfo()-&gt;spieler()!=this)
++	else if(m_game-&gt;gameInfo()-&gt;mode()!=GameInfo::RUFSPIEL &amp;&amp; 
++            m_game-&gt;gameInfo()-&gt;mode()!=GameInfo::RAMSCH &amp;&amp;
++            m_game-&gt;gameInfo()-&gt;spieler()!=this)
+ 		mitspieler=m_game-&gt;gameInfo()-&gt;spieler()-&gt;id();
+ 	else
+ 		mitspieler=-1;
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.19 -r1.20
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -87,7 +87,13 @@
+     names &lt;&lt; m_p4_name-&gt;text();
+     s-&gt;setPlayerNames( names );
+     
+-    s-&gt;setNoGame( m_radioThrowAway-&gt;isChecked() ? Settings::NOGAME_NEUGEBEN : Settings::NOGAME_ALTERSPIELT );
++    if( m_radioThrowAway-&gt;isChecked() )
++        s-&gt;setNoGame( Settings::NOGAME_NEUGEBEN );
++    else if ( m_radioForcedGame-&gt;isChecked() )
++        s-&gt;setNoGame( Settings::NOGAME_ALTERSPIELT );
++    else if( m_radioRamsch-&gt;isChecked() )
++        s-&gt;setNoGame( Settings::NOGAME_RAMSCH );
++        
+     s-&gt;setDoublerHasToPlay( m_checkDoublerPlays-&gt;isChecked() );
+     
+     s-&gt;setDoubleNextGame( m_checkDoubleNextGame-&gt;isChecked() );
+@@ -138,8 +144,8 @@
+     m_radioThrowAway = new QRadioButton( i18n(&quot;&amp;Throw cards together and give new ones.&quot;), group );
+     m_radioForcedGame = new QRadioButton( i18n(&quot;The player who has the Eichel &amp;Ober has to play.&quot;), group );
+     m_radioRamsch = new QRadioButton( i18n(&quot;Play Ramsch (not available yet)&quot;), group );
++    
+     QToolTip::add( m_radioRamsch, i18n(&quot;The aim when playing a Ramsch is to make no tricks. The player who made the most points is the sole loser.&quot;) );
+-    m_radioRamsch-&gt;setEnabled( false );
+     m_checkDoublerPlays = new QCheckBox ( i18n(&quot;The &amp;last player who has doubled has to play.&quot;), group );
+     QToolTip::add( m_checkDoublerPlays, i18n(&quot;The last player who has doubled has to play. If no one has doubled the above rule takes effect.&quot;) );
+     m_checkDoubleNextGame = new QCheckBox ( i18n(&quot;&amp;Double next game when cards were thrown together.&quot;), group );
+@@ -150,8 +156,10 @@
+     // load data from configuration
+     if( Settings::instance()-&gt;noGame() == Settings::NOGAME_ALTERSPIELT )
+         m_radioForcedGame-&gt;setChecked( true );
+-    else
++    else if( Settings::instance()-&gt;noGame() == Settings::NOGAME_NEUGEBEN )
+         m_radioThrowAway-&gt;setChecked( true );
++    else if( Settings::instance()-&gt;noGame() == Settings::NOGAME_RAMSCH )
++        m_radioRamsch-&gt;setChecked( true );
+         
+     m_checkDoublerPlays-&gt;setChecked( Settings::instance()-&gt;doublerHasToPlay() );
+     
+@@ -160,6 +168,7 @@
+     // connections
+     connect( m_radioThrowAway, SIGNAL( clicked() ), this, SLOT( enableControls() ) );
+     connect( m_radioForcedGame, SIGNAL( clicked() ), this, SLOT( enableControls() ) );
++    connect( m_radioRamsch, SIGNAL( clicked() ), this, SLOT( enableControls() ) );
+ }
+ 
+ void PreferencesDlg::addPageResults()
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.70
+retrieving revision 1.71
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.70 -r1.71
+--- src/game.cpp
++++ src/game.cpp
+@@ -302,18 +302,18 @@
+ 
+ void Game::gameResults()
+ {
+-    Results* r = Settings::instance()-&gt;results();
+-    r-&gt;setLaufende( m_laufende );
+-    r-&gt;setGameInfo( &amp;m_gameinfo );
++    Results r;
++    r.setLaufende( m_laufende );
++    r.setGame( this );
++    
+     for( unsigned int i=0;i&lt;PLAYERS;i++)
+     {
+-        postEvent( PlayerResults, m_players[i]-&gt;id(), 0, r-&gt;formatedPoints(m_players[i]), true );
++        postEvent( PlayerResults, m_players[i]-&gt;id(), 0, r.formatedPoints(m_players[i]), true );
+         // emit playerResult( m_players[i]-&gt;name(), r-&gt;formatedPoints(m_players[i])  );
+     }
+       
+-    postEvent( InfoMessage, 0, 0, r-&gt;result(), true );
++    postEvent( InfoMessage, 0, 0, r.result(), true );
+     //m_canvas-&gt;information( r-&gt;result() );
+-    delete r;
+     m_timesThrownTogether = 0;
+     
+     // the game is over, so the GameInfo structure is not
+@@ -442,6 +442,15 @@
+                 delete info;
+                 return true;
+             }
++    }
++    else if( Settings::instance()-&gt;noGame() == Settings::NOGAME_RAMSCH )
++    {
++        postEvent( InfoMessage, 0, 0, i18n(&quot;No one wants to play.\nRamsch will be played.&quot;), true );
++        m_gameinfo.setSpieler( NULL );
++        m_gameinfo.setMitspieler( NULL );
++        m_gameinfo.setMode( GameInfo::RAMSCH );
++        m_gameinfo.setColor( Card::NOCOLOR );
++        return true;
+     }
+     
+     return false;
+Index: results.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/results.cpp,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -Lsrc/results.cpp -Lsrc/results.cpp -u -r1.9 -r1.10
+--- src/results.cpp
++++ src/results.cpp
+@@ -23,15 +23,19 @@
+ #include &quot;schafkopfdef.h&quot;
+ 
+ #include &quot;cardlist.h&quot;
++#include &quot;game.h&quot;
+ #include &quot;gameinfo.h&quot;
+ #include &quot;player.h&quot;
++#include &quot;settings.h&quot;
+ 
++#include &lt;kglobal.h&gt;
+ #include &lt;klocale.h&gt;
+ 
+ Results::Results()
+ {
+     m_laufende = 0;
+     m_gameinfo = NULL;
++    m_game = NULL;
+     m_parsed = false;
+ }
+ 
+@@ -43,18 +47,28 @@
+     QString s;
+     QString schneider = m_schneider ? i18n(&quot; schneider&quot; ) : QString::null;
+     QString schwarz = m_schwarz ? i18n(&quot; no-trick&quot;) : QString::null;
++    Player* winner = m_gameinfo-&gt;spieler();
++    bool won = m_points &gt; 60;
+     
+-    if( m_points &gt; 60 )
+-        s = m_gameinfo-&gt;spieler()-&gt;name() + QString(i18n(&quot; wins with %1 points%2.&quot;)).arg( m_points ).arg( schneider + schwarz );
++    if( !winner )
++    {
++        won = m_winners.count() == 1;
++        winner = won ? m_winners.at(0) : m_losers.at(0);
++    }
++    
++    if( won )
++        s = winner-&gt;name() + QString(i18n(&quot; wins with %1 points%2.&quot;))
++            .arg( m_points ).arg( schneider + schwarz );
+     else
+-        s = m_gameinfo-&gt;spieler()-&gt;name() + QString(i18n(&quot; loses with %1 points%2.&quot;) ).arg( m_points ).arg( schneider + schwarz );
++        s = winner-&gt;name() + QString(i18n(&quot; loses with %1 points%2.&quot;) )
++            .arg( m_points ).arg( schneider + schwarz );
+     
+     if( m_laufende )
+     {
+         if( positive )
+-            s += &quot;\n&quot; + m_gameinfo-&gt;spieler()-&gt;name() + QString( i18n(&quot; got %1 cards in a row.&quot;).arg( m_laufende ) );
++            s += &quot;\n&quot; + winner-&gt;name() + QString( i18n(&quot; got %1 cards in a row.&quot;).arg( m_laufende ) );
+         else
+-            s += &quot;\n&quot; + m_gameinfo-&gt;spieler()-&gt;name() + QString( i18n(&quot; played without %1 cards in a row.&quot;).arg( m_laufende ) );
++            s += &quot;\n&quot; + winner-&gt;name() + QString( i18n(&quot; played without %1 cards in a row.&quot;).arg( m_laufende ) );
+     }
+     
+     return s;
+@@ -62,28 +76,81 @@
+ 
+ void Results::parse()
+ {
++    int i;
++
+     if( m_parsed )
+         return;
+         
+-    CardList stiche( *(m_gameinfo-&gt;spieler()-&gt;stiche()) );
+-    if( m_gameinfo-&gt;mitspieler() )
+-        stiche.appendList( m_gameinfo-&gt;mitspieler()-&gt;stiche() );
+-    
+-    m_points = stiche.points();
+-    m_schwarz = ( stiche.isEmpty() || stiche.count() == NUMCARDS * PLAYERS );
+-    m_schneider = (m_points &lt; 31 || m_points &gt; 90 );
+-
+-    m_parsed = true;
+-    
+-    // ab 2 laufende bei wenz und geier
+-    if( m_gameinfo-&gt;mode() == GameInfo::GEIER || m_gameinfo-&gt;mode() == GameInfo::WENZ )
+-        m_laufende = ( m_laufende &gt;= 2 || m_laufende &lt;= -2 ) ? m_laufende : 0;
+-    // sonst ab 3 laufenden
+-    else if( m_gameinfo-&gt;mode() == GameInfo::STICHT || m_gameinfo-&gt;mode() == GameInfo::RAMSCH 
+-          || m_gameinfo-&gt;mode() == GameInfo::DACHS || m_gameinfo-&gt;mode() == GameInfo::RUFSPIEL )
+-        m_laufende = ( m_laufende &gt;= 3 || m_laufende &lt;= -3 ) ? m_laufende : 0;
+-    
+-    m_laufende = m_laufende &lt; 0 ? m_laufende * -1 : m_laufende;
++    if( m_gameinfo-&gt;mode() == GameInfo::RAMSCH )
++    {
++        // suche den spieler mit den meisten punkten, denn er hat verloren
++        // oder wenn er alle stiche hat, dann hat er mit durchmarsch gewonnen
++        int highest = 0;
++        for( i=0;i&lt;PLAYERS;i++ )
++            if( m_game-&gt;findIndex( i )-&gt;stiche()-&gt;points() &gt; m_game-&gt;findIndex( highest )-&gt;stiche()-&gt;points() )
++                highest = i;
++
++        m_points = m_game-&gt;findIndex( highest )-&gt;stiche()-&gt;points();
++        if( m_game-&gt;findIndex( highest )-&gt;stiche()-&gt;count() == TURNS )
++        {
++            m_winners.append( m_game-&gt;findIndex( highest ) );
++            for( i=0;i&lt;PLAYERS;i++ )
++                if( i!=highest )
++                    m_losers.append( m_game-&gt;findIndex( i ) );
++        }
++        else
++        {
++            m_losers.append( m_game-&gt;findIndex( highest ) );
++            for( i=0;i&lt;PLAYERS;i++ )
++                if( i!=highest )
++                    m_winners.append( m_game-&gt;findIndex( i ) );
++        }
++    }
++    else
++    {
++        CardList stiche( *(m_gameinfo-&gt;spieler()-&gt;stiche()) );
++        if( m_gameinfo-&gt;mitspieler() )
++            stiche.appendList( m_gameinfo-&gt;mitspieler()-&gt;stiche() );
++       
++        m_points = stiche.points();
++        m_schwarz = ( stiche.isEmpty() || stiche.count() == NUMCARDS * PLAYERS );
++        m_schneider = (m_points &lt; 31 || m_points &gt; 90 );
++    
++        if( m_points &gt; 60 )
++        {
++            m_winners.append( m_gameinfo-&gt;spieler() );
++            if( m_gameinfo-&gt;mitspieler() )
++                m_winners.append( m_gameinfo-&gt;mitspieler() );
++                
++            for( i=0;i&lt;PLAYERS;i++ )
++                if( m_game-&gt;findIndex( i ) != m_gameinfo-&gt;spieler() &amp;&amp; 
++                    m_game-&gt;findIndex( i ) != m_gameinfo-&gt;mitspieler() )
++                    m_losers.append( m_game-&gt;findIndex( i ) );
++        }
++        else
++        {
++            m_losers.append( m_gameinfo-&gt;spieler() );
++            if( m_gameinfo-&gt;mitspieler() )
++                m_losers.append( m_gameinfo-&gt;mitspieler() );
++                
++            for( i=0;i&lt;PLAYERS;i++ )
++                if( m_game-&gt;findIndex( i ) != m_gameinfo-&gt;spieler() &amp;&amp; 
++                    m_game-&gt;findIndex( i ) != m_gameinfo-&gt;mitspieler() )
++                    m_winners.append( m_game-&gt;findIndex( i ) );
++        }
++        
++        m_parsed = true;
++        
++        // ab 2 laufende bei wenz und geier
++        if( m_gameinfo-&gt;mode() == GameInfo::GEIER || m_gameinfo-&gt;mode() == GameInfo::WENZ )
++            m_laufende = ( m_laufende &gt;= 2 || m_laufende &lt;= -2 ) ? m_laufende : 0;
++        // sonst ab 3 laufenden
++        else if( m_gameinfo-&gt;mode() == GameInfo::STICHT || m_gameinfo-&gt;mode() == GameInfo::RAMSCH 
++                || m_gameinfo-&gt;mode() == GameInfo::DACHS || m_gameinfo-&gt;mode() == GameInfo::RUFSPIEL )
++            m_laufende = ( m_laufende &gt;= 3 || m_laufende &lt;= -3 ) ? m_laufende : 0;
++        
++        m_laufende = m_laufende &lt; 0 ? m_laufende * -1 : m_laufende;
++    }
+ }
+ 
+ double Results::klopfen(int anzahl, double betrag)
+@@ -92,5 +159,66 @@
+         return betrag; 
+     else 
+         return klopfen(anzahl-1, betrag)*2.0; 
++}
++
++void Results::setGame( Game* game )
++{ 
++    m_game = game; 
++    m_gameinfo = game-&gt;gameInfo();
++}
++
++double Results::points( Player* player )
++{
++    t_ResultValues* r = Settings::instance()-&gt;resultsType() == Settings::MONEY ? 
++                    Settings::instance()-&gt;moneyResults() :
++                    Settings::instance()-&gt;pointResults();                    
++    double m = 0.0;
++    
++    parse();
++        
++    if( m_gameinfo-&gt;mode() != GameInfo::RUFSPIEL &amp;&amp; m_gameinfo-&gt;mode() != GameInfo::RAMSCH )
++        m = r-&gt;solo; // SOLO = 20cent
++    else if( m_gameinfo-&gt;mode() == GameInfo::RUFSPIEL )
++        m = r-&gt;rufspiel;
++        
++    m += m_schneider ? r-&gt;schneider : 0.0;
++    m += m_schwarz ? r-&gt;schwarz : 0.0;
++    m += m_laufende * r-&gt;laufende;
++    m = klopfen( player-&gt;game()-&gt;timesDoubled(), m );
++    
++    //if( player == m_gameinfo-&gt;spieler() || player == m_gameinfo-&gt;mitspieler() )
++    if( !m_winners.containsRef( player ) )
++        m *= -1.0;
++        
++    //if( player == m_gameinfo-&gt;spieler() &amp;&amp; !m_gameinfo-&gt;mitspieler() )
++    //        m *= 3;
++
++    if( m_winners.count() == 1 )
++    {
++        if( m_winners.containsRef( player ) )
++            m *= (PLAYERS - m_winners.count());
++    }
++    else if( m_winners.count() == PLAYERS - 1 )
++    {
++        if( !m_winners.containsRef( player ) )
++            m *= (PLAYERS - m_winners.count());
++    }
++       
++    return m;
++}
++
++QString Results::formatedPoints( Player* player )
++{
++    player-&gt;setPoints( points( player ) + player-&gt;points() );
++    
++    if( Settings::instance()-&gt;resultsType() == Settings::MONEY )
++    {
++        KLocale* locale = KGlobal::locale();
++        return locale-&gt;formatMoney( player-&gt;points() );
++    }
++    else
++    {
++        return QString::number( (int)player-&gt;points() );    
++    }
+ }
+ 
+Index: gameinfo.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gameinfo.cpp,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -Lsrc/gameinfo.cpp -Lsrc/gameinfo.cpp -u -r1.19 -r1.20
+--- src/gameinfo.cpp
++++ src/gameinfo.cpp
+@@ -148,6 +148,10 @@
+ {
+     t_AllowedGames* allowed = NULL;
+     
++    // it is never allowed to decide to play Ramsch
++    if( mode == GameInfo::RAMSCH )
++        return false;
++        
+     if( mode==GameInfo::RUFSPIEL ) 
+     {
+         if( cards-&gt;contains( color, Card::SAU ) || color == Card::HERZ )
+@@ -310,6 +314,15 @@
+ 
+ int GameInfo::laufende()
+ {
++#warning &quot;Im Ramsch werden keine Laufenden gezaehlt!&quot;
++    if( m_mode == RAMSCH )
++        return 0;
++        
++    /** TODO: jeder spieler sollte eine laufende property haben und
++      * selst z??hlen wie viele laufende er hat.
++      * danach k??nnen diese in results einfach addiert werden
++      */
++        
+     unsigned int i = 0;
+     int l = 0;
+     CardList* all = new CardList();
+Index: settings.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.h,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -Lsrc/settings.h -Lsrc/settings.h -u -r1.15 -r1.16
+--- src/settings.h
++++ src/settings.h
+@@ -67,7 +67,7 @@
+     Q_OBJECT
+     public:
+         enum { MONEY, POINTS };
+-        enum { NOGAME_NEUGEBEN, NOGAME_ALTERSPIELT };
++        enum { NOGAME_NEUGEBEN, NOGAME_ALTERSPIELT, NOGAME_RAMSCH };
+         
+         static Settings* instance();
+         
+@@ -84,8 +84,7 @@
+         
+         void setResultsType( int r );
+         int resultsType() const;
+-        Results* results() const;
+-
++        
+         void setNoGame( int e );
+         /** returns what has to happen when no player wants to play
+           */
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000083.html">[Schafkopf-devel] Commit Report - Schafkopf Werden nicht gebraucht.
+</A></li>
+	<LI>Next message: <A HREF="000085.html">[Schafkopf-devel] Commit Report - Schafkopf code im cvs sollte sich kompilieren lassen...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#84">[ date ]</a>
+              <a href="thread.html#84">[ thread ]</a>
+              <a href="subject.html#84">[ subject ]</a>
+              <a href="author.html#84">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

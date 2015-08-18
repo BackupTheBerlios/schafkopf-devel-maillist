@@ -1,0 +1,4605 @@
+From schafkopf-devel at berlios.de  Sat Jan  1 19:03:55 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Sat, 1 Jan 2005 19:03:55 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf change player names on the fly
+Message-ID: <200501011803.j01I3t26004526@sheep.berlios.de>
+
+Log Message:
+-----------
+change player names on the fly
+
+Modified Files:
+--------------
+    schafkopf/src:
+        canvasplayer.cpp
+        game.cpp
+        game.h
+        preferencesdlg.cpp
+        schafkopfdef.h
+        settings.cpp
+        settings.h
+
+-------------- next part --------------
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.5 -r1.6
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -55,7 +55,6 @@
+ void PreferencesDlg::accept()
+ {
+     t_ResultValues r;
+-    t_Players p;
+     
+     Settings::instance()->setResultsType( m_radioMoney->isChecked() ? Settings::MONEY: Settings::POINTS );
+     
+@@ -72,12 +71,13 @@
+     r.schneider = m_point_schneider->value();
+     r.schwarz = m_point_notrick->value();
+     Settings::instance()->setPointResults( &r );
+-    
+-    p.p1_name = m_p1_name->text();
+-    p.p2_name = m_p2_name->text();
+-    p.p3_name = m_p3_name->text();
+-    p.p4_name = m_p4_name->text();
+-    Settings::instance()->setPlayers( &p );
++   
++    QStringList names; 
++    names << m_p1_name->text();
++    names << m_p2_name->text();
++    names << m_p3_name->text();
++    names << m_p4_name->text();
++    Settings::instance()->setPlayerNames( names );
+     
+     Settings::instance()->setNoGame( m_radioThrowAway->isChecked() ? Settings::NOGAME_NEUGEBEN : Settings::NOGAME_ALTERSPIELT );
+     
+@@ -88,24 +88,22 @@
+ {
+     QFrame* box2 = addPage( i18n("Player Settings"), QString::null, BarIcon("identity") );
+     QVBoxLayout* layout2 = new QVBoxLayout( box2, 6, 6  );
+-    t_Players* p = Settings::instance()->players();
++    QStringList names = Settings::instance()->playerNames();
+ 
+     QVButtonGroup* group2 = new QVButtonGroup( i18n("Your Player"), box2, "group2" );
+     QLabel* label3 = new QLabel( i18n("Name:"), group2, "label3" );
+-    m_p1_name = new KLineEdit( p->p1_name, group2, "m_p1_name" );
++    m_p1_name = new KLineEdit( names[0], group2, "m_p1_name" );
+     
+     QVButtonGroup* group3 = new QVButtonGroup( i18n("Computer Players"), box2, "group3" );
+     QLabel* label4 = new QLabel( i18n("Computer Player 1:"), group3, "label4" );
+-    m_p2_name = new KLineEdit( p->p2_name, group3, "m_p2_name" );
++    m_p2_name = new KLineEdit( names[1], group3, "m_p2_name" );
+     QLabel* label5 = new QLabel( i18n("Computer Player 2:"), group3, "label5" );
+-    m_p3_name = new KLineEdit( p->p3_name, group3, "m_p3_name" );
++    m_p3_name = new KLineEdit( names[2], group3, "m_p3_name" );
+     QLabel* label6 = new QLabel( i18n("Computer Player 3:"), group3, "label6" );
+-    m_p4_name = new KLineEdit( p->p4_name, group3, "m_p4_name" );
++    m_p4_name = new KLineEdit( names[3], group3, "m_p4_name" );
+     
+     layout2->addWidget( group2 );
+     layout2->addWidget( group3 );
+-        
+-    delete p;
+       
+     // TODO: move into an own function  
+     //QFrame* box3 = addPage( i18n("Rules"), "" );
+Index: game.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.h,v
+retrieving revision 1.31
+retrieving revision 1.32
+diff -Lsrc/game.h -Lsrc/game.h -u -r1.31 -r1.32
+--- src/game.h
++++ src/game.h
+@@ -78,6 +78,11 @@
+           * or when a new game is started.
+           */
+         void resetGameResults();
++
++        /** Called on initialization and when the user changed the names 
++          * of the players to represent the changes in the UI
++          */
++        void updatePlayerNames();
+         
+     private:
+         bool terminated;
+Index: schafkopfdef.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopfdef.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -Lsrc/schafkopfdef.h -Lsrc/schafkopfdef.h -u -r1.4 -r1.5
+--- src/schafkopfdef.h
++++ src/schafkopfdef.h
+@@ -34,7 +34,7 @@
+   * and improving the AI.
+   * But it might cause problems in network mode for cheaters!!
+   */
+-#define CHEAT
++//#define CHEAT
+ 
+ #ifdef CHEAT
+     #warning "CHEATING ENABLED!!!"
+Index: canvasplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.cpp,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -Lsrc/canvasplayer.cpp -Lsrc/canvasplayer.cpp -u -r1.16 -r1.17
+--- src/canvasplayer.cpp
++++ src/canvasplayer.cpp
+@@ -69,10 +69,7 @@
+     m_player = player;
+     
+     if( m_player )
+-    {
+         init(i);    
+-        m_name->setText( player->name() );
+-    }
+ }
+ 
+ void CanvasPlayer::position( int i )
+@@ -81,7 +78,7 @@
+     int num=NUMCARDS;
+     int w = m_canvas->width();//-DIST;
+     int h = m_canvas->height();//-DIST;
+-    int offsetl = 0; //Hiermit kann man am linken Rand Platz schaffen f?r z.B. ein Bild des Spielers (f?r Netzwerkmodus).
++    int offsetl = 0; //Hiermit kann man am linken Rand Platz schaffen fr z.B. ein Bild des Spielers (fr Netzwerkmodus).
+     int availw = m_canvas->width() - 2*DIST - offsetl;
+     int cardw = Card::backgroundPixmap()->width();
+     int cardh = Card::backgroundPixmap()->height();
+@@ -145,10 +142,11 @@
+ 
+ void CanvasPlayer::init(int i)
+ {
++    m_name->setText( m_player->name() );
+     if( !m_player->game()->isTerminated() )
+     {
+         for( unsigned int z = 0; z < m_player->cards()->count(); z++ ) 
+-	    {
++        {
+             CanvasCard *c = m_items[z];
+             c->setCard( m_player->cards()->at( z ) );
+             c->setZ( double(-1 - z) );
+Index: settings.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.cpp,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -Lsrc/settings.cpp -Lsrc/settings.cpp -u -r1.10 -r1.11
+--- src/settings.cpp
++++ src/settings.cpp
+@@ -21,6 +21,7 @@
+ 
+ #include "moneyresults.h"
+ #include "pointresults.h"
++#include "schafkopfdef.h"
+ 
+ #include <kapplication.h>
+ #include <kcarddialog.h>
+@@ -92,29 +93,18 @@
+     return list;
+ }
+ 
+-t_Players* Settings::players() const
++void Settings::setPlayerNames( const QStringList & names )
+ {
+-    KUser user;
++    int i;
+     KConfig* config = kapp->config();
+-    t_Players* p = new t_Players;
++    QStringList old = this->playerNames();
+     config->setGroup("PlayerNames");
+-    p->p1_name = config->readEntry( "Player1", user.loginName() );
+-    p->p2_name = config->readEntry( "Player2", "Dom" );
+-    p->p3_name = config->readEntry( "Player3", "Lenz" );
+-    p->p4_name = config->readEntry( "Player4", "G.J." );
+-    return p;
+-}
+-
+-void Settings::setPlayers( const t_Players* p )
+-{
+-    KConfig* config = kapp->config();
+-    config->setGroup( "PlayerNames" );
+-    config->writeEntry( "Player1", p->p1_name );
+-    config->writeEntry( "Player2", p->p2_name );
+-    config->writeEntry( "Player3", p->p3_name );
+-    config->writeEntry( "Player4", p->p4_name );
++    for( i=0;i<PLAYERS;i++ )
++        config->writeEntry( QString("Player%1").arg(i+1), names[i] );
+     config->sync();
+     
++    if( old != names )
++        emit playerNamesChanged();
+ }
+ 
+ QValueList<int> Settings::splitterSizes( int width )
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.60
+retrieving revision 1.61
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.60 -r1.61
+--- src/game.cpp
++++ src/game.cpp
+@@ -46,17 +46,15 @@
+     
+     // Create our player objects
+     // delete these only in the destructor    
+-    QStringList list = Settings::instance()->playerNames();
+     m_players[0] = new HumanPlayer( this );
+-    m_players[0]->setName( list[0] );
+-	for( i=1;i<PLAYERS;i++)
+-    {
++    for( i=1;i<PLAYERS;i++)
+         m_players[i] = new ComputerPlayer( this );
+-        m_players[i]->setName( list[i] );
+-    }
++    
++    updatePlayerNames();
+     
+     // make sure that results get cleaned up, when the results type is changed
+     connect( Settings::instance(), SIGNAL( resultsTypeChanged() ), this, SLOT( resetGameResults() ) );
++    connect( Settings::instance(), SIGNAL( playerNamesChanged() ), this, SLOT( updatePlayerNames() ) );
+ }
+ 
+ Game::~Game()
+@@ -387,5 +385,16 @@
+     return d;
+ }
+ 
++void Game::updatePlayerNames()
++{
++    int i;
++    QStringList list = Settings::instance()->playerNames();
++    m_players[0]->setName( list[0] );
++    for( i=1;i<PLAYERS;i++)
++        m_players[i]->setName( list[i] );
++        
++    if( m_canvas )
++        m_canvas->redrawPlayers();
++}
+ 
+ #include "game.moc"
+Index: settings.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -Lsrc/settings.h -Lsrc/settings.h -u -r1.7 -r1.8
+--- src/settings.h
++++ src/settings.h
+@@ -33,13 +33,14 @@
+     double schneider;
+ };
+ 
++/* 
++
++// Use as soon as the avatar is implemented
+ struct t_Players {
+-    QString p1_name;
+-    //QImage avatar;
+-    QString p2_name;
+-    QString p3_name;
+-    QString p4_name;
++    QString name;
++    QImage avatar;
+ };
++*/
+ 
+ 
+ class Results;
+@@ -61,7 +62,8 @@
+         const QString cardBackground() const;
+         
+         const QStringList playerNames() const;
+-
++        void setPlayerNames( const QStringList & names );
++        
+         void configureCardDecks( QWidget* parent = 0 );
+         
+         QValueList<int> splitterSizes( int width );
+@@ -78,19 +80,17 @@
+         
+         void setMoneyResults( const t_ResultValues* r );
+         void setPointResults( const t_ResultValues* r );
+-        void setPlayers( const t_Players* p );
+         /** delete after usage
+           */
+         t_ResultValues* moneyResults() const;
+         /** delete after usage
+           */
+         t_ResultValues* pointResults() const;
+-        t_Players* players() const;
+-
+         
+     signals:
+         void cardChanged();
+         void resultsTypeChanged();
++        void playerNamesChanged();
+         
+     private:
+         
+
+From schafkopf-devel at berlios.de  Sun Jan  2 04:42:29 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Sun, 2 Jan 2005 04:42:29 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf regel-dialog etwas erweitert
+Message-ID: <200501020342.j023gTiv014490@sheep.berlios.de>
+
+Log Message:
+-----------
+regel-dialog etwas erweitert
+
+Modified Files:
+--------------
+    schafkopf/src:
+        preferencesdlg.cpp
+        preferencesdlg.h
+
+-------------- next part --------------
+Index: preferencesdlg.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -Lsrc/preferencesdlg.h -Lsrc/preferencesdlg.h -u -r1.5 -r1.6
+--- src/preferencesdlg.h
++++ src/preferencesdlg.h
+@@ -28,6 +28,7 @@
+ class QRadioButton;
+ class QLabel;
+ class QSpinBox;
++class QCheckBox;
+ 
+ /**
+ Preferences dialog for schafkopf
+@@ -56,6 +57,12 @@
+         QRadioButton* m_radioPoints;
+         QRadioButton* m_radioThrowAway;
+         QRadioButton* m_radioForcedGame;
++        QRadioButton* m_radioForcedGame2;
++        QRadioButton* m_radioForcedGame3;
++        QRadioButton* m_radioForcedGame4;
++
++
++        QCheckBox* m_checkDoubleNextGame; 
+ 
+         KLineEdit* m_p1_name;
+         KLineEdit* m_p2_name;
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.6 -r1.7
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -33,6 +33,7 @@
+ #include <qhbuttongroup.h>
+ #include <qlabel.h>
+ #include <qspinbox.h>
++#include <qcheckbox.h>
+ 
+ PreferencesDlg::PreferencesDlg(QWidget *parent, const char *name)
+     : KDialogBase( IconList, i18n("Preferences"), KDialogBase::Ok|KDialogBase::Cancel,
+@@ -116,8 +117,13 @@
+     QSpacerItem* spacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding );
+     
+     QVButtonGroup* group = new QVButtonGroup( i18n("No one wants to play:"), box, "group" );
+-    m_radioThrowAway = new QRadioButton( i18n("&Throw cards away and give new ones"), group );
+-    m_radioForcedGame = new QRadioButton( i18n("&Forced game (Eichel Ober plays)"), group );
++    m_radioThrowAway = new QRadioButton( i18n("&Throw cards together and give new ones"), group );
++    m_radioForcedGame = new QRadioButton( i18n("He who has the Eichel &Ober has to play"), group );
++    m_radioForcedGame2 = new QRadioButton( i18n("He who doubled last has to play. If no one has doubled:"), group );
++    QVButtonGroup* group2 = new QVButtonGroup( "", group, "group2" );
++    m_radioForcedGame3 = new QRadioButton( i18n("Throw cards together"), group2 );
++    m_radioForcedGame4 = new QRadioButton( i18n("Eichel Ober has to play"), group2 );
++    m_checkDoubleNextGame = new QCheckBox ( i18n("Double next game when cards are thrown together"), group );
+  
+     layout->addWidget( group );
+     layout->addItem( spacer );
+
+From schafkopf-devel at berlios.de  Sun Jan  2 16:44:57 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Sun, 2 Jan 2005 16:44:57 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf regel-dialog ueberarbeitet und uebersetzt
+Message-ID: <200501021544.j02FivZQ012442@sheep.berlios.de>
+
+Log Message:
+-----------
+regel-dialog ueberarbeitet und uebersetzt
+
+Modified Files:
+--------------
+    schafkopf/po:
+        de.po
+    schafkopf/src:
+        preferencesdlg.cpp
+        preferencesdlg.h
+
+-------------- next part --------------
+Index: de.po
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/po/de.po,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lpo/de.po -Lpo/de.po -u -r1.8 -r1.9
+--- po/de.po
++++ po/de.po
+@@ -355,3 +355,24 @@
+ 
+ msgid "Configure Point Values"
+ msgstr "Punkte festlegen"
++
++msgid "Rules"
++msgstr "Regeln"
++
++msgid "No one wants to play:"
++msgstr "Niemand will spielen:"
++
++msgid "The &last player who has doubled has to play."
++msgstr "Der Spieler, der als &letztes geklopft hat, muss spielen."
++
++msgid "The last player who has doubled has to play. If no one has doubled the above rule takes effect."
++msgstr "Der Spieler, der als letztes geklopft hat, muss spielen. Falls niemand geklopft hat, tritt die obige Regel in Kraft."
++
++msgid "&Throw cards together and give new ones."
++msgstr "Karten &zusammenwerfen und neu geben."
++
++msgid "The player who has the Eichel &Ober has to play."
++msgstr "Der Spieler der den &Alten hat muss spielen."
++
++msgid "&Double next game when cards were thrown together."
++msgstr "Das n??chste Spiel &doppeln wenn die Karten zusammengeworfen wurden."
+Index: preferencesdlg.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -Lsrc/preferencesdlg.h -Lsrc/preferencesdlg.h -u -r1.6 -r1.7
+--- src/preferencesdlg.h
++++ src/preferencesdlg.h
+@@ -57,11 +57,8 @@
+         QRadioButton* m_radioPoints;
+         QRadioButton* m_radioThrowAway;
+         QRadioButton* m_radioForcedGame;
+-        QRadioButton* m_radioForcedGame2;
+-        QRadioButton* m_radioForcedGame3;
+-        QRadioButton* m_radioForcedGame4;
+-
+-
++        
++        QCheckBox* m_checkDoublerPlays;
+         QCheckBox* m_checkDoubleNextGame; 
+ 
+         KLineEdit* m_p1_name;
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.7 -r1.8
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -34,6 +34,7 @@
+ #include <qlabel.h>
+ #include <qspinbox.h>
+ #include <qcheckbox.h>
++#include <qtooltip.h>
+ 
+ PreferencesDlg::PreferencesDlg(QWidget *parent, const char *name)
+     : KDialogBase( IconList, i18n("Preferences"), KDialogBase::Ok|KDialogBase::Cancel,
+@@ -117,13 +118,11 @@
+     QSpacerItem* spacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding );
+     
+     QVButtonGroup* group = new QVButtonGroup( i18n("No one wants to play:"), box, "group" );
+-    m_radioThrowAway = new QRadioButton( i18n("&Throw cards together and give new ones"), group );
+-    m_radioForcedGame = new QRadioButton( i18n("He who has the Eichel &Ober has to play"), group );
+-    m_radioForcedGame2 = new QRadioButton( i18n("He who doubled last has to play. If no one has doubled:"), group );
+-    QVButtonGroup* group2 = new QVButtonGroup( "", group, "group2" );
+-    m_radioForcedGame3 = new QRadioButton( i18n("Throw cards together"), group2 );
+-    m_radioForcedGame4 = new QRadioButton( i18n("Eichel Ober has to play"), group2 );
+-    m_checkDoubleNextGame = new QCheckBox ( i18n("Double next game when cards are thrown together"), group );
++    m_radioThrowAway = new QRadioButton( i18n("&Throw cards together and give new ones."), group );
++    m_radioForcedGame = new QRadioButton( i18n("The player who has the Eichel &Ober has to play."), group );
++    m_checkDoublerPlays = new QCheckBox ( i18n("The &last player who has doubled has to play."), group );
++    QToolTip::add( m_checkDoublerPlays, i18n("The last player who has doubled has to play. If no one has doubled the above rule takes effect.") );
++    m_checkDoubleNextGame = new QCheckBox ( i18n("&Double next game when cards were thrown together."), group );
+  
+     layout->addWidget( group );
+     layout->addItem( spacer );
+
+From schafkopf-devel at berlios.de  Mon Jan  3 12:10:25 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Mon, 3 Jan 2005 12:10:25 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf der computer kann jetzt klopfen, es fehlt noch
+Message-ID: <200501031110.j03BAPK7024729@sheep.berlios.de>
+
+Log Message:
+-----------
+der computer kann jetzt klopfen, es fehlt noch (auch beim HumanPlayer), dass als geber auf die letzten 4 geklopft wird
+
+Modified Files:
+--------------
+    schafkopf/src:
+        computerplayer.cpp
+        openbook.cpp
+        schafkopfdef.h
+
+-------------- next part --------------
+Index: schafkopfdef.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopfdef.h,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -Lsrc/schafkopfdef.h -Lsrc/schafkopfdef.h -u -r1.5 -r1.6
+--- src/schafkopfdef.h
++++ src/schafkopfdef.h
+@@ -27,10 +27,8 @@
+ #define CARD_CNT  32
+ 
+ 
+-
+-
+ /** Uncomment this line to make all cards
+-  * user visible, this is useful for debuggin
++  * user visible, this is useful for debugging
+   * and improving the AI.
+   * But it might cause problems in network mode for cheaters!!
+   */
+Index: openbook.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/openbook.cpp,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/openbook.cpp -Lsrc/openbook.cpp -u -r1.8 -r1.9
+--- src/openbook.cpp
++++ src/openbook.cpp
+@@ -179,7 +179,6 @@
+     CardList* list = new CardList();
+     Card* highest = NULL;
+     bool unser_stich = false;
+-    unsigned int i = 0;
+     bool abspatzen = false;
+     
+     /* Moeglichkeiten:
+Index: computerplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.cpp,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -Lsrc/computerplayer.cpp -Lsrc/computerplayer.cpp -u -r1.25 -r1.26
+--- src/computerplayer.cpp
++++ src/computerplayer.cpp
+@@ -19,6 +19,7 @@
+  ***************************************************************************/
+ #include "computerplayer.h"
+ 
++#include "card.h"
+ #include "cardlist.h"
+ #include "game.h"
+ #include "gameinfo.h"
+@@ -50,12 +51,47 @@
+ 
+ void ComputerPlayer::klopfen()
+ {
++    int i;
++    const int anz = NUMCARDS/2;
++    int start = 0; // if geber = anz
++    int ende = start + anz;
++    int count = 0;
++    GameInfo* info;
+     m_geklopft = false;
+-    unsigned int i=0;
+-	
+-    for(i=0;i<m_cards->count();i++)
++    
++    /** check 2 possibilities:
++      * - all cards have the same color
++      * - all cards trump in herz sticht oder sau
++      */
++      
++    // are all cards in the same color?
++    for( i=start;i<ende;i++ )
++        if( m_cards->at( i )->color() == m_cards->at( start )->color() )
++            count++;
++            
++    if( count == anz )
+     {
++        m_geklopft = true;
++        Player::klopfen();
++        return;
++    }
++    
++    // are all cards trump?
++    info = new GameInfo;
++    info->setMode( GameInfo::STICHT );
++    info->setColor( Card::HERZ );
++    count = 0;
++    for( i=start;i<ende;i++ )
++        if( m_cards->at( i )->card() == Card::SAU || info->istTrumpf( m_cards->at( i ) ) )
++            count++;
+     
++    delete info;
++    
++    if( count == anz )
++    {
++        m_geklopft = true;
++        Player::klopfen();
++        return;
+     }
+     
+     Player::klopfen();
+
+From schafkopf-devel at berlios.de  Mon Jan  3 13:47:35 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Mon, 3 Jan 2005 13:47:35 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf letzter klopft jetzt auf die letzten 4 karten
+Message-ID: <200501031247.j03ClZbN018266@sheep.berlios.de>
+
+Log Message:
+-----------
+letzter klopft jetzt auf die letzten 4 karten
+
+Modified Files:
+--------------
+    schafkopf/src:
+        canvasplayer.cpp
+        computerplayer.cpp
+        game.cpp
+        player.cpp
+        player.h
+
+-------------- next part --------------
+Index: computerplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.cpp,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -Lsrc/computerplayer.cpp -Lsrc/computerplayer.cpp -u -r1.26 -r1.27
+--- src/computerplayer.cpp
++++ src/computerplayer.cpp
+@@ -53,7 +53,7 @@
+ {
+     int i;
+     const int anz = NUMCARDS/2;
+-    int start = 0; // if geber = anz
++    int start = ( isLast() ? anz : 0 );
+     int ende = start + anz;
+     int count = 0;
+     GameInfo* info;
+Index: canvasplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.cpp,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -Lsrc/canvasplayer.cpp -Lsrc/canvasplayer.cpp -u -r1.17 -r1.18
+--- src/canvasplayer.cpp
++++ src/canvasplayer.cpp
+@@ -160,7 +160,17 @@
+             c->setFrontVisible( true );
+     #else            
+             if( m_player->rtti() == Player::HUMAN )
+-                c->setFrontVisible( (z < 4 || m_player->hasDoubled() ) );
++            {
++                if( m_player->hasDoubled() )
++                    c->setFrontVisible( true );
++                else
++                {
++                    if( m_player->isLast() )
++                        c->setFrontVisible( z >= 4 );
++                    else
++                        c->setFrontVisible( z < 4 );
++                }
++            }
+             else
+                 c->setFrontVisible( false );
+     #endif
+Index: player.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.cpp,v
+retrieving revision 1.26
+retrieving revision 1.27
+diff -Lsrc/player.cpp -Lsrc/player.cpp -u -r1.26 -r1.27
+--- src/player.cpp
++++ src/player.cpp
+@@ -20,6 +20,7 @@
+     
+     m_has_doubled = false;
+     m_geklopft = false;
++    m_last = false;
+ }
+ 
+ Player::~ Player()
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.61
+retrieving revision 1.62
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.61 -r1.62
+--- src/game.cpp
++++ src/game.cpp
+@@ -103,9 +103,18 @@
+     
+ 	while(!terminated)
+ 	{
+-		start();
+ 		for(i=0;i<PLAYERS;i++)
++        {
+ 			tmp[i]=m_players[(i+gamecnt)%PLAYERS];
++            tmp[i]->setLast( (i==PLAYERS-1) );
++        }
++		// setLast() has to be done before start(),
++        // so that CanvasPlayer draws cards correctly for
++        // doubling when gameStarted is emited.
++        // otherwise we had to emit gameStarted twice which would 
++        // result in an ugly UI rebuild
++        start();
++        
+ 		for(i=0;i<PLAYERS;i++)
+     	{
+ 	        tmp[i]->klopfen();
+Index: player.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.h,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -Lsrc/player.h -Lsrc/player.h -u -r1.19 -r1.20
+--- src/player.h
++++ src/player.h
+@@ -21,6 +21,9 @@
+ 		virtual ~Player();
+ 
+ 		virtual void init() {};
++        /** set m_geklopft to true in this function if the player wants to double
++          * and to false if not. 
++          */
+ 		virtual void klopfen();
+         virtual Card *play() = 0;
+         /** if @p force is true the player has to play wether he wants or not
+@@ -38,7 +41,9 @@
+         void setCards( CardList *cards);
+         CardList* stiche() const;
+         void addStich( CardList stich );
+-
++        inline bool isLast() const { return m_last; }
++        inline void setLast( bool b ) { m_last = b; }
++        
+         double points() const { return m_points; }
+         void setPoints( double p ) { m_points = p; }
+         
+@@ -62,6 +67,10 @@
+ 
+         QString m_name;
+ 
++        // is this the last player in the current round
++        // needed to make sure that this player sees the last
++        // four cards to double
++        bool m_last;
+         bool m_geklopft;
+         // is set to true as soon as klopfed()
+         // was called
+
+From schafkopf-devel at berlios.de  Mon Jan  3 19:53:43 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Mon, 3 Jan 2005 19:53:43 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf ramsch in den regeldialog eingefuegt (noch
+Message-ID: <200501031853.j03IrhsD025324@sheep.berlios.de>
+
+Log Message:
+-----------
+ramsch in den regeldialog eingefuegt (noch deaktiviert)
+
+Modified Files:
+--------------
+    schafkopf/po:
+        de.po
+    schafkopf/src:
+        preferencesdlg.cpp
+        preferencesdlg.h
+
+-------------- next part --------------
+Index: de.po
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/po/de.po,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -Lpo/de.po -Lpo/de.po -u -r1.9 -r1.10
+--- po/de.po
++++ po/de.po
+@@ -1,35 +1,38 @@
+-# translation of de.po to 
+-# , 2004.
+-#: _translatorinfo.cpp:3
+-msgid ""
+-"_: EMAIL OF TRANSLATORS\n"
+-"Your emails\n"
++#: canvascard.moc.cpp:34 canvascard.moc.cpp:42
++msgid "CanvasCard"
+ msgstr ""
+-"domseichter at web.de\n"
+-"Last-Translator: \n"
+-"PO-Revision-Date: 2004-12-13 23:59+0100\n"
+-"Project-Id-Version: de\n"
+-"Language-Team:  <de at li.org>\n"
+-"Content-Type: text/plain; charset=UTF-8\n"
+-"Content-Transfer-Encoding: 8bit\n"
+-"X-Generator: KBabel 1.9\n"
+-"MIME-Version: 1.0\n"
+ 
+-#: game.cpp:117
++#: card.moc.cpp:34 card.moc.cpp:42
++msgid "Card"
++msgstr ""
++
++#: computerplayer.moc.cpp:34 computerplayer.moc.cpp:42
++#, fuzzy
++msgid "ComputerPlayer"
++msgstr "Computerspieler"
++
++#: game.cpp:124
+ msgid "%1 has doubled."
+ msgstr "%1 hat geklopft."
+ 
+-#: game.cpp:297
++#: game.cpp:307
+ msgid "%1 has a game."
+ msgstr "%1 hat ein Spiel"
+ 
+-#: game.cpp:302
++#: game.cpp:312
+ msgid "%1 has no game."
+ msgstr "%1 sagt weiter."
+ 
+-#: game.cpp:310
++#: game.cpp:323
+ msgid "No one wants to play. Cards will thrown together."
+-msgstr "Alle sind weiter.\nKarten werden zusammengeworfen."
++msgstr ""
++"Alle sind weiter.\n"
++"Karten werden zusammengeworfen."
++
++#: game.cpp:339
++#, fuzzy
++msgid "%1 has the Eichel Ober and has to play."
++msgstr "Der Spieler der den &Alten hat muss spielen."
+ 
+ #: gameinfo.cpp:47
+ msgid "colorless"
+@@ -83,14 +86,19 @@
+ msgid "%1 plays %2 %3."
+ msgstr "%1 spielt %2 %3"
+ 
+-#: humanplayer.cpp:47
++#: humanplayer.cpp:46
+ msgid "Do you want to double?"
+ msgstr "Willst Du klopfen?"
+ 
+-#: humanplayer.cpp:66
++#: humanplayer.cpp:64
+ msgid "Do you want to play?"
+ msgstr "Hast Du ein Spiel?"
+ 
++#: humanplayer.moc.cpp:34 humanplayer.moc.cpp:42
++#, fuzzy
++msgid "HumanPlayer"
++msgstr "Eigener Spieler"
++
+ #: main.cpp:29
+ msgid "Schafkopf is a popular card game in Bavaria."
+ msgstr "Schafkopf ist ein beliebtes Kartenspiel in Bayern."
+@@ -99,10 +107,6 @@
+ msgid "SchafKopf"
+ msgstr "SchafKopf"
+ 
+-#: newgamewizard.cpp:52
+-msgid "Select Type:"
+-msgstr "Typ Ausw??hlen:"
+-
+ #: newgamewizard.cpp:57
+ msgid "&Start local Game"
+ msgstr "&Starte ein Spiel auf dem lokalen Rechner"
+@@ -115,6 +119,7 @@
+ msgid "Start network Game as &Client"
+ msgstr "Starte ein Netzwerkspiel als &Client"
+ 
++#: newgamewizard.cpp:65
+ msgid "Select Game Type"
+ msgstr "Spielmodus ausw??hlen"
+ 
+@@ -124,8 +129,8 @@
+ "You will play against\n"
+ "3 Computer Players"
+ msgstr ""
+-"<qt>Starte ein Spiel auf dem lokalen Rechner:<br>"
+-"Du spielst gegen drei Computergegner.</qt>"
++"<qt>Starte ein Spiel auf dem lokalen Rechner:<br>Du spielst gegen drei "
++"Computergegner.</qt>"
+ 
+ #: newgamewizard.cpp:107
+ msgid ""
+@@ -133,8 +138,8 @@
+ "You will be the host\n"
+ "of a new Network game"
+ msgstr ""
+-"<qt>Starte einen Spiel-Server:<br>"
+-"Du bist der Host eines neuen Netzwerkspiels.</qt>"
++"<qt>Starte einen Spiel-Server:<br>Du bist der Host eines neuen "
++"Netzwerkspiels.</qt>"
+ 
+ #: newgamewizard.cpp:111
+ msgid ""
+@@ -142,8 +147,144 @@
+ "You will connect to a Computer,\n"
+ "running a Schafkopf server"
+ msgstr ""
+-"<qt>Mit einem Spiel-Server verbinden:<br>"
+-"Du wirst mit einem laufenden Schafkopf-Server verbunden.</qt>"
++"<qt>Mit einem Spiel-Server verbinden:<br>Du wirst mit einem laufenden "
++"Schafkopf-Server verbunden.</qt>"
++
++#: newgamewizard.moc.cpp:34 newgamewizard.moc.cpp:42
++msgid "newgamewizard"
++msgstr ""
++
++#: openbook.moc.cpp:34 openbook.moc.cpp:42
++#, fuzzy
++msgid "RuleBook"
++msgstr "Regeln"
++
++#: preferencesdlg.cpp:40
++msgid "Preferences"
++msgstr "Einstellungen"
++
++#: preferencesdlg.cpp:91
++msgid "Player Settings"
++msgstr "Spieler-Einstellungen"
++
++#: preferencesdlg.cpp:95
++msgid "Your Player"
++msgstr "Eigener Spieler"
++
++#: preferencesdlg.cpp:96
++#, fuzzy
++msgid "Name:"
++msgstr "Spiel:"
++
++#: preferencesdlg.cpp:99
++msgid "Computer Players"
++msgstr "Computerspieler"
++
++#: preferencesdlg.cpp:100
++msgid "Computer Player 1:"
++msgstr "Computerspieler 1:"
++
++#: preferencesdlg.cpp:102
++msgid "Computer Player 2:"
++msgstr "Computerspieler 2:"
++
++#: preferencesdlg.cpp:104
++msgid "Computer Player 3:"
++msgstr "Computerspieler 3:"
++
++#: preferencesdlg.cpp:113
++msgid "Rules"
++msgstr "Regeln"
++
++#: preferencesdlg.cpp:117
++msgid "No one wants to play:"
++msgstr "Niemand will spielen:"
++
++#: preferencesdlg.cpp:118
++msgid "&Throw cards together and give new ones."
++msgstr "Karten &zusammenwerfen und neu geben."
++
++#: preferencesdlg.cpp:119
++msgid "The player who has the Eichel &Ober has to play."
++msgstr "Der Spieler der den &Alten hat muss spielen."
++
++#: preferencesdlg.cpp:120
++msgid "Play Ramsch (not available yet)"
++msgstr "Einen Ramsch spielen (noch nicht mglich)"
++
++#: preferencesdlg.cpp:121
++msgid ""
++"The aim when playing a Ramsch is to make no tricks. The player who made the "
++"most points is the sole loser."
++msgstr ""
++"Das Ziel beim Ramsch ist es mglichst keinen Stich zu machen. Der Spieler mit "
++"den meisten Punkten ist der alleinige Verlierer."
++
++#: preferencesdlg.cpp:123
++msgid "The &last player who has doubled has to play."
++msgstr "Der Spieler, der als &letztes geklopft hat, muss spielen."
++
++#: preferencesdlg.cpp:124
++msgid ""
++"The last player who has doubled has to play. If no one has doubled the above "
++"rule takes effect."
++msgstr ""
++"Der Spieler, der als letztes geklopft hat, muss spielen. Falls niemand "
++"geklopft hat, tritt die obige Regel in Kraft."
++
++#: preferencesdlg.cpp:125
++msgid "&Double next game when cards were thrown together."
++msgstr "Das nchste Spiel &doppeln wenn die Karten zusammengeworfen wurden."
++
++#: preferencesdlg.cpp:139
++msgid "Results"
++msgstr "Ergebnisse"
++
++#: preferencesdlg.cpp:144
++msgid "count &money"
++msgstr "&Geld schreiben"
++
++#: preferencesdlg.cpp:145
++msgid "count &points"
++msgstr "&Punkte schreiben"
++
++#: preferencesdlg.cpp:148
++msgid ""
++"<qt>SchafKopf can count in its results view either points for each game or a "
++"monetrary value for each game.<br>You can also configure how much points/"
++"money a game costs when won or lost.</qt>"
++msgstr ""
++"<qt>Beim Schafkopf kann entweder um Geld oder um Punkte gespielt werden."
++"<br>Du kannst auch einstellen wieviel Geld/Punkte ein gewonnenes Spiel "
++"bringt.</qt>"
++
++#: preferencesdlg.cpp:160
++msgid "Configure Money Values"
++msgstr "Geldbetrge festlegen"
++
++#: preferencesdlg.cpp:168 preferencesdlg.cpp:205
++msgid "Callgame:"
++msgstr "Rufspiel:"
++
++#: preferencesdlg.cpp:172 preferencesdlg.cpp:210
++msgid "Solo:"
++msgstr "Solo:"
++
++#: preferencesdlg.cpp:176 preferencesdlg.cpp:215
++msgid "Cards in a row:"
++msgstr "je Laufende:"
++
++#: preferencesdlg.cpp:180 preferencesdlg.cpp:220
++msgid "Notrick:"
++msgstr "Schwarz:"
++
++#: preferencesdlg.cpp:184 preferencesdlg.cpp:225
++msgid "Schneider:"
++msgstr "Schneider:"
++
++#: preferencesdlg.cpp:199
++msgid "Configure Point Values"
++msgstr "Punkte festlegen"
+ 
+ #: results.cpp:44
+ msgid " schneider"
+@@ -169,27 +310,27 @@
+ msgid " played without %1 cards in a row."
+ msgstr " spielte ohne %1."
+ 
+-#: schafkopf.cpp:67
++#: schafkopf.cpp:70
+ msgid "Results:"
+ msgstr "Ergebnisse:"
+ 
+-#: schafkopf.cpp:81
++#: schafkopf.cpp:86
+ msgid "Game Information:"
+ msgstr "Spiel-Information:"
+ 
+-#: schafkopf.cpp:103
++#: schafkopf.cpp:110
+ msgid "Show the last trick that was made."
+ msgstr "Zeige den letzten Stich."
+ 
+-#: schafkopf.cpp:136
++#: schafkopf.cpp:145
+ msgid "&Last Trick"
+ msgstr "&Letzter Stich"
+ 
+-#: schafkopf.cpp:241
++#: schafkopf.cpp:247
+ msgid "<qt>Current Game:<br><b>"
+ msgstr "<qt>Aktuelles Spiel:<br><b>"
+ 
+-#: schafkopf.cpp:250
++#: schafkopf.cpp:256
+ msgid "<qt><b>%1</b> has doubled.</qt>"
+ msgstr "<qt><b>%1</b> hat geklopft.</qt>"
+ 
+@@ -217,6 +358,11 @@
+ msgid "&Farblos"
+ msgstr "&Farblos"
+ 
++#: selectgamecolorbox.moc.cpp:34 selectgamecolorbox.moc.cpp:42
++#, fuzzy
++msgid "SelectGameColorBox"
++msgstr "Spiel ausw??hlen"
++
+ #: selectgamedlg.cpp:38
+ msgid "Select Game"
+ msgstr "Spiel ausw??hlen"
+@@ -226,153 +372,160 @@
+ msgstr "Spiel:"
+ 
+ #: selectgamedlg.cpp:44
+-msgid "&Callgame"
+-msgstr "&Rufspiel"
++msgid "&Rufspiel"
++msgstr ""
+ 
+-#: selectgamedlg.cpp:45
++#: selectgamedlg.cpp:45 selectgametypebox.cpp:68
+ msgid "&Solo"
+ msgstr "&Solo"
+ 
+-#: selectgamedlg.cpp:46
++#: selectgamedlg.cpp:46 selectgametypebox.cpp:69
+ msgid "&Geier"
+ msgstr "&Geier"
+ 
+-#: selectgamedlg.cpp:47
++#: selectgamedlg.cpp:47 selectgametypebox.cpp:70
+ msgid "&Wenz"
+ msgstr "&Wenz"
+ 
+-#: selectgamedlg.cpp:48
++#: selectgamedlg.cpp:48 selectgametypebox.cpp:71
+ msgid "&Dachs"
+ msgstr "&Dachs"
+ 
+-msgid "Step 1/2: Select Game"
+-msgstr "Schritt 1/2: Spiel ausw??hlen"
++#: selectgametypebox.cpp:44
++msgid ""
++"When you play a \"Solo\", you have to additionally choose a color. Trumps "
++"are all \"Ober\", \"Unter\" and the color you chose. You will play alone "
++"against the other three players."
++msgstr ""
++"Wenn Du ein Solo spielen willst, musst Du zus??tzlich noch eine Farbe "
++"ausw??hlen. Trumpf sind alle Ober, Unter und die Farbe die du gew??hlt hast."
++"<br>Du spielst alleine gegen die drei anderen Spieler."
+ 
+-msgid "Step 2/2: Select Color"
+-msgstr "Schritt 2/2: Farbe ausw??hlen"
++#: selectgametypebox.cpp:45
++msgid ""
++"When you play a \"Dachs\", the only trumps are aces and tenners. You will "
++"play alone against the other three players."
++msgstr ""
++"Wenn du einen Dachs spielst, sind die Asse und die Zehner die einzigen "
++"Tr??mpfe.<br>Du spielst alleine gegen die drei anderen Spieler."
++
++#: selectgametypebox.cpp:46
++msgid ""
++"When you play a callgame, you will have to choose a color. You will then "
++"play in team with the player which has the ace of the color you chose. "
++"Hearts are trumps."
++msgstr ""
++"Wenn Du ein Rufspiel spielen willst, musst Du zus??tzlich noch eine Farbe "
++"ausw??hlen. Du spielst dann mit dem Spieler zusammen der das Ass dieser Farbe "
++"hat. Herz ist Trumpf."
+ 
+-#: selectgametypebox.cpp:59
++#: selectgametypebox.cpp:47
++msgid ""
++"When you play a \"Wenz\", you can choose a color. If you don't choose a "
++"color, only all \"Unter\" will be trumps. If you do, the cards of the chosen "
++"color will also be trumps. You will play alone against the other three "
++"players."
++msgstr ""
++"Wenn du einen Wenz spielen willst, kannst du zus??tzlich noch eine Farbe "
++"ausw??hlen. Es sind dann alle Unter sowie die gew??hlte Farbe Trumpf. W??hlst du "
++"\"farblos\" sind nur die Unter Trumpf.<br>Du spielst alleine gegen die drei "
++"anderen Spieler."
++
++#: selectgametypebox.cpp:48
++msgid ""
++"When you play a \"Geier\", you can choose a color. If you don't choose a "
++"color, only all \"Ober\" will be trumps. If you do, the cards of the chosen "
++"color will also be trumps. You will play alone against the other three "
++"players."
++msgstr ""
++"Wenn du einen Geier spielen willst, kannst du zus??tzlich noch eine Farbe "
++"ausw??hlen. Es sind dann alle Ober sowie die gew??hlte Farbe Trumpf. W??hlst du "
++"\"farblos\" sind nur die Ober Trumpf.<br>Du spielst alleine gegen die drei "
++"anderen Spieler."
++
++#: selectgametypebox.cpp:64
+ msgid "Game"
+ msgstr "Spiel"
+ 
+-#: selectgametypebox.cpp:62
+-msgid "Play a Callgame"
+-msgstr "Ein Rufspiel spielen"
+-
+-#: selectgametypebox.cpp:63
+-msgid "Play a Solo"
+-msgstr "Ein Solo spielen"
++#: selectgametypebox.cpp:67
++msgid "&Callgame"
++msgstr "&Rufspiel"
+ 
+-#: selectgametypebox.cpp:64
+-msgid "Play a Geier"
+-msgstr "Einen Geier spielen"
++#: selectgamewizard.cpp:47
++msgid "Step 1/2: Select Game"
++msgstr "Schritt 1/2: Spiel ausw??hlen"
+ 
+-#: selectgametypebox.cpp:65
+-msgid "Play a Wenz"
+-msgstr "Einen Wenz spielen"
+-
+-#: selectgametypebox.cpp:66
+-msgid "Play a Dachs"
+-msgstr "Einen Dachs spielen"
++#: selectgamewizard.cpp:48
++msgid "Step 2/2: Select Color"
++msgstr "Schritt 2/2: Farbe ausw??hlen"
++
++#: selectgamewizard.moc.cpp:34 selectgamewizard.moc.cpp:42
++#, fuzzy
++msgid "SelectGameWizard"
++msgstr "Spiel ausw??hlen"
+ 
+ #: stichdlg.cpp:32
+ msgid "Last Trick"
+ msgstr "Letzter Stich"
+ 
+-#: stichdlg.cpp:66
++#: stichdlg.cpp:65
+ msgid "Trick was made by: <b>"
+-msgstr "Stich geh??rt: <b>"
++msgstr "Stich gehrt: <b>"
+ 
+-#: stichdlg.cpp:68
++#: stichdlg.cpp:67
+ msgid "No trick was made."
+ msgstr "Kein Stich wurde bis jetzt gemacht."
+ 
+-msgid "When you play a \"Solo\", you have to additionally choose a color. Trumps are all \"Ober\", \"Unter\" and the color you chose. You will play alone against the other three players."
+-msgstr "Wenn Du ein Solo spielen willst, musst Du zus??tzlich noch eine Farbe ausw??hlen. Trumpf sind alle Ober, Unter und die Farbe die du gew??hlt hast.<br>Du spielst alleine gegen die drei anderen Spieler."
+-
+-msgid "When you play a \"Dachs\", the only trumps are aces and tenners. You will play alone against the other three players."
+-msgstr "Wenn du einen Dachs spielst, sind die Asse und die Zehner die einzigen Tr??mpfe.<br>Du spielst  alleine gegen die drei anderen Spieler."
+-
+-msgid "When you play a callgame, you will have to choose a color. You will then play in team with the player which has the ace of the color you chose. Hearts are trumps."
+-msgstr "Wenn Du ein Rufspiel spielen willst, musst Du zus??tzlich noch eine Farbe ausw??hlen. Du spielst dann mit dem Spieler zusammen der das Ass dieser Farbe hat. Herz ist Trumpf."
+-
+-msgid "When you play a \"Wenz\", you can choose a color. If you don't choose a color, only all \"Unter\" will be trumps. If you do, the cards of the chosen color will also be trumps. You will play alone against the other three players."
+-msgstr "Wenn du einen Wenz spielen willst, kannst du zus??tzlich noch eine Farbe ausw??hlen. Es sind dann alle Unter sowie die gew??hlte Farbe Trumpf. W??hlst du \"farblos\" sind nur die Unter Trumpf.<br>Du spielst alleine gegen die drei anderen Spieler."
+-
+-msgid "When you play a \"Geier\", you can choose a color. If you don't choose a color, only all \"Ober\" will be trumps. If you do, the cards of the chosen color will also be trumps. You will play alone against the other three players."
+-msgstr "Wenn du einen Geier spielen willst, kannst du zus??tzlich noch eine Farbe ausw??hlen. Es sind dann alle Ober sowie die gew??hlte Farbe Trumpf. W??hlst du \"farblos\" sind nur die Ober Trumpf.<br>Du spielst alleine gegen die drei anderen Spieler."
+-
+-msgid "Preferences"
+-msgstr "Einstellungen"
+-
+-msgid "Player Settings"
+-msgstr "Spieler-Einstellungen"
+-
+-msgid "Your Player"
+-msgstr "Eigener Spieler"
+-
+-msgid "Computer Players"
+-msgstr "Computerspieler"
+-
+-msgid "Computer Player 1:"
+-msgstr "Computerspieler 1:"
+-
+-msgid "Computer Player 2:"
+-msgstr "Computerspieler 2:"
+-
+-msgid "Computer Player 3:"
+-msgstr "Computerspieler 3:"
+-
+-msgid "Callgame:"
+-msgstr "Rufspiel:"
+-
+-msgid "Solo:"
+-msgstr "Solo:"
+-
+-msgid "Cards in a row:"
+-msgstr "je Laufende:"
+-
+-msgid "Notrick:"
+-msgstr "Schwarz:"
+-
+-msgid "Schneider:"
+-msgstr "Schneider:"
+-
+-msgid "Results"
+-msgstr "Ergebnisse"
+-
+-msgid "count &money"
+-msgstr "&Geld schreiben"
+-
+-msgid "count &points"
+-msgstr "&Punkte schreiben"
+-
+-msgid "<qt>SchafKopf can count in its results view either points for each game or a monetrary value for each game.<br>You can also configure how much points/money a game costs when won or lost.</qt>"
+-msgstr "<qt>Beim Schafkopf kann entweder um Geld oder um Punkte gespielt werden.<br>Du kannst auch einstellen wieviel Geld/Punkte ein gewonnenes Spiel bringt.</qt>"
+-
+-msgid "Configure Money Values"
+-msgstr "Geldbetr??ge festlegen"
+-
+-msgid "Configure Point Values"
+-msgstr "Punkte festlegen"
++# translation of de.po to 
++# , 2004.
++#: _translatorinfo.cpp:1
++#, fuzzy
++msgid ""
++"_: NAME OF TRANSLATORS\n"
++"Your names"
++msgstr ""
++"domseichter at web.de\n"
++"Last-Translator: \n"
++"PO-Revision-Date: 2004-12-13 23:59+0100\n"
++"Project-Id-Version: de\n"
++"Language-Team:  <de at li.org>\n"
++"Content-Type: text/plain; charset=UTF-8\n"
++"Content-Transfer-Encoding: 8bit\n"
++"X-Generator: KBabel 1.9\n"
++"MIME-Version: 1.0\n"
+ 
+-msgid "Rules"
+-msgstr "Regeln"
++# translation of de.po to 
++# , 2004.
++#: _translatorinfo.cpp:3
++#, fuzzy
++msgid ""
++"_: EMAIL OF TRANSLATORS\n"
++"Your emails"
++msgstr ""
++"domseichter at web.de\n"
++"Last-Translator: \n"
++"PO-Revision-Date: 2004-12-13 23:59+0100\n"
++"Project-Id-Version: de\n"
++"Language-Team:  <de at li.org>\n"
++"Content-Type: text/plain; charset=UTF-8\n"
++"Content-Transfer-Encoding: 8bit\n"
++"X-Generator: KBabel 1.9\n"
++"MIME-Version: 1.0\n"
+ 
+-msgid "No one wants to play:"
+-msgstr "Niemand will spielen:"
++#~ msgid "Select Type:"
++#~ msgstr "Typ Auswhlen:"
+ 
+-msgid "The &last player who has doubled has to play."
+-msgstr "Der Spieler, der als &letztes geklopft hat, muss spielen."
++#~ msgid "Play a Callgame"
++#~ msgstr "Ein Rufspiel spielen"
+ 
+-msgid "The last player who has doubled has to play. If no one has doubled the above rule takes effect."
+-msgstr "Der Spieler, der als letztes geklopft hat, muss spielen. Falls niemand geklopft hat, tritt die obige Regel in Kraft."
++#~ msgid "Play a Solo"
++#~ msgstr "Ein Solo spielen"
+ 
+-msgid "&Throw cards together and give new ones."
+-msgstr "Karten &zusammenwerfen und neu geben."
++#~ msgid "Play a Geier"
++#~ msgstr "Einen Geier spielen"
+ 
+-msgid "The player who has the Eichel &Ober has to play."
+-msgstr "Der Spieler der den &Alten hat muss spielen."
++#~ msgid "Play a Wenz"
++#~ msgstr "Einen Wenz spielen"
+ 
+-msgid "&Double next game when cards were thrown together."
+-msgstr "Das n??chste Spiel &doppeln wenn die Karten zusammengeworfen wurden."
++#~ msgid "Play a Dachs"
++#~ msgstr "Einen Dachs spielen"
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.8 -r1.9
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -106,9 +106,6 @@
+     
+     layout2->addWidget( group2 );
+     layout2->addWidget( group3 );
+-      
+-    // TODO: move into an own function  
+-    //QFrame* box3 = addPage( i18n("Rules"), "" );
+ }
+ 
+ void PreferencesDlg::addPageRules()
+@@ -120,6 +117,9 @@
+     QVButtonGroup* group = new QVButtonGroup( i18n("No one wants to play:"), box, "group" );
+     m_radioThrowAway = new QRadioButton( i18n("&Throw cards together and give new ones."), group );
+     m_radioForcedGame = new QRadioButton( i18n("The player who has the Eichel &Ober has to play."), group );
++    m_radioRamsch = new QRadioButton( i18n("Play Ramsch (not available yet)"), group );
++    QToolTip::add( m_radioRamsch, i18n("The aim when playing a Ramsch is to make no tricks. The player who made the most points is the sole loser.") );
++    m_radioRamsch->setEnabled( false );
+     m_checkDoublerPlays = new QCheckBox ( i18n("The &last player who has doubled has to play."), group );
+     QToolTip::add( m_checkDoublerPlays, i18n("The last player who has doubled has to play. If no one has doubled the above rule takes effect.") );
+     m_checkDoubleNextGame = new QCheckBox ( i18n("&Double next game when cards were thrown together."), group );
+Index: preferencesdlg.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -Lsrc/preferencesdlg.h -Lsrc/preferencesdlg.h -u -r1.7 -r1.8
+--- src/preferencesdlg.h
++++ src/preferencesdlg.h
+@@ -57,6 +57,7 @@
+         QRadioButton* m_radioPoints;
+         QRadioButton* m_radioThrowAway;
+         QRadioButton* m_radioForcedGame;
++        QRadioButton* m_radioRamsch;
+         
+         QCheckBox* m_checkDoublerPlays;
+         QCheckBox* m_checkDoubleNextGame; 
+
+From schafkopf-devel at berlios.de  Tue Jan  4 14:01:37 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Tue, 4 Jan 2005 14:01:37 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf spieler der geklopft hat muss spielen option
+Message-ID: <200501041301.j04D1bxj018262@sheep.berlios.de>
+
+Log Message:
+-----------
+spieler der geklopft hat muss spielen option implementiert
+
+Modified Files:
+--------------
+    schafkopf/src:
+        game.cpp
+        game.h
+        player.h
+        preferencesdlg.cpp
+        preferencesdlg.h
+        settings.cpp
+        settings.h
+
+-------------- next part --------------
+Index: preferencesdlg.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/preferencesdlg.h -Lsrc/preferencesdlg.h -u -r1.8 -r1.9
+--- src/preferencesdlg.h
++++ src/preferencesdlg.h
+@@ -44,6 +44,9 @@
+        
+     protected:
+         void accept();
++    
++    private slots:
++        void enableControls();
+         
+     private:
+         void addPagePlayer();
+Index: player.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.h,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -Lsrc/player.h -Lsrc/player.h -u -r1.20 -r1.21
+--- src/player.h
++++ src/player.h
+@@ -54,6 +54,11 @@
+           * count twice or not
+           */
+         bool geklopft() const { return m_geklopft; }
++        /** required by the user interface to know if all cards
++          * maybe shown or already the first four ones. 
++          * Returns true if the players klopfen() member 
++          * function was already called.
++          */
+         bool hasDoubled() const { return m_has_doubled; }
+ 
+ 	CardList *allowedCards();
+Index: settings.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/settings.h -Lsrc/settings.h -u -r1.8 -r1.9
+--- src/settings.h
++++ src/settings.h
+@@ -78,6 +78,9 @@
+           */
+         int noGame() const;
+         
++        void setDoublerHasToPlay( bool b );
++        bool doublerHasToPlay() const;
++        
+         void setMoneyResults( const t_ResultValues* r );
+         void setPointResults( const t_ResultValues* r );
+         /** delete after usage
+Index: game.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.h,v
+retrieving revision 1.32
+retrieving revision 1.33
+diff -Lsrc/game.h -Lsrc/game.h -u -r1.32 -r1.33
+--- src/game.h
++++ src/game.h
+@@ -83,21 +83,14 @@
+           * of the players to represent the changes in the UI
+           */
+         void updatePlayerNames();
+-        
++
+     private:
+-        bool terminated;
+-        Player *m_players[PLAYERS];
+-        CardList m_allcards;
+-        CardList m_playedcards;
+-        CardList m_currstich;
+-        GameInfo m_gameinfo;
+-        int m_laufende;
+-                
+-        GameCanvas *m_canvas;
+-        
+ 		/** give cards to the player and begin a new gameinfo
+ 		 */
+ 		void start();
++        /** Display the results of the game (winner/loser)
++          * to the user. Called after each game.
++          */
+         void gameResults();
+ 		
+         /** find a player who wants to playerPlayedCard 
+@@ -107,6 +100,25 @@
+           * and a new game should be started
+           */
+        bool setupGameInfo(Player *players[]);
++       
++       /** internal helper function for setupGameInfo().
++         * handles all cases when no player wants to play.
++         * It forces players in certain cases to play according
++         * to the users settings.
++         */
++       bool setupGameInfoForced();
++        
++    private:
++        bool terminated;
++        Player *m_players[PLAYERS];
++        CardList m_allcards;
++        CardList m_playedcards;
++        CardList m_currstich;
++        GameInfo m_gameinfo;
++        int m_laufende;
++                
++        GameCanvas *m_canvas;
++        
+ };
+ 
+ #endif
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.62
+retrieving revision 1.63
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.62 -r1.63
+--- src/game.cpp
++++ src/game.cpp
+@@ -318,28 +318,8 @@
+     
+     if( games.isEmpty() )
+     {
+-        if( Settings::instance()->noGame() == Settings::NOGAME_NEUGEBEN )
+-        {
+-            m_canvas->information( i18n("No one wants to play. Cards will thrown together.") );
+-            m_gameinfo.setValid( false );
+-            emit signalSetupGameInfo();
++        if( !setupGameInfoForced() )
+             return false;
+-        }
+-        else if( Settings::instance()->noGame() == Settings::NOGAME_ALTERSPIELT )
+-        {
+-            // find player with eichel ober
+-            for( i=0;i<PLAYERS;i++ )
+-                if( m_players[i]->cards()->contains( Card::EICHEL, Card::OBER ) )
+-                {
+-                    GameInfo* info = m_players[i]->gameInfo( true );
+-                    info->setSpieler( m_players[i] );
+-                    m_gameinfo = *info;
+-                    delete info;
+-                    
+-                    m_canvas->information( i18n("%1 has the Eichel Ober and has to play.").arg( m_players[i]->name() ) );
+-                    break;
+-                }
+-        }
+     } 
+     else
+     {
+@@ -373,6 +353,54 @@
+     m_gameinfo.setValid( true );
+     emit signalSetupGameInfo();
+     return true;
++}
++
++bool Game::setupGameInfoForced()
++{
++    int i;
++    GameInfo* info;
++    
++    if( Settings::instance()->doublerHasToPlay() )
++    {
++        // if someone has doubled he is forced to player
++        // only the first one who is doubled is forced to play
++        for( i=0;i<PLAYERS;i++ )
++            if( m_players[i]->geklopft() )
++            {
++                m_canvas->information( i18n("%1 has doubled and has to play now.").arg( m_players[i]->name() ) );
++    
++                info = m_players[i]->gameInfo( true );
++                info->setSpieler( m_players[i] );
++                m_gameinfo = *info;
++                delete info;
++                return true;
++            }
++    }
++        
++    if( Settings::instance()->noGame() == Settings::NOGAME_NEUGEBEN )
++    {
++        m_canvas->information( i18n("No one wants to play. Cards will thrown together.") );
++        m_gameinfo.setValid( false );
++        emit signalSetupGameInfo();
++        return false;
++    }
++    else if( Settings::instance()->noGame() == Settings::NOGAME_ALTERSPIELT )
++    {
++        // find player with eichel ober
++        for( i=0;i<PLAYERS;i++ )
++            if( m_players[i]->cards()->contains( Card::EICHEL, Card::OBER ) )
++            {
++                m_canvas->information( i18n("%1 has the Eichel Ober and has to play.").arg( m_players[i]->name() ) );
++                
++                info = m_players[i]->gameInfo( true );
++                info->setSpieler( m_players[i] );
++                m_gameinfo = *info;
++                delete info;
++                return true;
++            }
++    }
++    
++    return false;
+ }
+ 
+ void Game::resetGameResults()
+Index: settings.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.cpp,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lsrc/settings.cpp -Lsrc/settings.cpp -u -r1.11 -r1.12
+--- src/settings.cpp
++++ src/settings.cpp
+@@ -226,4 +226,21 @@
+     return e;
+ }
+ 
++void Settings::setDoublerHasToPlay( bool b )
++{
++    KConfig* config = kapp->config();
++    config->setGroup("SchafKopf");
++    config->writeEntry( "DoublerHasToPlay", b );
++    config->sync();
++}
++
++bool Settings::doublerHasToPlay() const
++{
++    bool b = false;
++    KConfig* config = kapp->config();
++    config->setGroup("SchafKopf");
++    b = config->readBoolEntry( "DoublerHasToPlay", b );
++    return b;
++}
++
+ #include "settings.moc"
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.9 -r1.10
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -47,6 +47,8 @@
+     addPageResults();
+     addPageResultsMoney();
+     addPageResultsPoints();
++    
++    enableControls();
+ }
+ 
+ 
+@@ -82,6 +84,7 @@
+     Settings::instance()->setPlayerNames( names );
+     
+     Settings::instance()->setNoGame( m_radioThrowAway->isChecked() ? Settings::NOGAME_NEUGEBEN : Settings::NOGAME_ALTERSPIELT );
++    Settings::instance()->setDoublerHasToPlay( m_checkDoublerPlays->isChecked() );
+     
+     KDialogBase::accept();
+ }
+@@ -132,6 +135,12 @@
+         m_radioForcedGame->setChecked( true );
+     else
+         m_radioThrowAway->setChecked( true );
++        
++    m_checkDoublerPlays->setChecked( Settings::instance()->doublerHasToPlay() );
++    
++    // connections
++    connect( m_radioThrowAway, SIGNAL( clicked() ), this, SLOT( enableControls() ) );
++    connect( m_radioForcedGame, SIGNAL( clicked() ), this, SLOT( enableControls() ) );
+ }
+ 
+ void PreferencesDlg::addPageResults()
+@@ -234,6 +243,11 @@
+     layout->addItem( spacer );
+     
+     delete r;
++}
++
++void PreferencesDlg::enableControls()
++{
++    m_checkDoubleNextGame->setEnabled( m_radioThrowAway->isChecked() );
+ }
+ 
+ #include "preferencesdlg.moc"
+
+From schafkopf-devel at berlios.de  Tue Jan  4 14:41:38 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Tue, 4 Jan 2005 14:41:38 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf letzter der geklopft hat muss spielen nicht
+Message-ID: <200501041341.j04DfcN5020379@sheep.berlios.de>
+
+Log Message:
+-----------
+letzter der geklopft hat muss spielen nicht erster
+
+Modified Files:
+--------------
+    schafkopf/src:
+        game.cpp
+
+-------------- next part --------------
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.63
+retrieving revision 1.64
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.63 -r1.64
+--- src/game.cpp
++++ src/game.cpp
+@@ -363,8 +363,8 @@
+     if( Settings::instance()->doublerHasToPlay() )
+     {
+         // if someone has doubled he is forced to player
+-        // only the first one who is doubled is forced to play
+-        for( i=0;i<PLAYERS;i++ )
++        // if more players have doubled the last one has to play
++        for( i=PLAYERS-1;i<=0;i-- )
+             if( m_players[i]->geklopft() )
+             {
+                 m_canvas->information( i18n("%1 has doubled and has to play now.").arg( m_players[i]->name() ) );
+
+From schafkopf-devel at berlios.de  Tue Jan  4 15:07:42 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Tue, 4 Jan 2005 15:07:42 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf bug fix: letzter der geklopft hat muss spielen
+Message-ID: <200501041407.j04E7goO021718@sheep.berlios.de>
+
+Log Message:
+-----------
+bug fix: letzter der geklopft hat muss spielen + uebersetzungsupdate
+
+Modified Files:
+--------------
+    schafkopf/po:
+        de.po
+    schafkopf/src:
+        game.cpp
+
+-------------- next part --------------
+Index: de.po
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/po/de.po,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -Lpo/de.po -Lpo/de.po -u -r1.10 -r1.11
+--- po/de.po
++++ po/de.po
+@@ -24,15 +24,17 @@
+ msgstr "%1 sagt weiter."
+ 
+ #: game.cpp:323
+-msgid "No one wants to play. Cards will thrown together."
++msgid "No one wants to play.\nCards will be thrown together."
+ msgstr ""
+ "Alle sind weiter.\n"
+ "Karten werden zusammengeworfen."
+ 
+ #: game.cpp:339
+-#, fuzzy
+-msgid "%1 has the Eichel Ober and has to play."
+-msgstr "Der Spieler der den &Alten hat muss spielen."
++msgid "%1 has got the Eichel Ober\nand has to play."
++msgstr "%1 hat den Eichel Ober\nund muss spielen."
++
++msgid "%1 has doubled last\nand has to play now."
++msgstr "%1 hat als letzter\ngeklopft und muss nun spielen."
+ 
+ #: gameinfo.cpp:47
+ msgid "colorless"
+@@ -234,7 +236,7 @@
+ 
+ #: preferencesdlg.cpp:125
+ msgid "&Double next game when cards were thrown together."
+-msgstr "Das nchste Spiel &doppeln wenn die Karten zusammengeworfen wurden."
++msgstr "Das n??chste Spiel &doppeln wenn die Karten zusammengeworfen wurden."
+ 
+ #: preferencesdlg.cpp:139
+ msgid "Results"
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.64
+retrieving revision 1.65
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.64 -r1.65
+--- src/game.cpp
++++ src/game.cpp
+@@ -364,10 +364,10 @@
+     {
+         // if someone has doubled he is forced to player
+         // if more players have doubled the last one has to play
+-        for( i=PLAYERS-1;i<=0;i-- )
++        for( i=PLAYERS-1;i>=0;i-- )
+             if( m_players[i]->geklopft() )
+             {
+-                m_canvas->information( i18n("%1 has doubled and has to play now.").arg( m_players[i]->name() ) );
++                m_canvas->information( i18n("%1 has doubled last\nand has to play now.").arg( m_players[i]->name() ) );
+     
+                 info = m_players[i]->gameInfo( true );
+                 info->setSpieler( m_players[i] );
+@@ -379,7 +379,7 @@
+         
+     if( Settings::instance()->noGame() == Settings::NOGAME_NEUGEBEN )
+     {
+-        m_canvas->information( i18n("No one wants to play. Cards will thrown together.") );
++        m_canvas->information( i18n("No one wants to play.\nCards will be thrown together.") );
+         m_gameinfo.setValid( false );
+         emit signalSetupGameInfo();
+         return false;
+@@ -390,7 +390,7 @@
+         for( i=0;i<PLAYERS;i++ )
+             if( m_players[i]->cards()->contains( Card::EICHEL, Card::OBER ) )
+             {
+-                m_canvas->information( i18n("%1 has the Eichel Ober and has to play.").arg( m_players[i]->name() ) );
++                m_canvas->information( i18n("%1 has got the Eichel Ober\nand has to play.").arg( m_players[i]->name() ) );
+                 
+                 info = m_players[i]->gameInfo( true );
+                 info->setSpieler( m_players[i] );
+
+From schafkopf-devel at berlios.de  Tue Jan  4 18:45:18 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Tue, 4 Jan 2005 18:45:18 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf zentrierung bei zeilenumbruch in den messages
+Message-ID: <200501041745.j04HjIAo012931@sheep.berlios.de>
+
+Log Message:
+-----------
+zentrierung bei zeilenumbruch in den messages
+
+Modified Files:
+--------------
+    schafkopf/src:
+        gamecanvas.cpp
+
+-------------- next part --------------
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.32
+retrieving revision 1.33
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.32 -r1.33
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -154,14 +154,14 @@
+         m_stich[i]->move( (int)p.x(), (int)p.y() );
+     }
+ 
+-    m_message->move( ( canvas()->width() - m_message->boundingRect().width() )/2,
+-                   (( canvas()->height() - m_message->boundingRect().height() ) / 2) - m_message->boundingRect().height() );
++    m_message->move( canvas()->width()/2, canvas()->height()/2 );
++    m_message->setTextFlags(Qt::AlignCenter);
+     m_ok->move( ( canvas()->width() - m_ok->boundingRect().width() )/2,
+-                     m_message->y() + m_message->boundingRect().height() );
+-    m_yes->move( m_message->x(), 
+-                 m_message->y() + m_message->boundingRect().height() );
+-    m_no->move( m_message->x() + m_message->boundingRect().width() - m_no->boundingRect().width(), 
+-                m_message->y() + m_message->boundingRect().height() );
++                     m_message->y() + m_message->boundingRect().height()*2/3 );
++    m_yes->move( m_message->x() - m_message->boundingRect().width()/2, 
++                 m_message->y() + m_message->boundingRect().height()*2/3 );
++    m_no->move( m_message->x() + m_message->boundingRect().width()/2 - m_no->boundingRect().width(), 
++                m_message->y() + m_message->boundingRect().height()*2/3 );
+     
+     if(redraw)
+     {
+@@ -398,7 +398,6 @@
+ void GameCanvas::information( const QString & message )
+ {
+     m_message->setText( message );
+-    
+     m_message->show();
+     m_ok->show();
+ 
+
+From schafkopf-devel at berlios.de  Tue Jan  4 21:47:59 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Tue, 4 Jan 2005 21:47:59 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf nach dem zusammen werfen kann das naechste
+Message-ID: <200501042047.j04Klxjx014931@sheep.berlios.de>
+
+Log Message:
+-----------
+nach dem zusammen werfen kann das naechste spiel nun gedoppelt werden.
+
+Modified Files:
+--------------
+    schafkopf/po:
+        de.po
+    schafkopf/src:
+        game.cpp
+        game.h
+        preferencesdlg.cpp
+        results.cpp
+        schafkopf.cpp
+        settings.cpp
+        settings.h
+
+-------------- next part --------------
+Index: de.po
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/po/de.po,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lpo/de.po -Lpo/de.po -u -r1.11 -r1.12
+--- po/de.po
++++ po/de.po
+@@ -212,14 +212,14 @@
+ 
+ #: preferencesdlg.cpp:120
+ msgid "Play Ramsch (not available yet)"
+-msgstr "Einen Ramsch spielen (noch nicht mglich)"
++msgstr "Einen Ramsch spielen (noch nicht m??glich)"
+ 
+ #: preferencesdlg.cpp:121
+ msgid ""
+ "The aim when playing a Ramsch is to make no tricks. The player who made the "
+ "most points is the sole loser."
+ msgstr ""
+-"Das Ziel beim Ramsch ist es mglichst keinen Stich zu machen. Der Spieler mit "
++"Das Ziel beim Ramsch ist es m??glichst keinen Stich zu machen. Der Spieler mit "
+ "den meisten Punkten ist der alleinige Verlierer."
+ 
+ #: preferencesdlg.cpp:123
+@@ -335,6 +335,12 @@
+ #: schafkopf.cpp:256
+ msgid "<qt><b>%1</b> has doubled.</qt>"
+ msgstr "<qt><b>%1</b> hat geklopft.</qt>"
++
++msgid "<qt>Times thrown together: <b>%1</b></qt>"
++msgstr "<qt>Zusammen geworfen: <b>%1 Mal</b></qt>"
++
++msgid "<qt>Game counts <b>%1-fold</b>.</qt>"
++msgstr "<qt>Spiel z??hlt <b>%1-fach</b>.</qt>"
+ 
+ #: selectgamecolorbox.cpp:53 selectgamedlg.cpp:50
+ msgid "Color:"
+Index: schafkopf.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopf.cpp,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -Lsrc/schafkopf.cpp -Lsrc/schafkopf.cpp -u -r1.30 -r1.31
+--- src/schafkopf.cpp
++++ src/schafkopf.cpp
+@@ -243,6 +243,8 @@
+ 
+ void SchafKopf::updateInfo()
+ {
++    int timesDoubled = 0, timesThrownTogether = 0;
++    int valuation;
+     if( m_game->gameInfo()->isValid() )
+         lblCurGame->setText( i18n("<qt>Current Game:<br><b>") + m_game->gameInfo()->toString() + "</b></qt>" );
+     else
+@@ -253,10 +255,22 @@
+     {
+         Player* player = m_game->findIndex( i );
+         if( player->geklopft() )
++        {
+             sDoubled.append( i18n("<qt><b>%1</b> has doubled.</qt>").arg( player->name() ) );
++            timesDoubled++;
++        }
+     }
+-
++    timesThrownTogether = m_game->timesThrownTogether();
++    if(timesThrownTogether>0)
++        sDoubled.append( i18n("<qt>Times thrown together: <b>%1</b></qt>").arg(timesThrownTogether) );
++    valuation=pow(2, timesDoubled);
++    if( Settings::instance()->doubleNextGame() )
++        valuation = valuation * pow(2, timesThrownTogether );
++    sDoubled.append( i18n("<qt>Game counts <b>%1-fold</b>.</qt>").arg(valuation) );
++    
+     lblDoubled->setText( sDoubled );
++    
++    
+ }
+ 
+ void SchafKopf::clearTable()
+Index: settings.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.cpp,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -Lsrc/settings.cpp -Lsrc/settings.cpp -u -r1.12 -r1.13
+--- src/settings.cpp
++++ src/settings.cpp
+@@ -243,4 +243,22 @@
+     return b;
+ }
+ 
++void Settings::setDoubleNextGame( bool b )
++{
++    KConfig* config = kapp->config();
++    config->setGroup("SchafKopf");
++    config->writeEntry( "DoubleNextGame", b );
++    config->sync();
++}
++
++bool Settings::doubleNextGame() const
++{
++    bool b = false;
++    KConfig* config = kapp->config();
++    config->setGroup("SchafKopf");
++    b = config->readBoolEntry( "DoubleNextGame", b );
++    return b;
++}
++
++
+ #include "settings.moc"
+Index: game.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.h,v
+retrieving revision 1.33
+retrieving revision 1.34
+diff -Lsrc/game.h -Lsrc/game.h -u -r1.33 -r1.34
+--- src/game.h
++++ src/game.h
+@@ -57,6 +57,7 @@
+         /** returns how many players have doubled
+           */
+         int timesDoubled();
++        int timesThrownTogether();
+ 
+     signals:        
+         void gameStarted();
+@@ -116,6 +117,7 @@
+         CardList m_currstich;
+         GameInfo m_gameinfo;
+         int m_laufende;
++        int m_timesThrownTogether;
+                 
+         GameCanvas *m_canvas;
+         
+Index: settings.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -Lsrc/settings.h -Lsrc/settings.h -u -r1.9 -r1.10
+--- src/settings.h
++++ src/settings.h
+@@ -81,6 +81,9 @@
+         void setDoublerHasToPlay( bool b );
+         bool doublerHasToPlay() const;
+         
++        void setDoubleNextGame( bool b );
++        bool doubleNextGame() const;
++        
+         void setMoneyResults( const t_ResultValues* r );
+         void setPointResults( const t_ResultValues* r );
+         /** delete after usage
+Index: results.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/results.cpp,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -Lsrc/results.cpp -Lsrc/results.cpp -u -r1.7 -r1.8
+--- src/results.cpp
++++ src/results.cpp
+@@ -45,7 +45,7 @@
+     QString schwarz = m_schwarz ? i18n(" no-trick") : QString::null;
+     
+     if( m_points > 60 )
+-        s = m_gameinfo->spieler()->name() + QString(i18n(" win with %1 Points%2.")).arg( m_points ).arg( schneider + schwarz );
++        s = m_gameinfo->spieler()->name() + QString(i18n(" wins with %1 Points%2.")).arg( m_points ).arg( schneider + schwarz );
+     else
+         s = m_gameinfo->spieler()->name() + QString(i18n(" looses with %1 Points%2.") ).arg( m_points ).arg( schneider + schwarz );
+     
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.65
+retrieving revision 1.66
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.65 -r1.66
+--- src/game.cpp
++++ src/game.cpp
+@@ -43,6 +43,7 @@
+     
+     m_canvas = NULL;
+     m_laufende = 0;
++    m_timesThrownTogether = 0;
+     
+     // Create our player objects
+     // delete these only in the destructor    
+@@ -284,6 +285,7 @@
+         emit playerResult( m_players[i]->name(), r->formatedPoints(m_players[i])  );
+     m_canvas->information( r->result() );
+     delete r;
++    m_timesThrownTogether = 0;
+ }
+ 
+ bool Game::setupGameInfo(Player *players[])
+@@ -380,6 +382,7 @@
+     if( Settings::instance()->noGame() == Settings::NOGAME_NEUGEBEN )
+     {
+         m_canvas->information( i18n("No one wants to play.\nCards will be thrown together.") );
++        m_timesThrownTogether++;
+         m_gameinfo.setValid( false );
+         emit signalSetupGameInfo();
+         return false;
+@@ -409,6 +412,7 @@
+     // reset points (i.e. results) from a previous game
+     for(i=0;i<PLAYERS;i++)
+         m_players[i]->setPoints( 0.0 );    
++    m_timesThrownTogether = 0;
+ }
+ 
+ int Game::timesDoubled()
+@@ -418,8 +422,14 @@
+     for( i=0;i<PLAYERS;i++)
+         if( m_players[i]->geklopft() )
+             d++;
+-            
++    if( Settings::instance()->doubleNextGame() )
++        d = d + m_timesThrownTogether;
+     return d;
++}
++
++int Game::timesThrownTogether()
++{
++    return m_timesThrownTogether;
+ }
+ 
+ void Game::updatePlayerNames()
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.10 -r1.11
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -86,6 +86,8 @@
+     Settings::instance()->setNoGame( m_radioThrowAway->isChecked() ? Settings::NOGAME_NEUGEBEN : Settings::NOGAME_ALTERSPIELT );
+     Settings::instance()->setDoublerHasToPlay( m_checkDoublerPlays->isChecked() );
+     
++    Settings::instance()->setDoubleNextGame( m_checkDoubleNextGame->isChecked() );
++    
+     KDialogBase::accept();
+ }
+ 
+@@ -137,6 +139,8 @@
+         m_radioThrowAway->setChecked( true );
+         
+     m_checkDoublerPlays->setChecked( Settings::instance()->doublerHasToPlay() );
++    
++    m_checkDoubleNextGame->setChecked( Settings::instance()->doubleNextGame() );
+     
+     // connections
+     connect( m_radioThrowAway, SIGNAL( clicked() ), this, SLOT( enableControls() ) );
+
+From schafkopf-devel at berlios.de  Tue Jan  4 22:15:21 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Tue, 4 Jan 2005 22:15:21 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf clear info view correctly and update player
+Message-ID: <200501042115.j04LFLYj016538@sheep.berlios.de>
+
+Log Message:
+-----------
+clear info view correctly and update player names in results view
+
+Modified Files:
+--------------
+    schafkopf/src:
+        game.cpp
+        schafkopf.cpp
+        schafkopf.h
+
+-------------- next part --------------
+Index: schafkopf.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopf.cpp,v
+retrieving revision 1.31
+retrieving revision 1.32
+diff -Lsrc/schafkopf.cpp -Lsrc/schafkopf.cpp -u -r1.31 -r1.32
+--- src/schafkopf.cpp
++++ src/schafkopf.cpp
+@@ -26,6 +26,9 @@
+ #include "newgamewizard.h"
+ #include "preferencesdlg.h"
+ 
++// for pow()
++#include <math.h>
++
+ #include <qfontmetrics.h>
+ #include <qheader.h>
+ #include <qlabel.h>
+@@ -73,7 +76,7 @@
+     m_table->setReadOnly( true );
+     m_table->setNumCols( PLAYERS );
+     m_table->setLeftMargin( 0 );
+-    m_table->setColumnLabels( Settings::instance()->playerNames() );
++    updateTableNames();
+     //QFontMetrics fm( m_table->horizontalHeader()->font() );
+     for( unsigned int i = 0; i < PLAYERS; i++ )
+     {
+@@ -105,7 +108,7 @@
+     connect(m_game,SIGNAL(signalDoubled()),this,SLOT(updateInfo()));
+ 
+     connect(Settings::instance(),SIGNAL(resultsTypeChanged()),this,SLOT(clearTable()));
+-    
++    connect(Settings::instance(),SIGNAL(playerNamesChanged()),this,SLOT(updateTableNames()));
+     QToolTip::add
+         ( btnLastTrick, i18n("Show the last trick that was made.") );
+ 
+@@ -185,7 +188,6 @@
+ 
+     }
+ 
+-
+     delete ng;
+ }
+ 
+@@ -196,7 +198,7 @@
+     // entering the game loop is the last thing
+     // we want to do!
+     m_game->gameLoop();
+-    endGame();
++    endGame();    
+ }
+ 
+ void SchafKopf::endGame()
+@@ -205,6 +207,7 @@
+ 
+     m_game->endGame();
+     clearTable();
++    updateInfo();
+ }
+ 
+ void SchafKopf::showStich()
+@@ -245,11 +248,16 @@
+ {
+     int timesDoubled = 0, timesThrownTogether = 0;
+     int valuation;
+-    if( m_game->gameInfo()->isValid() )
++    
++    if( !m_game->isTerminated() && m_game->gameInfo()->isValid() )
+         lblCurGame->setText( i18n("<qt>Current Game:<br><b>") + m_game->gameInfo()->toString() + "</b></qt>" );
+     else
++    {
+         lblCurGame->setText( QString::null );
+-
++        lblDoubled->setText( QString::null );
++        return;
++    }
++    
+     QString sDoubled;
+     for(unsigned int i=0;i<PLAYERS;i++)
+     {
+@@ -269,8 +277,6 @@
+     sDoubled.append( i18n("<qt>Game counts <b>%1-fold</b>.</qt>").arg(valuation) );
+     
+     lblDoubled->setText( sDoubled );
+-    
+-    
+ }
+ 
+ void SchafKopf::clearTable()
+@@ -290,6 +296,11 @@
+     {
+     
+     }
++}
++
++void SchafKopf::updateTableNames()
++{
++    m_table->setColumnLabels( Settings::instance()->playerNames() );
+ }
+ 
+ #include "schafkopf.moc"
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.66
+retrieving revision 1.67
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.66 -r1.67
+--- src/game.cpp
++++ src/game.cpp
+@@ -286,6 +286,10 @@
+     m_canvas->information( r->result() );
+     delete r;
+     m_timesThrownTogether = 0;
++    
++    // the game is over, so the GameInfo structure is not
++    // valid. Results in a cleared updateInfo() field in the UI
++    gameInfo()->setValid( false );
+ }
+ 
+ bool Game::setupGameInfo(Player *players[])
+Index: schafkopf.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopf.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -Lsrc/schafkopf.h -Lsrc/schafkopf.h -u -r1.9 -r1.10
+--- src/schafkopf.h
++++ src/schafkopf.h
+@@ -86,6 +86,11 @@
+         /** remove all items from the table displaying the results
+           */
+         void clearTable();
++        
++        /** update table headings when the user changes the player names
++          * in the preferences
++          */
++        void updateTableNames();
+     private:
+         void setupActions();
+         
+
+From schafkopf-devel at berlios.de  Tue Jan  4 22:19:54 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Tue, 4 Jan 2005 22:19:54 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf fixed translators
+Message-ID: <200501042119.j04LJsRA016862@sheep.berlios.de>
+
+Log Message:
+-----------
+fixed translators
+
+Modified Files:
+--------------
+    schafkopf/po:
+        de.po
+
+-------------- next part --------------
+Index: de.po
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/po/de.po,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -Lpo/de.po -Lpo/de.po -u -r1.12 -r1.13
+--- po/de.po
++++ po/de.po
+@@ -1,3 +1,33 @@
++# translation of de.po to Deutsch
++# translation of de.po to
++# translation of de.po to
++# German Translation of SchafKopf
++# Copyright (C) 2003 Free Software Foundation, Inc.
++# DOMINIK SEICHTER <domseichter at web.de>, 2004,2005.
++msgid ""
++msgstr ""
++"Project-Id-Version: de\n"
++"POT-Creation-Date: 2003-11-02 12:43+0100\n"
++"PO-Revision-Date: 2003-11-02 12:48+0100\n"
++"Last-Translator: Dominik Seichter <domseichter at web.de>\n"
++"Language-Team: Deutsch <de at li.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=UTF-8\n"
++"Content-Transfer-Encoding: 8bit\n"
++"X-Generator: KBabel 1.0.2\n"
++
++#: _translatorinfo.cpp:1
++msgid ""
++"_: NAME OF TRANSLATORS\n"
++"Your names"
++msgstr "Dominik Seichter\nBenjamin L??we"
++
++#: _translatorinfo.cpp:3
++msgid ""
++"_: EMAIL OF TRANSLATORS\n"
++"Your emails"
++msgstr "domseichter at web.de\nbenjamin.loewe at web.de"
++
+ #: canvascard.moc.cpp:34 canvascard.moc.cpp:42
+ msgid "CanvasCard"
+ msgstr ""
+@@ -483,42 +513,6 @@
+ #: stichdlg.cpp:67
+ msgid "No trick was made."
+ msgstr "Kein Stich wurde bis jetzt gemacht."
+-
+-# translation of de.po to 
+-# , 2004.
+-#: _translatorinfo.cpp:1
+-#, fuzzy
+-msgid ""
+-"_: NAME OF TRANSLATORS\n"
+-"Your names"
+-msgstr ""
+-"domseichter at web.de\n"
+-"Last-Translator: \n"
+-"PO-Revision-Date: 2004-12-13 23:59+0100\n"
+-"Project-Id-Version: de\n"
+-"Language-Team:  <de at li.org>\n"
+-"Content-Type: text/plain; charset=UTF-8\n"
+-"Content-Transfer-Encoding: 8bit\n"
+-"X-Generator: KBabel 1.9\n"
+-"MIME-Version: 1.0\n"
+-
+-# translation of de.po to 
+-# , 2004.
+-#: _translatorinfo.cpp:3
+-#, fuzzy
+-msgid ""
+-"_: EMAIL OF TRANSLATORS\n"
+-"Your emails"
+-msgstr ""
+-"domseichter at web.de\n"
+-"Last-Translator: \n"
+-"PO-Revision-Date: 2004-12-13 23:59+0100\n"
+-"Project-Id-Version: de\n"
+-"Language-Team:  <de at li.org>\n"
+-"Content-Type: text/plain; charset=UTF-8\n"
+-"Content-Transfer-Encoding: 8bit\n"
+-"X-Generator: KBabel 1.9\n"
+-"MIME-Version: 1.0\n"
+ 
+ #~ msgid "Select Type:"
+ #~ msgstr "Typ Auswhlen:"
+
+From schafkopf-devel at berlios.de  Tue Jan  4 22:23:55 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Tue, 4 Jan 2005 22:23:55 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf about dialog fixes
+Message-ID: <200501042123.j04LNtkA017186@sheep.berlios.de>
+
+Log Message:
+-----------
+about dialog fixes
+
+Modified Files:
+--------------
+    schafkopf/src:
+        main.cpp
+
+-------------- next part --------------
+Index: main.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/main.cpp,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -Lsrc/main.cpp -Lsrc/main.cpp -u -r1.6 -r1.7
+--- src/main.cpp
++++ src/main.cpp
+@@ -26,9 +26,10 @@
+ #include <klocale.h>
+ 
+ static const char description[] =
+-    I18N_NOOP("Schafkopf is a popular card game in Bavaria.");
++    I18N_NOOP("<qt>Schafkopf is a popular card game in Bavaria. "
++              "SchafKopf ist the KDE version of this game.</qt>");
+ 
+-static const char version[] = "0.4";
++static const char version[] = "0.5";
+ 
+ static KCmdLineOptions options[] =
+ {
+@@ -37,12 +38,13 @@
+ 
+ int main(int argc, char **argv)
+ {
++    // if you want copyright, then add you to the list:
+     KAboutData about("schafkopf", I18N_NOOP("SchafKopf"), version, description,
+-                     KAboutData::License_GPL, "(C) 2004 Dominik Seichter", 0, 0, "domseichter at web.de");
++                     KAboutData::License_GPL, "(C) 2004-2005 Dominik Seichter (and others)", 0, 0, "domseichter at web.de");
+     about.addAuthor( "Christian Kern", 0, "kernch at in.tum.de" );	
+     about.addAuthor( "Lorenz Moesenlechner", 0, "moesenle at in.tum.de" );
+-    about.addAuthor( "Dominik Seichter", 0, "domseichter at web.de", "http://www.krename.net" );
+     about.addAuthor( "Benjamin Loewe", 0, "benjamin.loewe at freenet.de" );
++    about.addAuthor( "Dominik Seichter", 0, "domseichter at web.de", "http://www.krename.net" );
+ 
+     KCmdLineArgs::init(argc, argv, &about);
+     KCmdLineArgs::addCmdLineOptions( options );
+
+From schafkopf-devel at berlios.de  Tue Jan  4 22:24:47 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Tue, 4 Jan 2005 22:24:47 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf 0.5
+Message-ID: <200501042124.j04LOlov017306@sheep.berlios.de>
+
+Log Message:
+-----------
+0.5
+
+Modified Files:
+--------------
+    schafkopf:
+        configure.in.in
+
+-------------- next part --------------
+Index: configure.in.in
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/configure.in.in,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -Lconfigure.in.in -Lconfigure.in.in -u -r1.5 -r1.6
+--- configure.in.in
++++ configure.in.in
+@@ -1,6 +1,6 @@
+ #MIN_CONFIG(3.0.0)
+ 
+-AM_INIT_AUTOMAKE(schafkopf, 0.4)
++AM_INIT_AUTOMAKE(schafkopf, 0.5)
+ AC_C_BIGENDIAN
+ AC_CHECK_KDEMAXPATHLEN
+ 
+
+From schafkopf-devel at berlios.de  Tue Jan  4 22:32:29 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Tue, 4 Jan 2005 22:32:29 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf meine email-adr geaendert - hi lenz viel spam
+Message-ID: <200501042132.j04LWTuq017692@sheep.berlios.de>
+
+Log Message:
+-----------
+meine email-adr geaendert - hi lenz viel spam heute gell :D
+
+Modified Files:
+--------------
+    schafkopf/po:
+        de.po
+
+-------------- next part --------------
+Index: de.po
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/po/de.po,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -Lpo/de.po -Lpo/de.po -u -r1.13 -r1.14
+--- po/de.po
++++ po/de.po
+@@ -26,7 +26,7 @@
+ msgid ""
+ "_: EMAIL OF TRANSLATORS\n"
+ "Your emails"
+-msgstr "domseichter at web.de\nbenjamin.loewe at web.de"
++msgstr "domseichter at web.de\nbenjamin.loewe at freenet.de"
+ 
+ #: canvascard.moc.cpp:34 canvascard.moc.cpp:42
+ msgid "CanvasCard"
+
+From schafkopf-devel at berlios.de  Tue Jan  4 22:33:30 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Tue, 4 Jan 2005 22:33:30 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf go into games instead of utilities and stop
+Message-ID: <200501042133.j04LXUHG017748@sheep.berlios.de>
+
+Log Message:
+-----------
+go into games instead of utilities and stop stealing makefiles by krename....
+
+Modified Files:
+--------------
+    schafkopf/src:
+        Makefile.am
+
+-------------- next part --------------
+Index: Makefile.am
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/Makefile.am,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -Lsrc/Makefile.am -Lsrc/Makefile.am -u -r1.15 -r1.16
+--- src/Makefile.am
++++ src/Makefile.am
+@@ -33,7 +33,7 @@
+ schafkopf_LDADD = -lkdegames $(LIB_KDEUI)
+ 
+ # this is where the desktop file will go 
+-shelldesktopdir   = $(kde_appsdir)/Utilities
++shelldesktopdir   = $(kde_appsdir)/Games/
+ shelldesktop_DATA = schafkopf.desktop
+ 
+ # this is where the shell's XML-GUI resource file goes
+
+From domseichter at web.de  Tue Jan  4 22:52:28 2005
+From: domseichter at web.de (Dominik Seichter)
+Date: Tue, 4 Jan 2005 22:52:28 +0100
+Subject: [Schafkopf-devel] SchafKopf 0.5 released
+Message-ID: <200501042252.28739.domseichter@web.de>
+
+Hi,
+
+The SchafKopf team is very proud to anounce the 0.5 release of SchafKopf which 
+marks a great step forward. 
+
+Schafkopf is a popular Bavarian card game and SchafKopf is a KDE 
+implementation of it. This release features countless improvements, among 
+them: A German translation, a preferences dialog with many settings, improved 
+AI and of course many many bug fixes and new features. See for yourself. 
+
+Get the newes release from our download section 
+(http://schafkopf.berlios.de/12.0.html). 
+
+Please feel also free to post your feedback to our 
+forum(http://www.kbarcode.net/forum) or to our mailinglist(you should know 
+this address if you are reading this mail).
+
+CU Dom
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+KDE Mass Mailer - http://www.kmassmailer.net - Mass mailing for KDE
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+**********************************************************************
+
+
+From schafkopf-devel at berlios.de  Wed Jan  5 04:07:55 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Wed, 5 Jan 2005 04:07:55 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf uebersetzung und andere kleinigkeiten
+Message-ID: <200501050307.j0537tB4021390@sheep.berlios.de>
+
+Log Message:
+-----------
+uebersetzung und andere kleinigkeiten
+
+Modified Files:
+--------------
+    schafkopf/po:
+        de.po
+    schafkopf/src:
+        game.cpp
+
+-------------- next part --------------
+Index: de.po
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/po/de.po,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -Lpo/de.po -Lpo/de.po -u -r1.14 -r1.15
+--- po/de.po
++++ po/de.po
+@@ -28,18 +28,8 @@
+ "Your emails"
+ msgstr "domseichter at web.de\nbenjamin.loewe at freenet.de"
+ 
+-#: canvascard.moc.cpp:34 canvascard.moc.cpp:42
+-msgid "CanvasCard"
+-msgstr ""
+-
+-#: card.moc.cpp:34 card.moc.cpp:42
+-msgid "Card"
+-msgstr ""
+-
+-#: computerplayer.moc.cpp:34 computerplayer.moc.cpp:42
+-#, fuzzy
+-msgid "ComputerPlayer"
+-msgstr "Computerspieler"
++msgid "<qt>Schafkopf is a popular card game in Bavaria. SchafKopf ist the KDE version of this game.</qt>"
++msgstr "<qt>Schafkopf ist ein beliebtes Kartenspiel in Bayern. SchafKopf ist die KDE-Version dieses Spiels.</qt>"
+ 
+ #: game.cpp:124
+ msgid "%1 has doubled."
+@@ -292,7 +282,7 @@
+ 
+ #: preferencesdlg.cpp:160
+ msgid "Configure Money Values"
+-msgstr "Geldbetrge festlegen"
++msgstr "Geldbetr??ge festlegen"
+ 
+ #: preferencesdlg.cpp:168 preferencesdlg.cpp:205
+ msgid "Callgame:"
+@@ -508,26 +498,8 @@
+ 
+ #: stichdlg.cpp:65
+ msgid "Trick was made by: <b>"
+-msgstr "Stich gehrt: <b>"
++msgstr "Stich geh??rt: <b>"
+ 
+ #: stichdlg.cpp:67
+ msgid "No trick was made."
+-msgstr "Kein Stich wurde bis jetzt gemacht."
+-
+-#~ msgid "Select Type:"
+-#~ msgstr "Typ Auswhlen:"
+-
+-#~ msgid "Play a Callgame"
+-#~ msgstr "Ein Rufspiel spielen"
+-
+-#~ msgid "Play a Solo"
+-#~ msgstr "Ein Solo spielen"
+-
+-#~ msgid "Play a Geier"
+-#~ msgstr "Einen Geier spielen"
+-
+-#~ msgid "Play a Wenz"
+-#~ msgstr "Einen Wenz spielen"
+-
+-#~ msgid "Play a Dachs"
+-#~ msgstr "Einen Dachs spielen"
++msgstr "Bis jetzt wurde kein Stich gemacht."
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.67
+retrieving revision 1.68
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.67 -r1.68
+--- src/game.cpp
++++ src/game.cpp
+@@ -117,9 +117,9 @@
+         start();
+         
+ 		for(i=0;i<PLAYERS;i++)
+-    	{
++		{
+ 	        tmp[i]->klopfen();
+-    	    tmp[i]->sortCards();
++	        tmp[i]->sortCards();
+         	if( tmp[i]->geklopft() && tmp[i]->rtti() != Player::HUMAN ) 
+         	{
+             	m_canvas->information( i18n("%1 has doubled.").arg( tmp[i]->name() ) );
+@@ -141,7 +141,7 @@
+ 			tmp[i]->init();
+ 		}
+     	m_canvas->redrawPlayers();
+-    
++
+     	for(i=0;i<TURNS ;i++)
+ 	    {
+     	    m_currstich.clear();
+
+From schafkopf-devel at berlios.de  Wed Jan  5 14:30:12 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Wed, 5 Jan 2005 14:30:12 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf restliche karten werden nach jedem stich neu
+Message-ID: <200501051330.j05DUCX7029678@sheep.berlios.de>
+
+Log Message:
+-----------
+restliche karten werden nach jedem stich neu angeordnet
+
+Modified Files:
+--------------
+    schafkopf/src:
+        canvasplayer.cpp
+        gamecanvas.cpp
+
+-------------- next part --------------
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.33
+retrieving revision 1.34
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.33 -r1.34
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -269,6 +269,7 @@
+     if( card )
+     {
+         m_players[player]->cardPlayed( card->card() );
++	m_players[player]->position( player );
+   
+         CanvasCard* stich = m_stich[player];
+         stich->setCard( card->card() );
+Index: canvasplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.cpp,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -Lsrc/canvasplayer.cpp -Lsrc/canvasplayer.cpp -u -r1.18 -r1.19
+--- src/canvasplayer.cpp
++++ src/canvasplayer.cpp
+@@ -75,14 +75,21 @@
+ void CanvasPlayer::position( int i )
+ {
+     int x = 0, y = 0;
+-    int num=NUMCARDS;
++    int num = 0;
+     int w = m_canvas->width();//-DIST;
+     int h = m_canvas->height();//-DIST;
+     int offsetl = 0; //Hiermit kann man am linken Rand Platz schaffen fr z.B. ein Bild des Spielers (fr Netzwerkmodus).
+     int availw = m_canvas->width() - 2*DIST - offsetl;
+     int cardw = Card::backgroundPixmap()->width();
+     int cardh = Card::backgroundPixmap()->height();
+-        
++    
++    for( unsigned int z = 0; z < NUMCARDS; z++ )
++    {
++    	CanvasCard* card = m_items[z];
++        if(card->isVisible())
++		num++;
++    }
++    
+     if(i==1||i==3)
+         qSwap( cardw, cardh );
+         
+@@ -121,9 +128,11 @@
+     for( unsigned int z = 0; z < NUMCARDS; z++ ) {
+         CanvasCard* card = m_items[z];
+         // only move if necessary!
+-        if( x != card->x() || y != card->y() )
++        if(card->isVisible())
++	{
++	if( x != card->x() || y != card->y() )
+             card->move( x, y );
+-                
++         
+         if(i==0)
+ 	    if(availw>num*cardw+(num-1))
+             	x += cardw+1;
+@@ -132,7 +141,8 @@
+         else if(i==2)
+             x += (cardw/6);
+         else
+-            y += (cardh/6);            
++            y += (cardh/6);
++	}
+     }
+         
+     // swap them back
+
+From schafkopf-devel at berlios.de  Thu Jan  6 01:07:07 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Thu, 6 Jan 2005 01:07:07 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das
+Message-ID: <200501060007.j06077jZ011425@sheep.berlios.de>
+
+Log Message:
+-----------
+auf allgemeinen wunsch laesst sich das neuanordnen der karten nach jedem stich unter einstellungen->anzeige abschalten
+
+Modified Files:
+--------------
+    schafkopf/po:
+        de.po
+    schafkopf/src:
+        gamecanvas.cpp
+        preferencesdlg.cpp
+        preferencesdlg.h
+        settings.cpp
+        settings.h
+
+-------------- next part --------------
+Index: de.po
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/po/de.po,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -Lpo/de.po -Lpo/de.po -u -r1.15 -r1.16
+--- po/de.po
++++ po/de.po
+@@ -308,6 +308,18 @@
+ msgid "Configure Point Values"
+ msgstr "Punkte festlegen"
+ 
++msgid "View"
++msgstr "Anzeige"
++
++msgid "Card Arrangement:"
++msgstr "Kartendarstellung:"
++
++msgid "Rearrange cards after each trick."
++msgstr "Karten nach jedem Stich neu anordnen."
++
++msgid "Cards will be rearranged after each trick."
++msgstr "Die Karten werden nach jedem Stich neu angeordnet."
++
+ #: results.cpp:44
+ msgid " schneider"
+ msgstr " Schneider"
+Index: settings.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.cpp,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -Lsrc/settings.cpp -Lsrc/settings.cpp -u -r1.13 -r1.14
+--- src/settings.cpp
++++ src/settings.cpp
+@@ -236,7 +236,7 @@
+ 
+ bool Settings::doublerHasToPlay() const
+ {
+-    bool b = false;
++    bool b = true;
+     KConfig* config = kapp->config();
+     config->setGroup("SchafKopf");
+     b = config->readBoolEntry( "DoublerHasToPlay", b );
+@@ -253,12 +253,28 @@
+ 
+ bool Settings::doubleNextGame() const
+ {
+-    bool b = false;
++    bool b = true;
+     KConfig* config = kapp->config();
+     config->setGroup("SchafKopf");
+     b = config->readBoolEntry( "DoubleNextGame", b );
+     return b;
+ }
+ 
++void Settings::setRearrangeCards( bool b)
++{
++    KConfig* config = kapp->config();
++    config->setGroup("SchafKopf");
++    config->writeEntry( "RearrangeCards", b );
++    config->sync();
++}
++
++bool Settings::rearrangeCards() const
++{
++    bool b = true;
++    KConfig* config = kapp->config();
++    config->setGroup("SchafKopf");
++    b = config->readBoolEntry( "RearrangeCards", b );
++    return b;
++}
+ 
+ #include "settings.moc"
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.34
+retrieving revision 1.35
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.34 -r1.35
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -269,7 +269,8 @@
+     if( card )
+     {
+         m_players[player]->cardPlayed( card->card() );
+-	m_players[player]->position( player );
++	if(Settings::instance()->rearrangeCards())
++		m_players[player]->position( player );
+   
+         CanvasCard* stich = m_stich[player];
+         stich->setCard( card->card() );
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.11 -r1.12
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -47,6 +47,7 @@
+     addPageResults();
+     addPageResultsMoney();
+     addPageResultsPoints();
++    addPageView();
+     
+     enableControls();
+ }
+@@ -88,6 +89,8 @@
+     
+     Settings::instance()->setDoubleNextGame( m_checkDoubleNextGame->isChecked() );
+     
++    Settings::instance()->setRearrangeCards( m_checkRearrangeCards->isChecked() );
++    
+     KDialogBase::accept();
+ }
+ 
+@@ -247,6 +250,23 @@
+     layout->addItem( spacer );
+     
+     delete r;
++}
++
++void PreferencesDlg::addPageView()
++{
++    QFrame* box = addPage( i18n("View"), QString::null, BarIcon("") );
++    QVBoxLayout* layout = new QVBoxLayout( box, 6, 6  );
++    QSpacerItem* spacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding );
++    
++    QVButtonGroup* group = new QVButtonGroup( i18n("Card Arrangement:"), box, "group" );
++    m_checkRearrangeCards = new QCheckBox ( i18n("Rearrange cards after each trick."), group );
++    QToolTip::add( m_checkRearrangeCards, i18n("Cards will be rearranged after each trick.") );
++ 
++    layout->addWidget( group );
++    layout->addItem( spacer );
++    
++    // load data from configuration
++    m_checkRearrangeCards->setChecked( Settings::instance()->rearrangeCards() );
+ }
+ 
+ void PreferencesDlg::enableControls()
+Index: settings.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -Lsrc/settings.h -Lsrc/settings.h -u -r1.10 -r1.11
+--- src/settings.h
++++ src/settings.h
+@@ -86,6 +86,10 @@
+         
+         void setMoneyResults( const t_ResultValues* r );
+         void setPointResults( const t_ResultValues* r );
++
++        void setRearrangeCards( bool b);
++        bool rearrangeCards() const;
++
+         /** delete after usage
+           */
+         t_ResultValues* moneyResults() const;
+Index: preferencesdlg.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -Lsrc/preferencesdlg.h -Lsrc/preferencesdlg.h -u -r1.9 -r1.10
+--- src/preferencesdlg.h
++++ src/preferencesdlg.h
+@@ -54,6 +54,8 @@
+         void addPageResultsMoney();
+         void addPageResultsPoints();
+         void addPageRules();
++        void addPageView();
++
+         
+     private:
+         QRadioButton* m_radioMoney;
+@@ -63,7 +65,8 @@
+         QRadioButton* m_radioRamsch;
+         
+         QCheckBox* m_checkDoublerPlays;
+-        QCheckBox* m_checkDoubleNextGame; 
++        QCheckBox* m_checkDoubleNextGame;
++        QCheckBox* m_checkRearrangeCards;
+ 
+         KLineEdit* m_p1_name;
+         KLineEdit* m_p2_name;
+
+From domseichter at web.de  Thu Jan  6 12:02:47 2005
+From: domseichter at web.de (Dominik Seichter)
+Date: Thu, 6 Jan 2005 12:02:47 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das
+In-Reply-To: <200501060007.j06077jZ011425@sheep.berlios.de>
+References: <200501060007.j06077jZ011425@sheep.berlios.de>
+Message-ID: <200501061202.47193.domseichter@web.de>
+
+ bool Settings::doublerHasToPlay() const
+ {
+-    bool b = false;
++    bool b = true;
+     KConfig* config = kapp->config(); 
+     config->setGroup("SchafKopf");
+     b = config->readBoolEntry( "DoublerHasToPlay", b );
+@@ -253,12 +253,28 @@
+ 
+ bool Settings::doubleNextGame() const
+ {
+-    bool b = false;
++    bool b = true;
+     KConfig* config = kapp->config();
+     config->setGroup("SchafKopf");
+     b = config->readBoolEntry( "DoubleNextGame", b );
+     return b;
+ }
+
+Hmmm, ist das ein gutes DefaultSetting? Im 2. Fall ist es denke ich Ok, das 
+wir nach dem zusammen schmeissen doppeln. Aber ich weiss nicht ob das im 
+ersten Fall so gut ist (vor allem da ich privat immer ohne diese Regel 
+gespielt habe wenn ich mich recht errinnere). Was meint der Rest?
+
+CU Dom
+
+Am Thursday, 6. January 2005 01:07 schrieb schafkopf-devel at berlios.de:
+> Log Message:
+> -----------
+> auf allgemeinen wunsch laesst sich das neuanordnen der karten nach jedem
+> stich unter einstellungen->anzeige abschalten
+>
+> Modified Files:
+> --------------
+>     schafkopf/po:
+>         de.po
+>     schafkopf/src:
+>         gamecanvas.cpp
+>         preferencesdlg.cpp
+>         preferencesdlg.h
+>         settings.cpp
+>         settings.h
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+KDE Mass Mailer - http://www.kmassmailer.net - Mass mailing for KDE
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+**********************************************************************
+
+
+From moesenle at in.tum.de  Thu Jan  6 15:32:48 2005
+From: moesenle at in.tum.de (=?ISO-8859-1?Q?Lorenz_M=F6senlechner?=)
+Date: Thu, 06 Jan 2005 15:32:48 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch
+ laesst sich das
+In-Reply-To: <200501061202.47193.domseichter@web.de>
+References: <200501060007.j06077jZ011425@sheep.berlios.de> <200501061202.47193.domseichter@web.de>
+Message-ID: <41DD4C10.7030201@in.tum.de>
+
+Dominik Seichter wrote:
+>  bool Settings::doublerHasToPlay() const
+>  {
+> -    bool b = false;
+> +    bool b = true;
+>      KConfig* config = kapp->config(); 
+>      config->setGroup("SchafKopf");
+>      b = config->readBoolEntry( "DoublerHasToPlay", b );
+> @@ -253,12 +253,28 @@
+>  
+>  bool Settings::doubleNextGame() const
+>  {
+> -    bool b = false;
+> +    bool b = true;
+>      KConfig* config = kapp->config();
+>      config->setGroup("SchafKopf");
+>      b = config->readBoolEntry( "DoubleNextGame", b );
+>      return b;
+>  }
+> 
+> Hmmm, ist das ein gutes DefaultSetting? Im 2. Fall ist es denke ich Ok, das 
+> wir nach dem zusammen schmeissen doppeln. Aber ich weiss nicht ob das im 
+> ersten Fall so gut ist (vor allem da ich privat immer ohne diese Regel 
+> gespielt habe wenn ich mich recht errinnere). Was meint der Rest?
+> 
+> CU Dom
+> 
+> Am Thursday, 6. January 2005 01:07 schrieb schafkopf-devel at berlios.de:
+> 
+>>Log Message:
+>>-----------
+>>auf allgemeinen wunsch laesst sich das neuanordnen der karten nach jedem
+>>stich unter einstellungen->anzeige abschalten
+>>
+>>Modified Files:
+>>--------------
+>>    schafkopf/po:
+>>        de.po
+>>    schafkopf/src:
+>>        gamecanvas.cpp
+>>        preferencesdlg.cpp
+>>        preferencesdlg.h
+>>        settings.cpp
+>>        settings.h
+> 
+> 
+Ich w?rds so lassen. Wir habens immer so gespielt. Aber die 
+default-settings sind ja eigentlich sowieso egal, weil einstellbar ;)
+
+Gruss Lenz
+
+
+From domseichter at web.de  Thu Jan  6 15:47:44 2005
+From: domseichter at web.de (Dominik Seichter)
+Date: Thu, 6 Jan 2005 15:47:44 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das
+In-Reply-To: <41DD4C10.7030201@in.tum.de>
+References: <200501060007.j06077jZ011425@sheep.berlios.de> <200501061202.47193.domseichter@web.de> <41DD4C10.7030201@in.tum.de>
+Message-ID: <200501061547.45170.domseichter@web.de>
+
+Am Thursday, 6. January 2005 15:32 schrieb Lorenz M?senlechner:
+> Dominik Seichter wrote:
+> >  bool Settings::doublerHasToPlay() const
+> >  {
+> > -    bool b = false;
+> > +    bool b = true;
+> >      KConfig* config = kapp->config();
+> >      config->setGroup("SchafKopf");
+> >      b = config->readBoolEntry( "DoublerHasToPlay", b );
+> > @@ -253,12 +253,28 @@
+> >
+> >  bool Settings::doubleNextGame() const
+> >  {
+> > -    bool b = false;
+> > +    bool b = true;
+> >      KConfig* config = kapp->config();
+> >      config->setGroup("SchafKopf");
+> >      b = config->readBoolEntry( "DoubleNextGame", b );
+> >      return b;
+> >  }
+> >
+> > Hmmm, ist das ein gutes DefaultSetting? Im 2. Fall ist es denke ich Ok,
+> > das wir nach dem zusammen schmeissen doppeln. Aber ich weiss nicht ob das
+> > im ersten Fall so gut ist (vor allem da ich privat immer ohne diese Regel
+> > gespielt habe wenn ich mich recht errinnere). Was meint der Rest?
+> >
+> > CU Dom
+> >
+> > Am Thursday, 6. January 2005 01:07 schrieb schafkopf-devel at berlios.de:
+> >>Log Message:
+> >>-----------
+> >>auf allgemeinen wunsch laesst sich das neuanordnen der karten nach jedem
+> >>stich unter einstellungen->anzeige abschalten
+> >>
+> >>Modified Files:
+> >>--------------
+> >>    schafkopf/po:
+> >>        de.po
+> >>    schafkopf/src:
+> >>        gamecanvas.cpp
+> >>        preferencesdlg.cpp
+> >>        preferencesdlg.h
+> >>        settings.cpp
+> >>        settings.h
+>
+> Ich w?rds so lassen. Wir habens immer so gespielt. Aber die
+> default-settings sind ja eigentlich sowieso egal, weil einstellbar ;)
+Ok, dann bin ich in diesen Fall ?berstimmt. Trotzdem sind die Default settings 
+nicht egal und sollten Optimal sein, da sie f?r 90% der User nicht 
+einstellbar sind, da 90% zu bl?d sind einen Settings Dialog zu finden oder 
+gar zu suchen :).
+
+CU Dom
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+KDE Mass Mailer - http://www.kmassmailer.net - Mass mailing for KDE
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+**********************************************************************
+
+
+From domseichter at web.de  Thu Jan  6 15:58:35 2005
+From: domseichter at web.de (Dominik Seichter)
+Date: Thu, 6 Jan 2005 15:58:35 +0100
+Subject: [Schafkopf-devel] Schafkopf 0.5 ebuild
+Message-ID: <200501061558.35223.domseichter@web.de>
+
+Hab ein ebuild gemacht. M?sste auch so alleine funktionieren.
+
+CU Dom
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+KDE Mass Mailer - http://www.kmassmailer.net - Mass mailing for KDE
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+**********************************************************************
+-------------- next part --------------
+# Copyright 1999-2005 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+# we are a kde-ebuild
+inherit kde
+need-kde 3
+
+DESCRIPTION="SchafKopf is a KDE version of a popular Bavarian card game."
+SRC_URI="http://download.berlios.de/schafkopf/schafkopf-${PV}.tar.gz"
+HOMEPAGE="http://schafkopf.berlios.de"
+
+# we need kdegames
+DEPEND=">=kde-base/kdegames-3.2.0"
+RDEPEND=">=kde-base/kdegames-3.2.0"
+
+# kde is required ofcourse
+IUSE="X kde"
+
+# only install one instance of SchafKopf
+SLOT=0
+LICENSE=GPL-2
+
+# we develop on amd64 and x86 so both can be considered stable
+KEYWORDS="amd64 x86" 
+
+src_compile() {
+        PREFIX="`kde-config --prefix`"
+        kde_src_compile configure make || die
+}
+
+From kernch at in.tum.de  Fri Jan  7 13:07:03 2005
+From: kernch at in.tum.de (Kern Christian)
+Date: Fri, 7 Jan 2005 13:07:03 +0100
+Subject: [Schafkopf-devel] Schafkopf 0.5 ebuild
+In-Reply-To: <200501061558.35223.domseichter@web.de>
+References: <200501061558.35223.domseichter@web.de>
+Message-ID: <200501071307.05996.kernch@in.tum.de>
+
+Saustark! :)
+
+Am Donnerstag, 6. Januar 2005 15:58 schrieb Dominik Seichter:
+> Hab ein ebuild gemacht. M?sste auch so alleine funktionieren.
+>
+> CU Dom
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20050107/3884fbdf/attachment.pgp>
+
+From schafkopf-devel at berlios.de  Fri Jan  7 20:45:44 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Fri, 7 Jan 2005 20:45:44 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf Ich wollte das gar nicht programmieren! Erlich
+Message-ID: <200501071945.j07Jji1U024345@sheep.berlios.de>
+
+Log Message:
+-----------
+Ich wollte das gar nicht programmieren! Erlich nicht! Ich muss ja lernen.....
+Aber das war reiner selbst schutz - sonst h?tte mich eine theologie studentin tot geredet im zug. Also musste ich arbeiten....
+
+Man kann jetzt konfigurieren welche spiele gespielt werden d?rfen. Die einstellung wird im Spiel aber noch nicht benutzt. Das kommt sp?ter.
+
+Modified Files:
+--------------
+    schafkopf/src:
+        preferencesdlg.cpp
+        preferencesdlg.h
+        settings.cpp
+        settings.h
+
+-------------- next part --------------
+Index: settings.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.h,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lsrc/settings.h -Lsrc/settings.h -u -r1.11 -r1.12
+--- src/settings.h
++++ src/settings.h
+@@ -33,8 +33,20 @@
+     double schneider;
+ };
+ 
+-/* 
++/** a datatype defining which games are allowed to be 
++  * played in this game according to the users preferences
++  */
++struct t_AllowedGames {
++    bool wenz;
++    bool farb_wenz;
++    
++    bool geier;
++    bool farb_geier;
++    
++    bool dachs;
++};
+ 
++/* 
+ // Use as soon as the avatar is implemented
+ struct t_Players {
+     QString name;
+@@ -96,6 +108,11 @@
+         /** delete after usage
+           */
+         t_ResultValues* pointResults() const;
++
++        /** delete after usage
++          */
++        t_AllowedGames* allowedGames() const;
++        void setAllowedGames( const t_AllowedGames* allowed );
+         
+     signals:
+         void cardChanged();
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.12 -r1.13
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -41,7 +41,7 @@
+       KDialogBase::Ok, parent, name, true, true )
+ {
+     addPagePlayer();
+-    // addPageGame(); // erlaubte spiele
++    addPageGames(); // erlaubte spiele
+     // addPageSchafkopf(); // ton an aus .....
+     addPageRules();
+     addPageResults();
+@@ -60,36 +60,46 @@
+ void PreferencesDlg::accept()
+ {
+     t_ResultValues r;
++    t_AllowedGames allowed;
++    Settings* s = Settings::instance();
+     
+-    Settings::instance()->setResultsType( m_radioMoney->isChecked() ? Settings::MONEY: Settings::POINTS );
++    s->setResultsType( m_radioMoney->isChecked() ? Settings::MONEY: Settings::POINTS );
+     
+     r.rufspiel = m_money_call->value();
+     r.solo = m_money_solo->value();
+     r.laufende = m_money_lauf->value();
+     r.schneider = m_money_schneider->value();
+     r.schwarz = m_money_notrick->value();
+-    Settings::instance()->setMoneyResults( &r );
++    s->setMoneyResults( &r );
+     
+     r.rufspiel = m_point_call->value();
+     r.solo = m_point_solo->value();
+     r.laufende = m_point_lauf->value();
+     r.schneider = m_point_schneider->value();
+     r.schwarz = m_point_notrick->value();
+-    Settings::instance()->setPointResults( &r );
++    s->setPointResults( &r );
+    
+     QStringList names; 
+     names << m_p1_name->text();
+     names << m_p2_name->text();
+     names << m_p3_name->text();
+     names << m_p4_name->text();
+-    Settings::instance()->setPlayerNames( names );
++    s->setPlayerNames( names );
+     
+-    Settings::instance()->setNoGame( m_radioThrowAway->isChecked() ? Settings::NOGAME_NEUGEBEN : Settings::NOGAME_ALTERSPIELT );
+-    Settings::instance()->setDoublerHasToPlay( m_checkDoublerPlays->isChecked() );
++    s->setNoGame( m_radioThrowAway->isChecked() ? Settings::NOGAME_NEUGEBEN : Settings::NOGAME_ALTERSPIELT );
++    s->setDoublerHasToPlay( m_checkDoublerPlays->isChecked() );
+     
+-    Settings::instance()->setDoubleNextGame( m_checkDoubleNextGame->isChecked() );
++    s->setDoubleNextGame( m_checkDoubleNextGame->isChecked() );
+     
+-    Settings::instance()->setRearrangeCards( m_checkRearrangeCards->isChecked() );
++    s->setRearrangeCards( m_checkRearrangeCards->isChecked() );
++    
++    // allowed games
++    allowed.wenz = m_games_wenz->isChecked();
++    allowed.farb_wenz = m_games_farbwenz->isChecked();
++    allowed.geier = m_games_geier->isChecked();
++    allowed.farb_geier = m_games_farbgeier->isChecked();
++    allowed.dachs = m_games_dachs->isChecked();
++    s->setAllowedGames( &allowed );
+     
+     KDialogBase::accept();
+ }
+@@ -269,9 +279,62 @@
+     m_checkRearrangeCards->setChecked( Settings::instance()->rearrangeCards() );
+ }
+ 
++void PreferencesDlg::addPageGames()
++{
++    QFrame* box = addPage( i18n("Games"), QString::null, BarIcon("joystick") );
++    
++    QVBoxLayout* layout = new QVBoxLayout( box, 6, 6  );
++    QHBoxLayout* farbWenzLayout = new QHBoxLayout( NULL, 6, 6 );
++    QHBoxLayout* farbGeierLayout = new QHBoxLayout( NULL, 6, 6 );
++    
++    QSpacerItem* spacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding );
++    QSpacerItem* smallSpace = new QSpacerItem( 0, 0, QSizePolicy::Maximum, QSizePolicy::Maximum );
++    QSpacerItem* smallSpace2 = new QSpacerItem( 0, 0, QSizePolicy::Maximum, QSizePolicy::Maximum );
++    
++    m_games_wenz = new QCheckBox( i18n("&Wenz"), box );
++    m_games_farbwenz = new QCheckBox( i18n("Colored &Wenz"), box );
++    m_games_geier = new QCheckBox( i18n("&Geier"), box );
++    m_games_farbgeier = new QCheckBox( i18n("Colored &Geier"), box );
++    m_games_dachs = new QCheckBox( i18n("&Badger"), box );
++    
++    layout->addWidget( new QLabel( i18n("<qt>You can configure which games are allowed to play."
++                                        "You cannot disable certain games, such as Callgames and Solos as they are always " "enabled by default."), box ) );
++                                        
++    farbWenzLayout->addItem( smallSpace );
++    farbWenzLayout->addWidget( m_games_farbwenz );
++    farbGeierLayout->addItem( smallSpace2 );
++    farbGeierLayout->addWidget( m_games_farbgeier );
++    
++    layout->addWidget( m_games_wenz );
++    layout->addLayout( farbWenzLayout );
++    layout->addWidget( m_games_geier );
++    layout->addLayout( farbGeierLayout );
++    layout->addWidget( m_games_dachs );
++    layout->addItem( spacer );
++    
++    // load settings
++    t_AllowedGames* allowed = Settings::instance()->allowedGames();
++    m_games_wenz->setChecked( allowed->wenz );
++    m_games_farbwenz->setChecked( allowed->farb_wenz );
++    m_games_geier->setChecked( allowed->geier );
++    m_games_farbgeier->setChecked( allowed->farb_geier );
++    m_games_dachs->setChecked( allowed->dachs );
++    delete allowed;
++    
++    // connections
++    connect( m_games_wenz, SIGNAL( clicked() ), this, SLOT( enableControls() ) );
++    connect( m_games_geier, SIGNAL( clicked() ), this, SLOT( enableControls() ) );
++    
++    // tool tips
++    QToolTip::add( m_games_dachs, i18n("<qt>The badger is no official game in SchafKopf and is therefore not played and tournaments.") );
++}
++
+ void PreferencesDlg::enableControls()
+ {
+     m_checkDoubleNextGame->setEnabled( m_radioThrowAway->isChecked() );
++    
++    m_games_farbwenz->setEnabled( m_games_wenz->isChecked() );
++    m_games_farbgeier->setEnabled( m_games_geier->isChecked() );
+ }
+ 
+ #include "preferencesdlg.moc"
+Index: preferencesdlg.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -Lsrc/preferencesdlg.h -Lsrc/preferencesdlg.h -u -r1.10 -r1.11
+--- src/preferencesdlg.h
++++ src/preferencesdlg.h
+@@ -55,7 +55,7 @@
+         void addPageResultsPoints();
+         void addPageRules();
+         void addPageView();
+-
++        void addPageGames();
+         
+     private:
+         QRadioButton* m_radioMoney;
+@@ -68,6 +68,12 @@
+         QCheckBox* m_checkDoubleNextGame;
+         QCheckBox* m_checkRearrangeCards;
+ 
++        QCheckBox* m_games_wenz;
++        QCheckBox* m_games_farbwenz;
++        QCheckBox* m_games_geier;
++        QCheckBox* m_games_farbgeier;
++        QCheckBox* m_games_dachs;
++        
+         KLineEdit* m_p1_name;
+         KLineEdit* m_p2_name;
+         KLineEdit* m_p3_name;
+Index: settings.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.cpp,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -Lsrc/settings.cpp -Lsrc/settings.cpp -u -r1.14 -r1.15
+--- src/settings.cpp
++++ src/settings.cpp
+@@ -277,4 +277,31 @@
+     return b;
+ }
+ 
++t_AllowedGames* Settings::allowedGames() const
++{
++    t_AllowedGames* a = new t_AllowedGames;
++    
++    KConfig* config = kapp->config();
++    config->setGroup( "Games" );
++    a->wenz = config->readBoolEntry( "AllowWenz", true );
++    a->farb_wenz = config->readBoolEntry( "AllowFarbWenz", true );
++    a->geier = config->readBoolEntry( "AllowGeier", true );
++    a->farb_geier = config->readBoolEntry( "AllowFarbGeier", false );
++    a->dachs = config->readBoolEntry( "AllowDachs", false );
++    
++    return a;
++}
++
++void Settings::setAllowedGames( const t_AllowedGames* allowed )
++{
++    KConfig* config = kapp->config();
++    config->setGroup( "Games" );
++    config->writeEntry( "AllowWenz", allowed->wenz );
++    config->writeEntry( "AllowFarbWenz", allowed->farb_wenz );
++    config->writeEntry( "AllowGeier", allowed->geier );
++    config->writeEntry( "AllowFarbGeier", allowed->farb_geier );
++    config->writeEntry( "AllowDachs", allowed->dachs );
++    config->sync();
++}
++
+ #include "settings.moc"
+
+From schafkopf-devel at berlios.de  Fri Jan  7 21:42:13 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Fri, 7 Jan 2005 21:42:13 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf karten werden jetzt animiert wenn
+Message-ID: <200501072042.j07KgDZY026454@sheep.berlios.de>
+
+Log Message:
+-----------
+karten werden jetzt animiert wenn anzeige->karten nach jedem stich neu anordnen gewhlt ist. ausserdem kleines bug fix.
+
+Modified Files:
+--------------
+    schafkopf/src:
+        canvascard.cpp
+        canvascard.h
+        canvasplayer.cpp
+        gamecanvas.cpp
+        gamecanvas.h
+
+-------------- next part --------------
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.35
+retrieving revision 1.36
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.35 -r1.36
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -67,10 +67,10 @@
+     m_result = 0;
+     
+     canvas()->setBackgroundColor( Qt::darkGreen );
+-    canvas()->setAdvancePeriod( 200 );
++    canvas()->setAdvancePeriod( 20 );
+     update();
+     
+-	connect( Settings::instance(), SIGNAL(cardChanged()), this, SLOT(redrawPlayers()));
++    connect( Settings::instance(), SIGNAL(cardChanged()), this, SLOT(redrawPlayers()));
+     connect( Settings::instance(), SIGNAL(cardChanged()), this, SLOT(positionObjects()));
+     connect( this, SIGNAL(clicked( QCanvasItem* )), this, SLOT(cardClicked(QCanvasItem*)));
+     connect( this, SIGNAL(clicked( QCanvasItem* )), this, SLOT(yesNoClicked(QCanvasItem*)));
+Index: canvascard.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvascard.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -Lsrc/canvascard.h -Lsrc/canvascard.h -u -r1.7 -r1.8
+--- src/canvascard.h
++++ src/canvascard.h
+@@ -40,6 +40,9 @@
+         
+         void setFrontVisible( bool b );
+         void setRotation( int d );
++	void animatedMove();
++	void setDestination( int x, int x );
++
+         
+         int rtti() const { return CANVASCARD; }
+         
+@@ -47,6 +50,9 @@
+           * in the UI
+           */
+         void forbidden();
++    signals:
++	void checkStop();
++    
+     private:
+         void draw( QPainter & p );
+         
+@@ -55,11 +61,16 @@
+         bool m_visible;
+         bool m_forbidden;
+         int m_rotation;
++	
++	int tox;
++	int toy;
++	QTimer *timer;
+         
+         Card* m_card;
+ 	
+ 	private slots:
+ 		void disableForbidden();
++		void moveLoop();
+ };
+ 
+ #endif
+Index: gamecanvas.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.h,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -Lsrc/gamecanvas.h -Lsrc/gamecanvas.h -u -r1.19 -r1.20
+--- src/gamecanvas.h
++++ src/gamecanvas.h
+@@ -102,6 +102,8 @@
+         QCanvasText* m_ok;
+                 
+         Game* m_game;
++
++        QTimer* update_timer;
+ };
+ 
+ #endif
+Index: canvasplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.cpp,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -Lsrc/canvasplayer.cpp -Lsrc/canvasplayer.cpp -u -r1.19 -r1.20
+--- src/canvasplayer.cpp
++++ src/canvasplayer.cpp
+@@ -24,6 +24,7 @@
+ #include "cardlist.h"
+ #include "player.h"
+ #include "game.h"
++#include "settings.h"
+ 
+ #include <qcanvas.h>
+ #include <qfont.h>
+@@ -89,6 +90,8 @@
+         if(card->isVisible())
+ 		num++;
+     }
++    if(!Settings::instance()->rearrangeCards())
++    	num=NUMCARDS;
+     
+     if(i==1||i==3)
+         qSwap( cardw, cardh );
+@@ -128,16 +131,23 @@
+     for( unsigned int z = 0; z < NUMCARDS; z++ ) {
+         CanvasCard* card = m_items[z];
+         // only move if necessary!
+-        if(card->isVisible())
++        if(card->isVisible() || !Settings::instance()->rearrangeCards())
+ 	{
+ 	if( x != card->x() || y != card->y() )
++	if(num==NUMCARDS)
+             card->move( x, y );
+-         
++	else
++	{
++	    card->setDestination( x, y );
++	    card->animatedMove();
++	} 
+         if(i==0)
++	{
+ 	    if(availw>num*cardw+(num-1))
+             	x += cardw+1;
+ 	    else
+ 	    	x += (availw-cardw)/(num-1);
++	}
+         else if(i==2)
+             x += (cardw/6);
+         else
+Index: canvascard.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvascard.cpp,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -Lsrc/canvascard.cpp -Lsrc/canvascard.cpp -u -r1.10 -r1.11
+--- src/canvascard.cpp
++++ src/canvascard.cpp
+@@ -34,6 +34,7 @@
+     m_card = 0;
+     m_forbidden = false;
+     show();
++    timer = new QTimer( this );
+ }
+ 
+ CanvasCard::CanvasCard(Card* card,QCanvas*c)
+@@ -42,6 +43,7 @@
+     setCard( card );
+     m_forbidden = false;
+     show();
++    //timer = new QTimer( this );
+ }
+ 
+ CanvasCard::~CanvasCard()
+@@ -98,3 +100,32 @@
+ 	QCanvasRectangle::update();
+ }
+ 
++void CanvasCard::setDestination( int x, int y )
++{
++	tox = x;
++	toy = y;
++}
++
++void CanvasCard::animatedMove()
++{
++	//timer = new QTimer( this );
++        connect( timer, SIGNAL(timeout()), this, SLOT(moveLoop()) );
++        timer->start( 5 );
++}
++
++void CanvasCard::moveLoop()
++{
++	if(tox>x())
++		moveBy( 1, 0 );
++	else if(tox!=x())
++		moveBy( -1, 0 );
++	if(toy>y())
++		moveBy( 0, 1 );
++	else if(toy!=y())
++		moveBy( 0, -1 );
++	if(tox==x() && toy==y())
++	{
++		timer->stop();
++		disconnect( timer, SIGNAL(timeout()), this, SLOT(moveLoop()) );
++	}
++}
+\ No newline at end of file
+
+From schafkopf-devel at berlios.de  Fri Jan  7 21:47:13 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Fri, 7 Jan 2005 21:47:13 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf muell entfernt
+Message-ID: <200501072047.j07KlD3r026733@sheep.berlios.de>
+
+Log Message:
+-----------
+muell entfernt
+
+Modified Files:
+--------------
+    schafkopf/src:
+        canvascard.h
+        gamecanvas.h
+
+-------------- next part --------------
+Index: canvascard.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvascard.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/canvascard.h -Lsrc/canvascard.h -u -r1.8 -r1.9
+--- src/canvascard.h
++++ src/canvascard.h
+@@ -50,8 +50,6 @@
+           * in the UI
+           */
+         void forbidden();
+-    signals:
+-	void checkStop();
+     
+     private:
+         void draw( QPainter & p );
+Index: gamecanvas.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.h,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -Lsrc/gamecanvas.h -Lsrc/gamecanvas.h -u -r1.20 -r1.21
+--- src/gamecanvas.h
++++ src/gamecanvas.h
+@@ -102,8 +102,6 @@
+         QCanvasText* m_ok;
+                 
+         Game* m_game;
+-
+-        QTimer* update_timer;
+ };
+ 
+ #endif
+
+From schafkopf-devel at berlios.de  Fri Jan  7 22:10:18 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Fri, 7 Jan 2005 22:10:18 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf use settings allowed games settings from the
+Message-ID: <200501072110.j07LAIKW027708@sheep.berlios.de>
+
+Log Message:
+-----------
+use settings allowed games settings from the preferences
+
+Modified Files:
+--------------
+    schafkopf/src:
+        selectgamecolorbox.cpp
+        selectgamecolorbox.h
+        selectgametypebox.cpp
+        selectgametypebox.h
+
+-------------- next part --------------
+Index: selectgametypebox.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/selectgametypebox.cpp,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/selectgametypebox.cpp -Lsrc/selectgametypebox.cpp -u -r1.8 -r1.9
+--- src/selectgametypebox.cpp
++++ src/selectgametypebox.cpp
+@@ -23,6 +23,7 @@
+ #include "cardlist.h"
+ #include "game.h"
+ #include "gameinfo.h"
++#include "settings.h"
+ 
+ #include <qwidget.h>
+ #include <qhbox.h>
+@@ -49,6 +50,8 @@
+ 
+ SelectGameTypeBox::SelectGameTypeBox( QWidget *parent, const char *name ):QHBox(parent, name, 0)
+ {
++    m_allowed = Settings::instance()->allowedGames();
++    
+ 	setSpacing(8);
+ 	page = new QHBox( this );
+ 	row1 = new QVBox( page );
+@@ -73,11 +76,20 @@
+ 
+ 	checkRufspiel->setChecked(TRUE);
+ 
++    checkGeier->setEnabled( m_allowed->geier );
++    checkWenz->setEnabled( m_allowed->wenz );
++    checkDachs->setEnabled( m_allowed->dachs );
++    
+ 	typeChanged();
+ 	infoLabel->setMaximumWidth(preview->size().width());
+ 
+ }
+ 
++SelectGameTypeBox::~SelectGameTypeBox()
++{
++    delete m_allowed;
++}
++
+ void SelectGameTypeBox::typeChanged()
+ {
+ 	GameInfo *info=gameInfo();
+@@ -110,11 +122,6 @@
+ {
+ 	infoLabel->setText(Text);
+ }
+-
+-SelectGameTypeBox::~SelectGameTypeBox()
+-{
+-}
+-
+ 
+ void SelectGameTypeBox::updatePreview()
+ {
+Index: selectgamecolorbox.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/selectgamecolorbox.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -Lsrc/selectgamecolorbox.h -Lsrc/selectgamecolorbox.h -u -r1.2 -r1.3
+--- src/selectgamecolorbox.h
++++ src/selectgamecolorbox.h
+@@ -35,6 +35,8 @@
+ class SelectGameWizard;
+ class GameInfo;
+ 
++struct t_AllowedGames;
++
+ /**
+ @author Christian Kern
+ */
+@@ -49,6 +51,10 @@
+ 	void setGameInfo(GameInfo* info);
+ 	GameInfo* getGameInfo();
+ 	bool getFinish();
++    
++private:
++    t_AllowedGames* m_allowed;
++    
+ protected:
+ 	GameInfo* m_gameinfo;
+ 	QButtonGroup* color_group;
+Index: selectgametypebox.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/selectgametypebox.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -Lsrc/selectgametypebox.h -Lsrc/selectgametypebox.h -u -r1.4 -r1.5
+--- src/selectgametypebox.h
++++ src/selectgametypebox.h
+@@ -31,6 +31,8 @@
+ class QButtonGroup;
+ class GameInfo;
+ 
++struct t_AllowedGames;
++
+ /**
+ @author Christian Kern
+ */
+@@ -42,6 +44,10 @@
+ 
+ 	~SelectGameTypeBox();
+ 	GameInfo* gameInfo() const;
++    
++private:
++    t_AllowedGames* m_allowed;
++    
+ protected:
+ 	QRadioButton* checkRufspiel;
+ 	QRadioButton* checkSolo;
+Index: selectgamecolorbox.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/selectgamecolorbox.cpp,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -Lsrc/selectgamecolorbox.cpp -Lsrc/selectgamecolorbox.cpp -u -r1.2 -r1.3
+--- src/selectgamecolorbox.cpp
++++ src/selectgamecolorbox.cpp
+@@ -23,6 +23,7 @@
+ #include "cardlist.h"
+ #include "game.h"
+ #include "gameinfo.h"
++#include "settings.h"
+ 
+ #include <qwidget.h>
+ #include <qhbox.h>
+@@ -44,6 +45,8 @@
+ 
+ SelectGameColorBox::SelectGameColorBox( QWidget *parent, const char *name ):QHBox(parent, name, 0)
+ {
++    m_allowed = Settings::instance()->allowedGames();
++    
+ 	m_gameinfo=0;
+ 	setSpacing(8);
+ 	page = new QVBox( this );
+@@ -72,6 +75,16 @@
+ 
+ }
+ 
++
++SelectGameColorBox::~SelectGameColorBox()
++{
++	delete m_Herz;
++	delete m_Schelle;
++	delete m_Eichel;
++	delete m_Gras;
++    delete m_allowed;
++}
++
+ int SelectGameColorBox::getColor()
+ {
+ 	if(checkEichel->isChecked()) return (Card::EICHEL);
+@@ -159,13 +172,21 @@
+ 
+ void SelectGameColorBox::setStatus(bool Eichel, bool Gras, bool Herz, bool Schellen, bool Farblos)
+ {
+-	if(Eichel==true) checkEichel->show();
++    bool allow_colors = true;
++    
++    if( m_gameinfo->mode() == GameInfo::WENZ )
++        allow_colors = allow_colors & m_allowed->farb_wenz;
++        
++    if( m_gameinfo->mode() == GameInfo::GEIER )
++        allow_colors = allow_colors & m_allowed->farb_geier;
++    
++	if(allow_colors&&Eichel==true) checkEichel->show();
+ 	else checkEichel->hide();
+-	if(Gras==true) checkGras->show();
++	if(allow_colors&&Gras==true) checkGras->show();
+ 	else checkGras->hide();
+-	if(Herz==true) checkHerz->show();
++	if(allow_colors&&Herz==true) checkHerz->show();
+ 	else checkHerz->hide();
+-	if(Schellen==true) checkSchellen->show();
++	if(allow_colors&&Schellen==true) checkSchellen->show();
+ 	else checkSchellen->hide();
+ 	if(Farblos==true) checkFarblos->show();
+ 	else checkFarblos->hide();
+@@ -177,14 +198,6 @@
+ bool SelectGameColorBox::getFinish()
+ {
+ 	return m_finish;
+-}
+-
+-SelectGameColorBox::~SelectGameColorBox()
+-{
+-	delete m_Herz;
+-	delete m_Schelle;
+-	delete m_Eichel;
+-	delete m_Gras;
+ }
+ 
+ void SelectGameColorBox::setGameInfo(GameInfo* info)
+
+From schafkopf-devel at berlios.de  Fri Jan  7 22:50:53 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Fri, 7 Jan 2005 22:50:53 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf uebersetzung
+Message-ID: <200501072150.j07LorkR029509@sheep.berlios.de>
+
+Log Message:
+-----------
+uebersetzung
+
+Modified Files:
+--------------
+    schafkopf/po:
+        de.po
+    schafkopf/src:
+        canvascard.cpp
+        preferencesdlg.cpp
+
+-------------- next part --------------
+Index: de.po
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/po/de.po,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -Lpo/de.po -Lpo/de.po -u -r1.16 -r1.17
+--- po/de.po
++++ po/de.po
+@@ -320,6 +320,25 @@
+ msgid "Cards will be rearranged after each trick."
+ msgstr "Die Karten werden nach jedem Stich neu angeordnet."
+ 
++msgid "Games"
++msgstr "Spiele"
++
++msgid "Colored &Wenz"
++msgstr "Farbwenz"
++
++msgid "Colored &Geier"
++msgstr "Farbgeier"
++
++msgid "&Badger"
++msgstr "&Dachs"
++
++msgid "<qt>You can configure which games are allowed to play."
++                                        "You cannot disable certain games, such as Callgames and Solos as they are always " "enabled by default.</qt>"
++msgstr "<qt>Hier kannst du einstellen welche Spiele gespielt werden d??rfen. Bestimmte Spiele, wie Rufspiel und Solo, k??nnen nicht deaktiviert werden.</qt>"
++
++msgid "<qt>The badger is no official game in Schafkopf and is therefore not played at tournaments.</qt>"
++msgstr "<qt>Der Dachs ist kein offizielles Spiel, und wird daher bei Turnieren nicht gespielt.</qt>"
++
+ #: results.cpp:44
+ msgid " schneider"
+ msgstr " Schneider"
+Index: canvascard.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvascard.cpp,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lsrc/canvascard.cpp -Lsrc/canvascard.cpp -u -r1.11 -r1.12
+--- src/canvascard.cpp
++++ src/canvascard.cpp
+@@ -108,9 +108,8 @@
+ 
+ void CanvasCard::animatedMove()
+ {
+-	//timer = new QTimer( this );
+         connect( timer, SIGNAL(timeout()), this, SLOT(moveLoop()) );
+-        timer->start( 5 );
++        timer->start( 2 );
+ }
+ 
+ void CanvasCard::moveLoop()
+@@ -128,4 +127,4 @@
+ 		timer->stop();
+ 		disconnect( timer, SIGNAL(timeout()), this, SLOT(moveLoop()) );
+ 	}
+-}
+\ No newline at end of file
++}
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.13 -r1.14
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -298,7 +298,7 @@
+     m_games_dachs = new QCheckBox( i18n("&Badger"), box );
+     
+     layout->addWidget( new QLabel( i18n("<qt>You can configure which games are allowed to play."
+-                                        "You cannot disable certain games, such as Callgames and Solos as they are always " "enabled by default."), box ) );
++                                        "You cannot disable certain games, such as Callgames and Solos as they are always " "enabled by default.</qt>"), box ) );
+                                         
+     farbWenzLayout->addItem( smallSpace );
+     farbWenzLayout->addWidget( m_games_farbwenz );
+@@ -326,7 +326,7 @@
+     connect( m_games_geier, SIGNAL( clicked() ), this, SLOT( enableControls() ) );
+     
+     // tool tips
+-    QToolTip::add( m_games_dachs, i18n("<qt>The badger is no official game in SchafKopf and is therefore not played and tournaments.") );
++    QToolTip::add( m_games_dachs, i18n("<qt>The badger is no official game in Schafkopf and is therefore not played at tournaments.</qt>") );
+ }
+ 
+ void PreferencesDlg::enableControls()
+
+From schafkopf-devel at berlios.de  Sat Jan  8 02:23:46 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Sat, 8 Jan 2005 02:23:46 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf uebersetzung
+Message-ID: <200501080123.j081Nkxt016312@sheep.berlios.de>
+
+Log Message:
+-----------
+uebersetzung
+
+Modified Files:
+--------------
+    schafkopf/po:
+        de.po
+    schafkopf/src:
+        results.cpp
+
+-------------- next part --------------
+Index: de.po
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/po/de.po,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -Lpo/de.po -Lpo/de.po -u -r1.17 -r1.18
+--- po/de.po
++++ po/de.po
+@@ -348,11 +348,11 @@
+ msgstr " Schwarz"
+ 
+ #: results.cpp:48
+-msgid " win with %1 Points%2."
++msgid " wins with %1 points%2."
+ msgstr " gewinnt mit %1 Augen%2."
+ 
+ #: results.cpp:50
+-msgid " looses with %1 Points%2."
++msgid " loses with %1 points%2."
+ msgstr " verliert mit %1 Augen%2."
+ 
+ #: results.cpp:55
+Index: results.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/results.cpp,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/results.cpp -Lsrc/results.cpp -u -r1.8 -r1.9
+--- src/results.cpp
++++ src/results.cpp
+@@ -45,16 +45,16 @@
+     QString schwarz = m_schwarz ? i18n(" no-trick") : QString::null;
+     
+     if( m_points > 60 )
+-        s = m_gameinfo->spieler()->name() + QString(i18n(" wins with %1 Points%2.")).arg( m_points ).arg( schneider + schwarz );
++        s = m_gameinfo->spieler()->name() + QString(i18n(" wins with %1 points%2.")).arg( m_points ).arg( schneider + schwarz );
+     else
+-        s = m_gameinfo->spieler()->name() + QString(i18n(" looses with %1 Points%2.") ).arg( m_points ).arg( schneider + schwarz );
++        s = m_gameinfo->spieler()->name() + QString(i18n(" loses with %1 points%2.") ).arg( m_points ).arg( schneider + schwarz );
+     
+     if( m_laufende )
+     {
+         if( positive )
+-            s += m_gameinfo->spieler()->name() + QString( i18n(" got %1 cards in a row.").arg( m_laufende ) );
++            s += "\n" + m_gameinfo->spieler()->name() + QString( i18n(" got %1 cards in a row.").arg( m_laufende ) );
+         else
+-            s += m_gameinfo->spieler()->name() + QString( i18n(" played without %1 cards in a row.").arg( m_laufende ) );
++            s += "\n" + m_gameinfo->spieler()->name() + QString( i18n(" played without %1 cards in a row.").arg( m_laufende ) );
+     }
+     
+     return s;
+
+From schafkopf-devel at berlios.de  Sat Jan  8 11:38:24 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Sat, 8 Jan 2005 11:38:24 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf the computer should not play game the player
+Message-ID: <200501081038.j08AcOGA011600@sheep.berlios.de>
+
+Log Message:
+-----------
+the computer should not play game the player does not allow, fixed now
+
+Modified Files:
+--------------
+    schafkopf/src:
+        gameinfo.cpp
+
+-------------- next part --------------
+Index: gameinfo.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gameinfo.cpp,v
+retrieving revision 1.18
+retrieving revision 1.19
+diff -Lsrc/gameinfo.cpp -Lsrc/gameinfo.cpp -u -r1.18 -r1.19
+--- src/gameinfo.cpp
++++ src/gameinfo.cpp
+@@ -21,6 +21,7 @@
+ #include "card.h"
+ #include "cardlist.h"
+ #include "player.h"
++#include "settings.h"
+ 
+ #include <klocale.h>
+ #include <qstring.h>
+@@ -139,8 +140,14 @@
+     return false;
+ }
+ 
++/** checks wether a game is allowed to play:
++  * 1. is it allowed to play this game with this cards (needed for callgames)
++  * 2. is it allowed to play this game according to the users preferences
++  */
+ bool GameInfo::isAllowed( CardList* cards, int mode, int color )
+ {
++    t_AllowedGames* allowed = NULL;
++    
+     if( mode==GameInfo::RUFSPIEL ) 
+     {
+         if( cards->contains( color, Card::SAU ) || color == Card::HERZ )
+@@ -160,6 +167,29 @@
+     } else if( mode==GameInfo::STICHT && color==Card::NOCOLOR )
+         return false;
+     
++    // check for the users preferences now
++    allowed = Settings::instance()->allowedGames();
++    if( mode == GameInfo::DACHS && !allowed->dachs )
++    {
++        delete allowed;
++        return false;
++    }
++
++    if( (mode == GameInfo::WENZ && !allowed->wenz) ||
++        (mode == GameInfo::WENZ && color != Card::NOCOLOR && !allowed->farb_wenz) )
++    {
++        delete allowed;
++        return false;
++    }
++    
++    if( (mode == GameInfo::GEIER && !allowed->geier) ||
++        (mode == GameInfo::GEIER && color != Card::NOCOLOR && !allowed->farb_geier) )
++    {
++        delete allowed;
++        return false;
++    }
++   
++    delete allowed;
+     return true;
+ }
+ 
+
+From schafkopf-devel at berlios.de  Sat Jan  8 20:04:26 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Sat, 8 Jan 2005 20:04:26 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf fix compilation on Qt < 3.2.0
+Message-ID: <200501081904.j08J4QLV014528@sheep.berlios.de>
+
+Log Message:
+-----------
+fix compilation on Qt < 3.2.0
+
+Modified Files:
+--------------
+    schafkopf/src:
+        schafkopf.cpp
+
+-------------- next part --------------
+Index: schafkopf.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopf.cpp,v
+retrieving revision 1.32
+retrieving revision 1.33
+diff -Lsrc/schafkopf.cpp -Lsrc/schafkopf.cpp -u -r1.32 -r1.33
+--- src/schafkopf.cpp
++++ src/schafkopf.cpp
+@@ -55,7 +55,10 @@
+         : KMainWindow( 0, "SchafKopf" )
+ {
+     split = new QSplitter( QSplitter::Horizontal, this );
++#if QT_VERSION >= 0x030200
+     split->setChildrenCollapsible( true );
++#endif // QT_VERSION
++
+     setCentralWidget( split );
+     // save window size automatically
+     setAutoSaveSettings( "SchafKopf", true );
+
+From schafkopf-devel at berlios.de  Wed Jan 12 16:30:38 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Wed, 12 Jan 2005 16:30:38 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf beim ersten start ist nun unser kartenset
+Message-ID: <200501121530.j0CFUcd5004598@sheep.berlios.de>
+
+Log Message:
+-----------
+beim ersten start ist nun unser kartenset eingestellt.
+
+Modified Files:
+--------------
+    schafkopf/src:
+        settings.cpp
+        settings.h
+
+-------------- next part --------------
+Index: settings.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.h,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -Lsrc/settings.h -Lsrc/settings.h -u -r1.12 -r1.13
+--- src/settings.h
++++ src/settings.h
+@@ -72,6 +72,7 @@
+         
+         const QString cardDeck() const;
+         const QString cardBackground() const;
++        QString getCardDir() const;
+         
+         const QStringList playerNames() const;
+         void setPlayerNames( const QStringList & names );
+Index: settings.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.cpp,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -Lsrc/settings.cpp -Lsrc/settings.cpp -u -r1.15 -r1.16
+--- src/settings.cpp
++++ src/settings.cpp
+@@ -53,14 +53,24 @@
+ {
+     KConfig* config = kapp->config();
+     config->setGroup("CardDeck");
+-    return config->readEntry("Cards", KCardDialog::getDefaultCardDir() );    
++    return config->readEntry("Cards", getCardDir()+"cards-bavarian-old/" );    
+ }
+ 
+ const QString Settings::cardBackground() const
+ {
+     KConfig* config = kapp->config();
+     config->setGroup("CardDeck");
+-    return config->readEntry("Deck", KCardDialog::getDefaultDeck() );    
++    return config->readEntry("Deck", getCardDir()+"decks/bavaria_tux.png" );    
++}
++
++QString Settings::getCardDir() const
++{
++    QString dir = KCardDialog::getDefaultCardDir();
++    int k;
++    dir = dir.remove( dir.length()-1, 1 );
++    k = dir.findRev( '/', -1 );
++    dir = dir.remove( k+1, dir.length()-k );
++    return dir;
+ }
+ 
+ void Settings::configureCardDecks( QWidget* parent )
+
+From domseichter at web.de  Wed Jan 12 22:52:27 2005
+From: domseichter at web.de (Dominik Seichter)
+Date: Wed, 12 Jan 2005 22:52:27 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf beim ersten start ist nun unser kartenset
+In-Reply-To: <200501121530.j0CFUcd5004598@sheep.berlios.de>
+References: <200501121530.j0CFUcd5004598@sheep.berlios.de>
+Message-ID: <200501122252.27256.domseichter@web.de>
+
+Sollten wir nicht evtl. noch pr?fen ob es wirklich vorhanden ist? Falls 
+SchafKopf n?mlich ins falsche --prefix (aka nicht ins KDEDIR) installiert 
+worden ist, werden wir es so nicht finden. In dem Fall sollte das Standard 
+KDE Deck verwendet werden.
+
+Es ist leider n?mlich nicht selten das KDE Programme ins falsche Verzeichnis 
+installiert werden. 
+
+Sonst ist es nat?rlich wichtig, dass unser Kartenset Standard ist.
+
+CU Dom
+
+Am Wednesday, 12. January 2005 16:30 schrieb schafkopf-devel at berlios.de:
+> Log Message:
+> -----------
+> beim ersten start ist nun unser kartenset eingestellt.
+>
+> Modified Files:
+> --------------
+>     schafkopf/src:
+>         settings.cpp
+>         settings.h
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+KDE Mass Mailer - http://www.kmassmailer.net - Mass mailing for KDE
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+**********************************************************************
+
+
+From domseichter at web.de  Fri Jan 14 09:48:48 2005
+From: domseichter at web.de (Dominik Seichter)
+Date: Fri, 14 Jan 2005 09:48:48 +0100
+Subject: [Schafkopf-devel] Fwd: Schafkopf-Bug
+Message-ID: <200501140948.49117.domseichter@web.de>
+
+Die Rufsau darf wirklich nicht geschmiert werden. Kann das wer reproduzieren 
+bzw. hat jemand eine Idee oder einen Fix wie das passieren kann?
+
+CU Dom
+
+----------  Weitergeleitete Nachricht  ----------
+
+Subject: Schafkopf-Bug
+Date: Thursday, 13. January 2005 15:33
+From: Michael H?chstetter
+To: domseichter at web.de
+
+Servus,
+
+super Spiel! Ich habe einen Fehler in der Spielstrategie gespielt.
+Ich habe Sauspiel gemacht, bin mit einer anderen Farbe mit der Sau
+herausgekommen, und mein "bl?der" Computermitspieler hat mir die Rufsau
+geschmiert!
+Das ganze war in Version 0.5
+Tolle Arbeit. Fehlen nur noch die Debian Packages.
+
+Kannst du mir zur?ckschreiben, ob du die Mail gelesen hast. Leider kann ich
+ins Forum nicht posten.
+Michi
+
+-------------------------------------------------------
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+KDE Mass Mailer - http://www.kmassmailer.net - Mass mailing for KDE
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+**********************************************************************
+
+
+From schafkopf-devel at berlios.de  Fri Jan 14 15:49:47 2005
+From: schafkopf-devel at berlios.de (schafkopf-devel at berlios.de)
+Date: Fri, 14 Jan 2005 15:49:47 +0100
+Subject: [Schafkopf-devel] Commit Report - Schafkopf es wird jetzt geprueft ob unser kartenset
+Message-ID: <200501141449.j0EEnlw0021553@sheep.berlios.de>
+
+Log Message:
+-----------
+es wird jetzt geprueft ob unser kartenset installiert ist.
+
+Modified Files:
+--------------
+    schafkopf/src:
+        settings.cpp
+
+-------------- next part --------------
+Index: settings.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.cpp,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -Lsrc/settings.cpp -Lsrc/settings.cpp -u -r1.16 -r1.17
+--- src/settings.cpp
++++ src/settings.cpp
+@@ -27,6 +27,7 @@
+ #include <kcarddialog.h>
+ #include <kconfig.h>
+ #include <kuser.h>
++#include <kstandarddirs.h>
+ 
+ Settings* Settings::m_instance = 0;
+ 
+@@ -51,16 +52,22 @@
+ 
+ const QString Settings::cardDeck() const
+ {
++    QString cardDir = getCardDir()+"cards-bavarian-old/";
+     KConfig* config = kapp->config();
+     config->setGroup("CardDeck");
+-    return config->readEntry("Cards", getCardDir()+"cards-bavarian-old/" );    
++    if(!KStandardDirs::exists ( cardDir ))
++        cardDir = KCardDialog::getDefaultCardDir();
++    return config->readEntry("Cards", cardDir );    
+ }
+ 
+ const QString Settings::cardBackground() const
+ {
++    QString deckCard = getCardDir()+"decks/bavaria_tux.png";
+     KConfig* config = kapp->config();
+     config->setGroup("CardDeck");
+-    return config->readEntry("Deck", getCardDir()+"decks/bavaria_tux.png" );    
++    if(!KStandardDirs::exists ( deckCard ))
++        deckCard = KCardDialog::getDefaultDeck();
++    return config->readEntry("Deck", deckCard );    
+ }
+ 
+ QString Settings::getCardDir() const
+

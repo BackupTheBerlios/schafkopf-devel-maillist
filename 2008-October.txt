@@ -1,0 +1,51 @@
+From domseichter at web.de  Sat Oct  4 11:57:57 2008
+From: domseichter at web.de (Dominik Seichter)
+Date: Sat, 4 Oct 2008 11:57:57 +0200
+Subject: [Schafkopf-devel] SchafKopf
+In-Reply-To: <200809292346.07544.maggu2810@googlemail.com>
+References: <200809292346.07544.maggu2810@googlemail.com>
+Message-ID: <200810041157.57549.domseichter@web.de>
+
+Servus Markus!
+
+Danke, ich hab den Fix commited.
+
+Ciao,
+	Dom
+
+Am Montag, 29. September 2008 schrieben Sie:
+> Hallo!
+>
+> Der gcc 4.3.1 ist ja etwas genauer, was den Quellcode angeht.
+>
+> Man m?sste daher in der Datei "src/canvascard.h"
+> 	void setDestination( int x, int x );
+> durch
+> 	void setDestination( int x, int y );
+> ersetzen.
+>
+> Ansonsten erh?lt man die Fehlermeldung:
+> canvascard.h:44: error: multiple parameters named ?x?
+>
+> Gru?,
+> Markus
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: This is a digitally signed message part.
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20081004/34961d24/attachment.pgp>
+

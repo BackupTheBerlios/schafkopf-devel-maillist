@@ -1,0 +1,353 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf cleaned up the preferences dialog
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20cleaned%20up%20the%20preferences%20dialog&In-Reply-To=%3C200503261539.j2QFdsgv005066%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000100.html">
+   <LINK REL="Next"  HREF="000098.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf cleaned up the preferences dialog</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20cleaned%20up%20the%20preferences%20dialog&In-Reply-To=%3C200503261539.j2QFdsgv005066%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf cleaned up the preferences dialog">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Sat Mar 26 16:39:54 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000100.html">[Schafkopf-devel] Commit Report - Schafkopf Fixed: der spieler der zuletzt geklopft hat
+</A></li>
+        <LI>Next message: <A HREF="000098.html">[Schafkopf-devel] Commit Report - Schafkopf fix initial window size on startup
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#99">[ date ]</a>
+              <a href="thread.html#99">[ thread ]</a>
+              <a href="subject.html#99">[ subject ]</a>
+              <a href="author.html#99">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+cleaned up the preferences dialog
+
+Modified Files:
+--------------
+    schafkopf/src:
+        preferencesdlg.cpp
+        preferencesdlg.h
+
+-------------- next part --------------
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.21 -r1.22
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -36,6 +36,8 @@
+ #include &lt;qspinbox.h&gt;
+ #include &lt;qcheckbox.h&gt;
+ #include &lt;qtooltip.h&gt;
++#include &lt;qwidgetstack.h&gt;
++#include &lt;qgrid.h&gt;
+ 
+ PreferencesDlg::PreferencesDlg(QWidget *parent, const char *name)
+     : KDialogBase( IconList, i18n(&quot;Preferences&quot;), KDialogBase::Ok|KDialogBase::Cancel,
+@@ -46,8 +48,6 @@
+     // addPageSchafkopf(); // ton an aus .....
+     addPageRules();
+     addPageResults();
+-    addPageResultsMoney();
+-    addPageResultsPoints();
+     addPageView();
+     
+     enableControls();
+@@ -116,24 +116,20 @@
+ 
+ void PreferencesDlg::addPagePlayer()
+ {
+-    QFrame* box2 = addPage( i18n(&quot;Player Settings&quot;), QString::null, BarIcon(&quot;identity&quot;) );
+-    QVBoxLayout* layout2 = new QVBoxLayout( box2, 6, 6  );
++    QGrid* box = addGridPage( 2, Qt::Horizontal, i18n(&quot;Player Settings&quot;), QString::null, BarIcon(&quot;identity&quot;) );
+     QStringList names = Settings::instance()-&gt;playerNames();
+-
+-    QVButtonGroup* group2 = new QVButtonGroup( i18n(&quot;Your Player&quot;), box2, &quot;group2&quot; );
+-    QLabel* label3 = new QLabel( i18n(&quot;Name:&quot;), group2, &quot;label3&quot; );
+-    m_p1_name = new KLineEdit( names[0], group2, &quot;m_p1_name&quot; );
+-    
+-    QVButtonGroup* group3 = new QVButtonGroup( i18n(&quot;Computer Players&quot;), box2, &quot;group3&quot; );
+-    QLabel* label4 = new QLabel( i18n(&quot;Computer Player 1:&quot;), group3, &quot;label4&quot; );
+-    m_p2_name = new KLineEdit( names[1], group3, &quot;m_p2_name&quot; );
+-    QLabel* label5 = new QLabel( i18n(&quot;Computer Player 2:&quot;), group3, &quot;label5&quot; );
+-    m_p3_name = new KLineEdit( names[2], group3, &quot;m_p3_name&quot; );
+-    QLabel* label6 = new QLabel( i18n(&quot;Computer Player 3:&quot;), group3, &quot;label6&quot; );
+-    m_p4_name = new KLineEdit( names[3], group3, &quot;m_p4_name&quot; );
+     
+-    layout2-&gt;addWidget( group2 );
+-    layout2-&gt;addWidget( group3 );
++    new QLabel( i18n(&quot;Human Player:&quot;), box );
++    m_p1_name = new KLineEdit( names[0], box, &quot;m_p1_name&quot; );
++    
++    new QLabel( i18n(&quot;Computer Player 1:&quot;), box );
++    m_p2_name = new KLineEdit( names[1], box, &quot;m_p2_name&quot; );
++
++    new QLabel( i18n(&quot;Computer Player 2:&quot;), box );
++    m_p3_name = new KLineEdit( names[2], box, &quot;m_p3_name&quot; );
++
++    new QLabel( i18n(&quot;Computer Player 3:&quot;), box );
++    m_p4_name = new KLineEdit( names[3], box, &quot;m_p4_name&quot; );
+ }
+ 
+ void PreferencesDlg::addPageRules()
+@@ -175,128 +171,107 @@
+ 
+ void PreferencesDlg::addPageResults()
+ {    
+-    QFrame* box = addPage( i18n(&quot;Results&quot;), QString::null );
++    QFrame* box = addPage( i18n(&quot;Results&quot;), QString::null, BarIcon(&quot;edit&quot;) );
+     QVBoxLayout* layout = new QVBoxLayout( box, 6, 6  );
+-    QSpacerItem* spacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding );
++
++    t_ResultValues* rm = Settings::instance()-&gt;moneyResults();
++    t_ResultValues* rp = Settings::instance()-&gt;pointResults();
++    KLocale* locale = KGlobal::locale();
+     
+-    QVButtonGroup* group = new QVButtonGroup( &quot;&quot;, box, &quot;group&quot; );
++    QVButtonGroup* group = new QVButtonGroup( i18n(&quot;Results:&quot;), box, &quot;group&quot; );
+     m_radioMoney = new QRadioButton( i18n(&quot;count &amp;money&quot;), group );
+     m_radioPoints = new QRadioButton( i18n(&quot;count &amp;points&quot;), group );
+-    
+-    layout-&gt;addWidget( group );
+-    layout-&gt;addWidget( new QLabel( i18n(&quot;&lt;qt&gt;SchafKopf can count in its results view either points for each game or a monetrary value for each game.&lt;br&gt;You can also configure how much points/money a game costs when won or lost.&lt;/qt&gt;&quot;), box ) );
+-    layout-&gt;addItem( spacer );
+-    
+-    // load data from configuration
+-    if( Settings::instance()-&gt;resultsType() == Settings::MONEY )
+-        m_radioMoney-&gt;setChecked( true );
+-    else
+-        m_radioPoints-&gt;setChecked( true );
+-}
+ 
+-void PreferencesDlg::addPageResultsMoney()
+-{
+-    QFrame* box = addPage( i18n(&quot;Configure Money Values&quot;), QString::null, BarIcon(&quot;edit&quot;) );
+-    QVBoxLayout* layout = new QVBoxLayout( box, 6, 6  );
+-    QSpacerItem* spacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding );
+-    t_ResultValues* r = Settings::instance()-&gt;moneyResults();
+-    
+-    KLocale* locale = KGlobal::locale();
++    stack = new QWidgetStack( box );
++
++    stackMoney = new QVBox( stack );
++    stackPoints = new QVBox( stack );
+ 
+-    m_money_call = new KDoubleNumInput( 0.0, 100.00, r-&gt;rufspiel, 0.10, 2, box, &quot;m_money_call&quot; );
++    m_money_call = new KDoubleNumInput( 0.0, 100.00, rm-&gt;rufspiel, 0.10, 2, stackMoney, &quot;m_money_call&quot; );
+     m_money_call-&gt;setLabel( i18n(&quot;Callgame:&quot;), AlignLeft | AlignVCenter );
+     m_money_call-&gt;setSuffix( locale-&gt;currencySymbol() );
+     
+-    m_money_solo = new KDoubleNumInput( m_money_call, 0.0, 100.00, r-&gt;solo, 0.10, 2, box, &quot;m_money_solo&quot; );
++    m_money_solo = new KDoubleNumInput( m_money_call, 0.0, 100.00, rm-&gt;solo, 0.10, 2, stackMoney, &quot;m_money_solo&quot; );
+     m_money_solo-&gt;setLabel( i18n(&quot;Solo:&quot;), AlignLeft | AlignVCenter );
+     m_money_solo-&gt;setSuffix( locale-&gt;currencySymbol() );
+     
+-    m_money_lauf = new KDoubleNumInput( m_money_solo, 0.0, 100.00, r-&gt;laufende, 0.10, 2, box, &quot;m_money_lauf&quot; );
++    m_money_lauf = new KDoubleNumInput( m_money_solo, 0.0, 100.00, rm-&gt;laufende, 0.10, 2, stackMoney, &quot;m_money_lauf&quot; );
+     m_money_lauf-&gt;setLabel( i18n(&quot;Cards in a row:&quot;), AlignLeft | AlignVCenter );
+     m_money_lauf-&gt;setSuffix( locale-&gt;currencySymbol() );
+     
+-    m_money_notrick = new KDoubleNumInput( m_money_lauf, 0.0, 100.00, r-&gt;schwarz, 0.10, 2, box, &quot;m_money_notrick&quot; );
++    m_money_notrick = new KDoubleNumInput( m_money_lauf, 0.0, 100.00, rm-&gt;schwarz, 0.10, 2, stackMoney, &quot;m_money_notrick&quot; );
+     m_money_notrick-&gt;setLabel( i18n(&quot;Notrick:&quot;), AlignLeft | AlignVCenter );
+     m_money_notrick-&gt;setSuffix( locale-&gt;currencySymbol() );
+     
+-    m_money_schneider = new KDoubleNumInput( m_money_notrick, 0.0, 100.00, r-&gt;schneider, 0.10, 2, box, &quot;m_money_schneider&quot; );
++    m_money_schneider = new KDoubleNumInput( m_money_notrick, 0.0, 100.00, rm-&gt;schneider, 0.10, 2, stackMoney, &quot;m_money_schneider&quot; );
+     m_money_schneider-&gt;setLabel( i18n(&quot;Schneider:&quot;), AlignLeft | AlignVCenter );
+     m_money_schneider-&gt;setSuffix( locale-&gt;currencySymbol() );
+     
+-    m_money_ramsch = new KDoubleNumInput( m_money_schneider, 0.0, 100.00, r-&gt;ramsch, 0.10, 2, box, &quot;m_money_ramsch&quot; );
++    m_money_ramsch = new KDoubleNumInput( m_money_schneider, 0.0, 100.00, rm-&gt;ramsch, 0.10, 2, stackMoney, &quot;m_money_ramsch&quot; );
+     m_money_ramsch-&gt;setLabel( i18n(&quot;Ramsch:&quot;), AlignLeft | AlignVCenter );
+     m_money_ramsch-&gt;setSuffix( locale-&gt;currencySymbol() );
+     
+-    layout-&gt;addWidget( m_money_call );    
+-    layout-&gt;addWidget( m_money_solo );
+-    layout-&gt;addWidget( m_money_lauf );
+-    layout-&gt;addWidget( m_money_notrick );
+-    layout-&gt;addWidget( m_money_schneider );
+-    layout-&gt;addWidget( m_money_ramsch );
+-    layout-&gt;addItem( spacer );
+-    
+-    delete r;
+-}
+-
+-void PreferencesDlg::addPageResultsPoints()
+-{
+-    QFrame* box = addPage( i18n(&quot;Configure Point Values&quot;), QString::null, BarIcon(&quot;edit&quot;) );
+-    QVBoxLayout* layout = new QVBoxLayout( box, 6, 6  );
+-    QSpacerItem* spacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding );
+-    t_ResultValues* r = Settings::instance()-&gt;pointResults();
+-
+-    m_point_call = new KIntNumInput( (int)r-&gt;rufspiel, box, 10, &quot;m_point_call&quot; );
++    m_point_call = new KIntNumInput( (int)rp-&gt;rufspiel, stackPoints, 10, &quot;m_point_call&quot; );
+     m_point_call-&gt;setLabel( i18n(&quot;Callgame:&quot;), AlignLeft | AlignVCenter );
+     m_point_call-&gt;setMinValue( 0 );
+     m_point_call-&gt;setMaxValue( 100 );
+     
+-    m_point_solo = new KIntNumInput( m_point_call, (int)r-&gt;solo, box, 10, &quot;m_point_solo&quot; );
++    m_point_solo = new KIntNumInput( m_point_call, (int)rp-&gt;solo, stackPoints, 10, &quot;m_point_solo&quot; );
+     m_point_solo-&gt;setLabel( i18n(&quot;Solo:&quot;), AlignLeft | AlignVCenter );
+     m_point_solo-&gt;setMinValue( 0 );
+     m_point_solo-&gt;setMaxValue( 100 );
+     
+-    m_point_lauf = new KIntNumInput( m_point_solo, (int)r-&gt;laufende, box, 10, &quot;m_point_lauf&quot; );
++    m_point_lauf = new KIntNumInput( m_point_solo, (int)rp-&gt;laufende, stackPoints, 10, &quot;m_point_lauf&quot; );
+     m_point_lauf-&gt;setLabel( i18n(&quot;Cards in a row:&quot;), AlignLeft | AlignVCenter );
+     m_point_lauf-&gt;setMinValue( 0 );
+     m_point_lauf-&gt;setMaxValue( 100 );
+     
+-    m_point_notrick = new KIntNumInput( m_point_lauf, (int)r-&gt;schwarz, box, 10, &quot;m_point_notrick&quot; );
++    m_point_notrick = new KIntNumInput( m_point_lauf, (int)rp-&gt;schwarz, stackPoints, 10, &quot;m_point_notrick&quot; );
+     m_point_notrick-&gt;setLabel( i18n(&quot;Notrick:&quot;), AlignLeft | AlignVCenter );
+     m_point_notrick-&gt;setMinValue( 0 );
+     m_point_notrick-&gt;setMaxValue( 100 );
+     
+-    m_point_schneider = new KIntNumInput( m_point_notrick, (int)r-&gt;schneider, box, 10, &quot;m_point_schneider&quot; );
++    m_point_schneider = new KIntNumInput( m_point_notrick, (int)rp-&gt;schneider, stackPoints, 10, &quot;m_point_schneider&quot; );
+     m_point_schneider-&gt;setLabel( i18n(&quot;Schneider:&quot;), AlignLeft | AlignVCenter );
+     m_point_schneider-&gt;setMinValue( 0 );
+     m_point_schneider-&gt;setMaxValue( 100 );
+ 
+-    m_point_ramsch = new KIntNumInput( m_point_schneider, (int)r-&gt;ramsch, box, 10, &quot;m_point_ramsch&quot; );
++    m_point_ramsch = new KIntNumInput( m_point_schneider, (int)rp-&gt;ramsch, stackPoints, 10, &quot;m_point_ramsch&quot; );
+     m_point_ramsch-&gt;setLabel( i18n(&quot;Ramsch:&quot;), AlignLeft | AlignVCenter );
+     m_point_ramsch-&gt;setMinValue( 0 );
+     m_point_ramsch-&gt;setMaxValue( 100 );
++
++    stack-&gt;addWidget( stackMoney );
++    stack-&gt;addWidget( stackPoints );
++
++    delete rm;
++    delete rp;
+     
+-    layout-&gt;addWidget( m_point_call );    
+-    layout-&gt;addWidget( m_point_solo );
+-    layout-&gt;addWidget( m_point_lauf );
+-    layout-&gt;addWidget( m_point_notrick );
+-    layout-&gt;addWidget( m_point_schneider );
+-    layout-&gt;addWidget( m_point_ramsch );
+-    layout-&gt;addItem( spacer );
+-    
+-    delete r;
++    layout-&gt;addWidget( group );
++    layout-&gt;addWidget( stack );
++
++    // load data from configuration
++    if( Settings::instance()-&gt;resultsType() == Settings::MONEY )
++        m_radioMoney-&gt;setChecked( true );
++    else
++        m_radioPoints-&gt;setChecked( true );
++
++    connect( m_radioPoints, SIGNAL( clicked() ), this, SLOT( enableControls() ) );
++    connect( m_radioMoney, SIGNAL( clicked() ), this, SLOT( enableControls() ) );
+ }
+ 
+ void PreferencesDlg::addPageView()
+ {
+-    QFrame* box = addPage( i18n(&quot;View&quot;), QString::null, BarIcon(&quot;&quot;) );
++    QFrame* box = addPage( i18n(&quot;View&quot;), QString::null, BarIcon(&quot;background&quot;) );
+     QVBoxLayout* layout = new QVBoxLayout( box, 6, 6  );
+     QSpacerItem* spacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding );
+     
+     QVButtonGroup* group2 = new QVButtonGroup( i18n(&quot;Game Canvas:&quot;), box, &quot;group2&quot; );
+-    QLabel* label3 = new QLabel( i18n(&quot;Background image:&quot;), group2, &quot;label3&quot; );
++    QLabel* label3 = new QLabel( i18n(&quot;&amp;Background image:&quot;), group2, &quot;label3&quot; );
+     m_linePathBackground = new KURLRequester( Settings::instance()-&gt;backgroundImage(), group2, &quot;m_linePathBackground&quot; );
+-    m_pushURLClear = new QPushButton( i18n(&quot;clear background image&quot;), group2, &quot;m_pushURLClear&quot; );
+-        
++    m_pushURLClear = new QPushButton( i18n(&quot;&amp;Clear background image&quot;), group2, &quot;m_pushURLClear&quot; );
++    label3-&gt;setBuddy( m_linePathBackground );
++
+     QVButtonGroup* group = new QVButtonGroup( i18n(&quot;Card Arrangement:&quot;), box, &quot;group&quot; );
+     m_checkRearrangeCards = new QCheckBox ( i18n(&quot;Rearrange cards after each trick.&quot;), group );
+     QToolTip::add( m_checkRearrangeCards, i18n(&quot;Cards will be rearranged after each trick.&quot;) );
+@@ -365,6 +340,11 @@
+ 
+ void PreferencesDlg::enableControls()
+ {
++    if( m_radioPoints-&gt;isChecked() )
++	stack-&gt;raiseWidget( stackPoints );
++    else if( m_radioMoney-&gt;isChecked() )
++	stack-&gt;raiseWidget( stackMoney );
++
+     m_checkDoubleNextGame-&gt;setEnabled( m_radioThrowAway-&gt;isChecked() );
+     
+     m_games_farbwenz-&gt;setEnabled( m_games_wenz-&gt;isChecked() );
+Index: preferencesdlg.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.h,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -Lsrc/preferencesdlg.h -Lsrc/preferencesdlg.h -u -r1.16 -r1.17
+--- src/preferencesdlg.h
++++ src/preferencesdlg.h
+@@ -31,6 +31,7 @@
+ class QCheckBox;
+ class QPushButton;
+ class KURLRequester;
++class QWidgetStack;
+ 
+ /**
+ Preferences dialog for schafkopf
+@@ -54,13 +55,15 @@
+     private:
+         void addPagePlayer();
+         void addPageResults();
+-        void addPageResultsMoney();
+-        void addPageResultsPoints();
+         void addPageRules();
+         void addPageView();
+         void addPageGames();
+         
+     private:
++	QVBox* stackMoney;
++	QVBox* stackPoints;
++	QWidgetStack* stack;
++
+         QRadioButton* m_radioMoney;
+         QRadioButton* m_radioPoints;
+         QRadioButton* m_radioThrowAway;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000100.html">[Schafkopf-devel] Commit Report - Schafkopf Fixed: der spieler der zuletzt geklopft hat
+</A></li>
+	<LI>Next message: <A HREF="000098.html">[Schafkopf-devel] Commit Report - Schafkopf fix initial window size on startup
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#99">[ date ]</a>
+              <a href="thread.html#99">[ thread ]</a>
+              <a href="subject.html#99">[ subject ]</a>
+              <a href="author.html#99">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

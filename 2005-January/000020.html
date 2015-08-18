@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-January/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20auf%20allgemeinen%20wunsch%20laesst%20sich%20das&In-Reply-To=%3C200501060007.j06077jZ011425%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000019.html">
+   <LINK REL="Next"  HREF="000021.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20auf%20allgemeinen%20wunsch%20laesst%20sich%20das&In-Reply-To=%3C200501060007.j06077jZ011425%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Thu Jan  6 01:07:07 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000019.html">[Schafkopf-devel] Commit Report - Schafkopf restliche karten werden nach jedem stich neu
+</A></li>
+        <LI>Next message: <A HREF="000021.html">[Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#20">[ date ]</a>
+              <a href="thread.html#20">[ thread ]</a>
+              <a href="subject.html#20">[ subject ]</a>
+              <a href="author.html#20">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+auf allgemeinen wunsch laesst sich das neuanordnen der karten nach jedem stich unter einstellungen-&gt;anzeige abschalten
+
+Modified Files:
+--------------
+    schafkopf/po:
+        de.po
+    schafkopf/src:
+        gamecanvas.cpp
+        preferencesdlg.cpp
+        preferencesdlg.h
+        settings.cpp
+        settings.h
+
+-------------- next part --------------
+Index: de.po
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/po/de.po,v
+retrieving revision 1.15
+retrieving revision 1.16
+diff -Lpo/de.po -Lpo/de.po -u -r1.15 -r1.16
+--- po/de.po
++++ po/de.po
+@@ -308,6 +308,18 @@
+ msgid &quot;Configure Point Values&quot;
+ msgstr &quot;Punkte festlegen&quot;
+ 
++msgid &quot;View&quot;
++msgstr &quot;Anzeige&quot;
++
++msgid &quot;Card Arrangement:&quot;
++msgstr &quot;Kartendarstellung:&quot;
++
++msgid &quot;Rearrange cards after each trick.&quot;
++msgstr &quot;Karten nach jedem Stich neu anordnen.&quot;
++
++msgid &quot;Cards will be rearranged after each trick.&quot;
++msgstr &quot;Die Karten werden nach jedem Stich neu angeordnet.&quot;
++
+ #: results.cpp:44
+ msgid &quot; schneider&quot;
+ msgstr &quot; Schneider&quot;
+Index: settings.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.cpp,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -Lsrc/settings.cpp -Lsrc/settings.cpp -u -r1.13 -r1.14
+--- src/settings.cpp
++++ src/settings.cpp
+@@ -236,7 +236,7 @@
+ 
+ bool Settings::doublerHasToPlay() const
+ {
+-    bool b = false;
++    bool b = true;
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;SchafKopf&quot;);
+     b = config-&gt;readBoolEntry( &quot;DoublerHasToPlay&quot;, b );
+@@ -253,12 +253,28 @@
+ 
+ bool Settings::doubleNextGame() const
+ {
+-    bool b = false;
++    bool b = true;
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;SchafKopf&quot;);
+     b = config-&gt;readBoolEntry( &quot;DoubleNextGame&quot;, b );
+     return b;
+ }
+ 
++void Settings::setRearrangeCards( bool b)
++{
++    KConfig* config = kapp-&gt;config();
++    config-&gt;setGroup(&quot;SchafKopf&quot;);
++    config-&gt;writeEntry( &quot;RearrangeCards&quot;, b );
++    config-&gt;sync();
++}
++
++bool Settings::rearrangeCards() const
++{
++    bool b = true;
++    KConfig* config = kapp-&gt;config();
++    config-&gt;setGroup(&quot;SchafKopf&quot;);
++    b = config-&gt;readBoolEntry( &quot;RearrangeCards&quot;, b );
++    return b;
++}
+ 
+ #include &quot;settings.moc&quot;
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.34
+retrieving revision 1.35
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.34 -r1.35
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -269,7 +269,8 @@
+     if( card )
+     {
+         m_players[player]-&gt;cardPlayed( card-&gt;card() );
+-	m_players[player]-&gt;position( player );
++	if(Settings::instance()-&gt;rearrangeCards())
++		m_players[player]-&gt;position( player );
+   
+         CanvasCard* stich = m_stich[player];
+         stich-&gt;setCard( card-&gt;card() );
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.11 -r1.12
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -47,6 +47,7 @@
+     addPageResults();
+     addPageResultsMoney();
+     addPageResultsPoints();
++    addPageView();
+     
+     enableControls();
+ }
+@@ -88,6 +89,8 @@
+     
+     Settings::instance()-&gt;setDoubleNextGame( m_checkDoubleNextGame-&gt;isChecked() );
+     
++    Settings::instance()-&gt;setRearrangeCards( m_checkRearrangeCards-&gt;isChecked() );
++    
+     KDialogBase::accept();
+ }
+ 
+@@ -247,6 +250,23 @@
+     layout-&gt;addItem( spacer );
+     
+     delete r;
++}
++
++void PreferencesDlg::addPageView()
++{
++    QFrame* box = addPage( i18n(&quot;View&quot;), QString::null, BarIcon(&quot;&quot;) );
++    QVBoxLayout* layout = new QVBoxLayout( box, 6, 6  );
++    QSpacerItem* spacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding );
++    
++    QVButtonGroup* group = new QVButtonGroup( i18n(&quot;Card Arrangement:&quot;), box, &quot;group&quot; );
++    m_checkRearrangeCards = new QCheckBox ( i18n(&quot;Rearrange cards after each trick.&quot;), group );
++    QToolTip::add( m_checkRearrangeCards, i18n(&quot;Cards will be rearranged after each trick.&quot;) );
++ 
++    layout-&gt;addWidget( group );
++    layout-&gt;addItem( spacer );
++    
++    // load data from configuration
++    m_checkRearrangeCards-&gt;setChecked( Settings::instance()-&gt;rearrangeCards() );
+ }
+ 
+ void PreferencesDlg::enableControls()
+Index: settings.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/settings.h,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -Lsrc/settings.h -Lsrc/settings.h -u -r1.10 -r1.11
+--- src/settings.h
++++ src/settings.h
+@@ -86,6 +86,10 @@
+         
+         void setMoneyResults( const t_ResultValues* r );
+         void setPointResults( const t_ResultValues* r );
++
++        void setRearrangeCards( bool b);
++        bool rearrangeCards() const;
++
+         /** delete after usage
+           */
+         t_ResultValues* moneyResults() const;
+Index: preferencesdlg.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -Lsrc/preferencesdlg.h -Lsrc/preferencesdlg.h -u -r1.9 -r1.10
+--- src/preferencesdlg.h
++++ src/preferencesdlg.h
+@@ -54,6 +54,8 @@
+         void addPageResultsMoney();
+         void addPageResultsPoints();
+         void addPageRules();
++        void addPageView();
++
+         
+     private:
+         QRadioButton* m_radioMoney;
+@@ -63,7 +65,8 @@
+         QRadioButton* m_radioRamsch;
+         
+         QCheckBox* m_checkDoublerPlays;
+-        QCheckBox* m_checkDoubleNextGame; 
++        QCheckBox* m_checkDoubleNextGame;
++        QCheckBox* m_checkRearrangeCards;
+ 
+         KLineEdit* m_p1_name;
+         KLineEdit* m_p2_name;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000019.html">[Schafkopf-devel] Commit Report - Schafkopf restliche karten werden nach jedem stich neu
+</A></li>
+	<LI>Next message: <A HREF="000021.html">[Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#20">[ date ]</a>
+              <a href="thread.html#20">[ thread ]</a>
+              <a href="subject.html#20">[ subject ]</a>
+              <a href="author.html#20">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

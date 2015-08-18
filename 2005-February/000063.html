@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf doms vorschlag + uebersetzung
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20doms%20vorschlag%20%2B%20uebersetzung&In-Reply-To=%3C200502110218.j1B2IESZ021673%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000062.html">
+   <LINK REL="Next"  HREF="000064.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf doms vorschlag + uebersetzung</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20doms%20vorschlag%20%2B%20uebersetzung&In-Reply-To=%3C200502110218.j1B2IESZ021673%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf doms vorschlag + uebersetzung">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Fri Feb 11 03:18:14 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000062.html">[Schafkopf-devel] Commit Report - Schafkopf neuer button: hintergrundbild loeschen
+</A></li>
+        <LI>Next message: <A HREF="000064.html">[Schafkopf-devel] [PATCH] Threading Patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#63">[ date ]</a>
+              <a href="thread.html#63">[ thread ]</a>
+              <a href="subject.html#63">[ subject ]</a>
+              <a href="author.html#63">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+doms vorschlag + uebersetzung
+
+Modified Files:
+--------------
+    schafkopf/po:
+        de.po
+    schafkopf/src:
+        preferencesdlg.cpp
+        preferencesdlg.h
+
+-------------- next part --------------
+Index: de.po
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/po/de.po,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -Lpo/de.po -Lpo/de.po -u -r1.19 -r1.20
+--- po/de.po
++++ po/de.po
+@@ -326,6 +326,9 @@
+ msgid &quot;Background image:&quot;
+ msgstr &quot;Hintergrundbild:&quot;
+ 
++msgid &quot;clear background image&quot;
++msgstr &quot;Hintergrundbild entfernen&quot;
++
+ msgid &quot;Games&quot;
+ msgstr &quot;Spiele&quot;
+ 
+Index: preferencesdlg.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.h,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -Lsrc/preferencesdlg.h -Lsrc/preferencesdlg.h -u -r1.14 -r1.15
+--- src/preferencesdlg.h
++++ src/preferencesdlg.h
+@@ -49,6 +49,7 @@
+     
+     private slots:
+         void enableControls();
++        void disableClearButton(const QString &amp; url);
+         
+     private:
+         void addPagePlayer();
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.17 -r1.18
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -284,6 +284,7 @@
+     layout-&gt;addItem( spacer );
+     
+     connect( m_pushURLClear, SIGNAL( clicked() ), m_linePathBackground, SLOT( clear() ) );
++    connect( m_linePathBackground, SIGNAL( textChanged(const QString &amp;) ), this, SLOT( disableClearButton(const QString &amp;) ) );
+ 
+     // load data from configuration
+     m_checkRearrangeCards-&gt;setChecked( Settings::instance()-&gt;rearrangeCards() );
+@@ -345,6 +346,14 @@
+     
+     m_games_farbwenz-&gt;setEnabled( m_games_wenz-&gt;isChecked() );
+     m_games_farbgeier-&gt;setEnabled( m_games_geier-&gt;isChecked() );
++}
++
++void PreferencesDlg::disableClearButton(const QString &amp; url)
++{
++    if(url==&quot;&quot;)
++        m_pushURLClear-&gt;setEnabled( false );
++    else
++        m_pushURLClear-&gt;setEnabled( true );
+ }
+ 
+ #include &quot;preferencesdlg.moc&quot;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000062.html">[Schafkopf-devel] Commit Report - Schafkopf neuer button: hintergrundbild loeschen
+</A></li>
+	<LI>Next message: <A HREF="000064.html">[Schafkopf-devel] [PATCH] Threading Patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#63">[ date ]</a>
+              <a href="thread.html#63">[ thread ]</a>
+              <a href="subject.html#63">[ subject ]</a>
+              <a href="author.html#63">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

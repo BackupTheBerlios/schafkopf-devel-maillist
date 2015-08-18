@@ -1,0 +1,212 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf clear info view correctly and update player
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-January/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20clear%20info%20view%20correctly%20and%20update%20player&In-Reply-To=%3C200501042115.j04LFLYj016538%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000010.html">
+   <LINK REL="Next"  HREF="000012.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf clear info view correctly and update player</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20clear%20info%20view%20correctly%20and%20update%20player&In-Reply-To=%3C200501042115.j04LFLYj016538%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf clear info view correctly and update player">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Tue Jan  4 22:15:21 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000010.html">[Schafkopf-devel] Commit Report - Schafkopf nach dem zusammen werfen kann das naechste
+</A></li>
+        <LI>Next message: <A HREF="000012.html">[Schafkopf-devel] Commit Report - Schafkopf fixed translators
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11">[ date ]</a>
+              <a href="thread.html#11">[ thread ]</a>
+              <a href="subject.html#11">[ subject ]</a>
+              <a href="author.html#11">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+clear info view correctly and update player names in results view
+
+Modified Files:
+--------------
+    schafkopf/src:
+        game.cpp
+        schafkopf.cpp
+        schafkopf.h
+
+-------------- next part --------------
+Index: schafkopf.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopf.cpp,v
+retrieving revision 1.31
+retrieving revision 1.32
+diff -Lsrc/schafkopf.cpp -Lsrc/schafkopf.cpp -u -r1.31 -r1.32
+--- src/schafkopf.cpp
++++ src/schafkopf.cpp
+@@ -26,6 +26,9 @@
+ #include &quot;newgamewizard.h&quot;
+ #include &quot;preferencesdlg.h&quot;
+ 
++// for pow()
++#include &lt;math.h&gt;
++
+ #include &lt;qfontmetrics.h&gt;
+ #include &lt;qheader.h&gt;
+ #include &lt;qlabel.h&gt;
+@@ -73,7 +76,7 @@
+     m_table-&gt;setReadOnly( true );
+     m_table-&gt;setNumCols( PLAYERS );
+     m_table-&gt;setLeftMargin( 0 );
+-    m_table-&gt;setColumnLabels( Settings::instance()-&gt;playerNames() );
++    updateTableNames();
+     //QFontMetrics fm( m_table-&gt;horizontalHeader()-&gt;font() );
+     for( unsigned int i = 0; i &lt; PLAYERS; i++ )
+     {
+@@ -105,7 +108,7 @@
+     connect(m_game,SIGNAL(signalDoubled()),this,SLOT(updateInfo()));
+ 
+     connect(Settings::instance(),SIGNAL(resultsTypeChanged()),this,SLOT(clearTable()));
+-    
++    connect(Settings::instance(),SIGNAL(playerNamesChanged()),this,SLOT(updateTableNames()));
+     QToolTip::add
+         ( btnLastTrick, i18n(&quot;Show the last trick that was made.&quot;) );
+ 
+@@ -185,7 +188,6 @@
+ 
+     }
+ 
+-
+     delete ng;
+ }
+ 
+@@ -196,7 +198,7 @@
+     // entering the game loop is the last thing
+     // we want to do!
+     m_game-&gt;gameLoop();
+-    endGame();
++    endGame();    
+ }
+ 
+ void SchafKopf::endGame()
+@@ -205,6 +207,7 @@
+ 
+     m_game-&gt;endGame();
+     clearTable();
++    updateInfo();
+ }
+ 
+ void SchafKopf::showStich()
+@@ -245,11 +248,16 @@
+ {
+     int timesDoubled = 0, timesThrownTogether = 0;
+     int valuation;
+-    if( m_game-&gt;gameInfo()-&gt;isValid() )
++    
++    if( !m_game-&gt;isTerminated() &amp;&amp; m_game-&gt;gameInfo()-&gt;isValid() )
+         lblCurGame-&gt;setText( i18n(&quot;&lt;qt&gt;Current Game:&lt;br&gt;&lt;b&gt;&quot;) + m_game-&gt;gameInfo()-&gt;toString() + &quot;&lt;/b&gt;&lt;/qt&gt;&quot; );
+     else
++    {
+         lblCurGame-&gt;setText( QString::null );
+-
++        lblDoubled-&gt;setText( QString::null );
++        return;
++    }
++    
+     QString sDoubled;
+     for(unsigned int i=0;i&lt;PLAYERS;i++)
+     {
+@@ -269,8 +277,6 @@
+     sDoubled.append( i18n(&quot;&lt;qt&gt;Game counts &lt;b&gt;%1-fold&lt;/b&gt;.&lt;/qt&gt;&quot;).arg(valuation) );
+     
+     lblDoubled-&gt;setText( sDoubled );
+-    
+-    
+ }
+ 
+ void SchafKopf::clearTable()
+@@ -290,6 +296,11 @@
+     {
+     
+     }
++}
++
++void SchafKopf::updateTableNames()
++{
++    m_table-&gt;setColumnLabels( Settings::instance()-&gt;playerNames() );
+ }
+ 
+ #include &quot;schafkopf.moc&quot;
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.66
+retrieving revision 1.67
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.66 -r1.67
+--- src/game.cpp
++++ src/game.cpp
+@@ -286,6 +286,10 @@
+     m_canvas-&gt;information( r-&gt;result() );
+     delete r;
+     m_timesThrownTogether = 0;
++    
++    // the game is over, so the GameInfo structure is not
++    // valid. Results in a cleared updateInfo() field in the UI
++    gameInfo()-&gt;setValid( false );
+ }
+ 
+ bool Game::setupGameInfo(Player *players[])
+Index: schafkopf.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopf.h,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -Lsrc/schafkopf.h -Lsrc/schafkopf.h -u -r1.9 -r1.10
+--- src/schafkopf.h
++++ src/schafkopf.h
+@@ -86,6 +86,11 @@
+         /** remove all items from the table displaying the results
+           */
+         void clearTable();
++        
++        /** update table headings when the user changes the player names
++          * in the preferences
++          */
++        void updateTableNames();
+     private:
+         void setupActions();
+         
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000010.html">[Schafkopf-devel] Commit Report - Schafkopf nach dem zusammen werfen kann das naechste
+</A></li>
+	<LI>Next message: <A HREF="000012.html">[Schafkopf-devel] Commit Report - Schafkopf fixed translators
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11">[ date ]</a>
+              <a href="thread.html#11">[ thread ]</a>
+              <a href="subject.html#11">[ subject ]</a>
+              <a href="author.html#11">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

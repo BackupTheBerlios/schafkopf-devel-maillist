@@ -1,0 +1,40 @@
+From domseichter at web.de  Fri Aug 26 22:13:01 2005
+From: domseichter at web.de (Dominik Seichter)
+Date: Fri, 26 Aug 2005 22:13:01 +0200
+Subject: [Schafkopf-devel] Fwd: [Bug 77273] SchafKopf is missing in portage. Ebuild attached, should be added.
+Message-ID: <200508262213.02065.domseichter@web.de>
+
+Clear-Text: http://bugs.gentoo.org/show_bug.cgi?id=77273
+Secure: https://bugs.gentoo.org/show_bug.cgi?id=77273
+
+
+mr_bones_ at gentoo.org changed:
+
+           What    |Removed                     |Added
+----------------------------------------------------------------------------
+             Status|NEW                         |RESOLVED
+         Resolution|                            |FIXED
+
+
+
+
+------- Additional Comments From mr_bones_ at gentoo.org  2005-08-23 23:18 PDT 
+-------
+games-board/schafkopf in portage.  Thanks for the bug report and ebuild.
+
+-- 
+Configure bugmail: http://bugs.gentoo.org/userprefs.cgi?tab=email
+------- You are receiving this mail because: -------
+You reported the bug, or are watching the reporter.
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+
+

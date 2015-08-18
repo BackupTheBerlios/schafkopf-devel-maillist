@@ -1,0 +1,732 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf (butt-ugly) Tastatursteuerung  Das spielen ist
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20%28butt-ugly%29%20Tastatursteuerung%20%20Das%20spielen%20ist&In-Reply-To=%3C200502191439.j1JEdc3T012991%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000076.html">
+   <LINK REL="Next"  HREF="000079.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf (butt-ugly) Tastatursteuerung  Das spielen ist</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20%28butt-ugly%29%20Tastatursteuerung%20%20Das%20spielen%20ist&In-Reply-To=%3C200502191439.j1JEdc3T012991%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf (butt-ugly) Tastatursteuerung  Das spielen ist">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Sat Feb 19 15:39:38 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000076.html">[Schafkopf-devel] Commit Report - Schafkopf TODO upgedated
+</A></li>
+        <LI>Next message: <A HREF="000079.html">[Schafkopf-devel] Commit Report - Schafkopf (butt-ugly) Tastatursteuerung  Das spielen ist
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#77">[ date ]</a>
+              <a href="thread.html#77">[ thread ]</a>
+              <a href="subject.html#77">[ subject ]</a>
+              <a href="author.html#77">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+(butt-ugly) Tastatursteuerung
+
+Das spielen ist jetzt sch&#246;n konfortabel wenn man ned dauernd rum klicken muss!
+
+Rechts/Links verschieben den Focus und Return/Enter &quot;klickt&quot; das aktuell gew&#228;hlte Element an. Zuvor muss man nat&#252;rlich den Spielfeld den Tastatur Focus geben. Habe &#252;berlegt ob ich TAB und Shift-TAB zum wechseln nehmen soll, aber die Pfeiltasten gefall mir besser.
+
+Die schillernden Farben k&#246;nnt ihr nat&#252;rlich gerne gegen sch&#246;nere austauschen. Als Informatiker sollte ich mich bei geschmacksfragen eh raushalten.
+
+Modified Files:
+--------------
+    schafkopf:
+        TODO
+    schafkopf/src:
+        canvascard.cpp
+        canvascard.h
+        canvasplayer.cpp
+        canvasplayer.h
+        computerplayer.cpp
+        computerplayer.h
+        game.cpp
+        game.h
+        gamecanvas.cpp
+        gamecanvas.h
+        humanplayer.cpp
+        humanplayer.h
+        player.cpp
+        player.h
+        schafkopfdef.h
+
+-------------- next part --------------
+Index: TODO
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/TODO,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -LTODO -LTODO -u -r1.12 -r1.13
+--- TODO
++++ TODO
+@@ -1,24 +1,23 @@
+ &lt;b&gt;18.02.2005&lt;/b&gt;
+ &lt;pre&gt;
+ Fixen:
+-- Rufsau nach davonlaufen in allowedCards hinzuf?gen
++- Rufsau nach davonlaufen in allowedCards hinzufgen
+ 
+ AI:
+ - Solo: Mitspieler schmieren dem Spieler
+-- Solo: Spieler spielt seine Tr?mpfe zu sp?t.
+-- Computer schmiert auch Ober wenn er nix h?heres hat
+-- ?fters Rufspiele spielen
++- Solo: Spieler spielt seine Trmpfe zu sp???.
++- Computer schmiert auch Ober wenn er nix h???eres hat
++- ???ters Rufspiele spielen
+ - &quot;Wird eine Farbe das zweite Mal gespielt, so sollte ein AI-Spieler mindestens mit einem Unter stechen, sofern hinter ihm noch ein Gegner kommt.&quot; (auf keinen Fall schmieren!!)
+ - &quot;Als Spieler nicht die Sau suchen, sondern Trumpf ausspielen&quot;
+ - Computer waehlt kein Spiel aus, sondern spielt Eichel-Sticht, wenn er spielen muss (aber nicht will).
+ 
+ neue Features:
+-- Tastatursteuerung
+-- &quot;Momentan ist es so, dass ich sofort bei der Spielansage angeben muss, welches Spiel ich zu spielen gedenke. In der Realit?t kann ich es davon abh?ngig machen, ob hinter mir noch jemand ein Spiel angemeldet hat. Die exakte Spielauswahl sollte also erst zu dem Zeitpunkt erfolgen, an dem sie auch in der Ralit?t stattfindet.&quot; Und dann nur Spiele ausw?hlbar machen die h?her sind als die vorher angesagten.
+-- richtige Schafkopfkarten hinzuf?gen
+-- netzwerktransparente Kommunikation (f?r neuronales Netzwerk und Netzwerkspiel)
++- &quot;Momentan ist es so, dass ich sofort bei der Spielansage angeben muss, welches Spiel ich zu spielen gedenke. In der Realit??? kann ich es davon abh???gig machen, ob hinter mir noch jemand ein Spiel angemeldet hat. Die exakte Spielauswahl sollte also erst zu dem Zeitpunkt erfolgen, an dem sie auch in der Ralit??? stattfindet.&quot; Und dann nur Spiele ausw???lbar machen die h???er sind als die vorher angesagten.
++- richtige Schafkopfkarten hinzufgen
++- netzwerktransparente Kommunikation (fr neuronales Netzwerk und Netzwerkspiel)
+ - speichern und laden von Spielen
+-- Trainingsmodus mit &quot;R?ckg?ngig&quot;-Funktion (auch mehrere Stiche)
++- Trainingsmodus mit &quot;Rckg???gig&quot;-Funktion (auch mehrere Stiche)
+ - &quot;Letzter Stich&quot;-Dialog: Karten so anordnen wie auf dem Spielfeld
+ - Kontra, Reh, ...
+ &lt;/pre&gt;
+Index: canvascard.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvascard.cpp,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -Lsrc/canvascard.cpp -Lsrc/canvascard.cpp -u -r1.17 -r1.18
+--- src/canvascard.cpp
++++ src/canvascard.cpp
+@@ -66,17 +66,25 @@
+         KPixmap pix = pixmap-&gt;xForm( wm );
+         if( m_forbidden )
+             pix = KPixmapEffect::fade( pix, 0.5, Qt::gray );
+-        
++        else if( isActive() )
++            pix = KPixmapEffect::fade( pix, 0.25, Qt::yellow );
++            
+         setSize( pix.width()+3, pix.height()+3 );
+         bitBlt( p.device(), point.x(), point.y(), &amp;pix );
+         if(loadOK1 &amp;&amp; loadOK2)
+         {
+-	if( m_rotation==0 || m_rotation==180)
+-            bitBlt( p.device(), point.x(), point.y(), &amp;Shadow );
+-        else
+-            bitBlt( p.device(), point.x(), point.y(), &amp;Shadow2 );
++            if( m_rotation==0 || m_rotation==180)
++                bitBlt( p.device(), point.x(), point.y(), &amp;Shadow );
++            else
++                bitBlt( p.device(), point.x(), point.y(), &amp;Shadow2 );
+         }
+     }
++}
++
++void CanvasCard::setActive( bool b )
++{
++    QCanvasItem::update();
++    QCanvasItem::setActive( b );
+ }
+ 
+ void CanvasCard::setFrontVisible( bool b )
+Index: schafkopfdef.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopfdef.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -Lsrc/schafkopfdef.h -Lsrc/schafkopfdef.h -u -r1.7 -r1.8
+--- src/schafkopfdef.h
++++ src/schafkopfdef.h
+@@ -53,11 +53,28 @@
+     void* returncode;
+     int* cardids;
+ 
++    
+     bool wait;
+     bool quitgame;
+     
+     QStringList* playernames;
+     QString data;
++};
++
++typedef struct t_PlayerData {
++    unsigned int id1;
++    int* cards1;
++    
++    unsigned int id2;
++    int* cards2;
++
++    unsigned int id3;
++    int* cards3;
++
++    unsigned int id4;
++    int* cards4;
++
++    unsigned int lastid;
+ };
+ 
+ /** Uncomment this line to make all cards
+Index: player.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.cpp,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -Lsrc/player.cpp -Lsrc/player.cpp -u -r1.29 -r1.30
+--- src/player.cpp
++++ src/player.cpp
+@@ -8,14 +8,12 @@
+ #include &lt;cstdlib&gt;
+ using namespace std;
+ 
+-unsigned int Player::def_id=0;
+-
+-Player::Player(Game* game)
++Player::Player(unsigned int id, Game* game)
+     : m_game( game )
+ {
+     m_stiche = new CardList();
+     m_points = 0.0;
+-    m_id=def_id++;
++    m_id=id;
+     m_cards = NULL;
+     
+     m_has_doubled = false;
+Index: humanplayer.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/humanplayer.h,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -Lsrc/humanplayer.h -Lsrc/humanplayer.h -u -r1.13 -r1.14
+--- src/humanplayer.h
++++ src/humanplayer.h
+@@ -25,7 +25,7 @@
+ class HumanPlayer : public Player
+ {
+     public:
+-        HumanPlayer(Game* game);
++        HumanPlayer(unsigned int id, Game* game);
+         ~HumanPlayer();
+         
+         void klopfen();
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.43
+retrieving revision 1.44
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.43 -r1.44
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -32,6 +32,22 @@
+ #include &lt;qtimer.h&gt;
+ #include &lt;qimage.h&gt;
+ 
++class CanvasText : public QCanvasText {
++    public:
++        CanvasText( const QString &amp; t, const QFont &amp; f, QCanvas* c )
++            : QCanvasText( t, f, c )
++        {
++            setActive( false );
++        }
++        
++        void setActive( bool b )
++        {
++            setColor( b ? Qt::white : Qt::yellow );
++            QCanvasText::setActive( b );
++        }
++
++};
++
+ GameCanvas::GameCanvas(QCanvas* c, QWidget *parent, const char *name)
+  : QCanvasView(c,parent, name)
+ {
+@@ -46,15 +62,11 @@
+         
+     QFont f( &quot;Helvetica&quot;, 24 );
+     
+-    m_message = new QCanvasText( QString::null, f, canvas() );;
+-    m_yes = new QCanvasText( i18n(&quot;Yes&quot;), f, canvas() );;
+-    m_no = new QCanvasText( i18n(&quot;No&quot;), f, canvas() );;
+-    m_ok = new QCanvasText( i18n(&quot;OK&quot;), f, canvas() );
+-    
+-    m_message-&gt;setColor( Qt::yellow );
+-    m_yes-&gt;setColor( Qt::yellow );
+-    m_no-&gt;setColor( Qt::yellow );
+-    m_ok-&gt;setColor( Qt::yellow );
++    m_message = new CanvasText( QString::null, f, canvas() );;
++    m_yes = new CanvasText( i18n(&quot;Yes&quot;), f, canvas() );;
++    m_no = new CanvasText( i18n(&quot;No&quot;), f, canvas() );;
++    m_ok = new CanvasText( i18n(&quot;OK&quot;), f, canvas() );
++    
+     
+     // Does not work :-(
+     /*
+@@ -65,6 +77,7 @@
+     */
+     
+     m_result = 0;
++    setFocusPolicy( QWidget::StrongFocus );
+     
+     canvas()-&gt;setBackgroundColor( Qt::darkGreen );
+     
+@@ -74,6 +87,13 @@
+     
+     connect( Settings::instance(), SIGNAL(cardChanged()), this, SLOT(positionObjects()));
+     connect( this, SIGNAL(clicked( QCanvasItem* )), this, SLOT(yesNoClicked(QCanvasItem*)));
++    
++    m_focus_list.append( m_yes );
++    m_focus_list.append( m_no );
++    m_focus_list.append( m_ok );
++    for( i=0;i&lt;NUMCARDS;i++ )
++        m_focus_list.append( m_players[0]-&gt;canvasCard( i ) );
++    
+ }    
+ 
+ GameCanvas::~GameCanvas()
+@@ -192,8 +212,24 @@
+ 
+ int GameCanvas::getCard()
+ {
++    CanvasPlayer* human = humanPlayer();
++    CanvasCard* c = NULL;
++    unsigned int i;
++    
+     connect( this, SIGNAL(clicked( QCanvasItem* )), this, SLOT(cardClicked(QCanvasItem*)));
+     m_result = -1;
++
++    if( hasFocus() )
++        for( i=0;i&lt;NUMCARDS;i++)
++        {
++            c = human-&gt;canvasCard( i );
++            if( c )
++            {
++                c-&gt;setActive( true );
++                break;
++            }
++        }
++    
+     ENTER_LOOP();
+     
+     return m_result;
+@@ -201,6 +237,9 @@
+ 
+ void GameCanvas::cardClicked( QCanvasItem* item )
+ {
++    if( item )
++        item-&gt;setActive( false );
++        
+     if( item-&gt;rtti() == CANVASCARD ) 
+     {
+         CanvasCard* card = static_cast&lt;CanvasCard*&gt;(item);
+@@ -339,6 +378,82 @@
+     }
+ }
+ 
++void GameCanvas::keyPressEvent(QKeyEvent* e)
++{
++    unsigned int i = 0;
++    int z = 0;
++    
++    if( e-&gt;key() == Qt::Key_Enter || e-&gt;key() == Qt::Key_Return )
++    {
++        for( i=0;i&lt;m_focus_list.count();i++ )
++            if( m_focus_list[i]-&gt;isActive() )
++            {
++                if( m_focus_list[i]-&gt;rtti() == QCanvasItem::Rtti_Text )                
++                    yesNoClicked( m_focus_list[i] );
++                else if( m_focus_list[i]-&gt;rtti() == CANVASCARD )
++                    cardClicked( m_focus_list[i] );
++            }
++    }
++    else if( e-&gt;key() == Qt::Key_Right )
++    {
++        for( i=0;i&lt;m_focus_list.count();i++ )
++            if( m_focus_list[i]-&gt;isActive() )
++            {
++                for( z=i+1;z&lt;m_focus_list.count();z++ )
++                    if( m_focus_list[z]-&gt;isVisible() )
++                    {
++                        if( m_message-&gt;isVisible() &amp;&amp; m_focus_list[z]-&gt;rtti() == CANVASCARD )
++                            continue;
++                            
++                        m_focus_list[i]-&gt;setActive( false );
++                        m_focus_list[z]-&gt;setActive( true );
++                        break;
++                    }
++                break;
++            }
++    }
++    else if( e-&gt;key() == Qt::Key_Left )
++    {
++        for( i=0;i&lt;m_focus_list.count();i++ )
++            if( m_focus_list[i]-&gt;isActive() )
++            {
++                for( z=i-1;z&gt;=0;z-- )
++                    if( m_focus_list[z]-&gt;isVisible() )
++                    {
++                        if( m_message-&gt;isVisible() &amp;&amp; m_focus_list[z]-&gt;rtti() == CANVASCARD )
++                            continue;
++
++                        m_focus_list[i]-&gt;setActive( false );
++                        m_focus_list[z]-&gt;setActive( true );
++                        break;
++                    }
++                break;
++            }
++    }
++}
++
++void GameCanvas::focusInEvent(QFocusEvent*)
++{
++    int i;
++    for(i=0;i&lt;m_focus_list.count();i++)
++        if( m_focus_list[i]-&gt;isVisible() )
++        {
++            m_focus_list[i]-&gt;setActive( true );
++            break;
++        }
++}
++
++void GameCanvas::focusOutEvent(QFocusEvent*)
++{
++    int i;
++    for(i=0;i&lt;m_focus_list.count();i++)
++        if( m_focus_list[i]-&gt;isActive() )
++        {
++            m_focus_list[i]-&gt;setActive( false );
++            break;
++        }
++}
++
+ bool GameCanvas::questionYesNo( const QString &amp; message )
+ {
+     m_result = NO;
+@@ -351,6 +466,8 @@
+     positionObjects();
+     
+     canvas()-&gt;update();
++    if( hasFocus() )
++        m_yes-&gt;setActive( true );
+     ENTER_LOOP();
+     
+     m_message-&gt;hide();
+@@ -364,6 +481,9 @@
+ 
+ void GameCanvas::yesNoClicked( QCanvasItem* item )
+ {
++    if( item )
++        item-&gt;setActive( false );
++        
+     if( m_message &amp;&amp; ((m_yes &amp;&amp; m_no) || m_ok ))
+     {
+         if( item == m_yes )
+@@ -393,6 +513,8 @@
+     positionObjects();
+     
+     canvas()-&gt;update();
++    if( hasFocus() )
++        m_ok-&gt;setActive( true );
+     ENTER_LOOP();
+ 
+     m_message-&gt;hide();
+@@ -463,6 +585,15 @@
+     for(i=0;i&lt;PLAYERS;i++)
+         if( m_players[i]-&gt;id() == id )
+             m_players[i]-&gt;setCards( &amp;list );
++}
++
++CanvasPlayer* GameCanvas::humanPlayer() const
++{
++    int i;
++    for( i = 0; i &lt; PLAYERS; i++ ) 
++        if( m_players[i]-&gt;isHuman() )
++            return m_players[i];
++    return NULL;
+ }
+ 
+ #include &quot;gamecanvas.moc&quot;
+Index: computerplayer.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.h,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -Lsrc/computerplayer.h -Lsrc/computerplayer.h -u -r1.14 -r1.15
+--- src/computerplayer.h
++++ src/computerplayer.h
+@@ -30,7 +30,7 @@
+ class ComputerPlayer : public Player
+ {
+     public:
+-        ComputerPlayer(Game* game);
++        ComputerPlayer(unsigned int id,Game* game);
+         ~ComputerPlayer();
+         
+ 		void init();
+Index: canvasplayer.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -Lsrc/canvasplayer.h -Lsrc/canvasplayer.h -u -r1.7 -r1.8
+--- src/canvasplayer.h
++++ src/canvasplayer.h
+@@ -52,6 +52,7 @@
+         void setName( const QString &amp; name );
+         void setCards( CardList* cards );
+         
++        CanvasCard* canvasCard( int index );
+         void cardPlayed( Card* c );
+         CanvasCard* hasCard( int cardid ) const; 
+         
+Index: canvascard.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvascard.h,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -Lsrc/canvascard.h -Lsrc/canvascard.h -u -r1.13 -r1.14
+--- src/canvascard.h
++++ src/canvascard.h
+@@ -39,8 +39,9 @@
+         
+         void setFrontVisible( bool b );
+         void setRotation( int d );
+-	void animatedMove();
+-	void setDestination( int x, int x );
++        
++        void animatedMove();
++        void setDestination( int x, int x );
+ 
+         
+         int rtti() const { return CANVASCARD; }
+@@ -50,6 +51,8 @@
+           */
+         void forbidden();
+     
++        void setActive( bool b );
++        
+     private:
+         void draw( QPainter &amp; p );
+         
+Index: canvasplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.cpp,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -Lsrc/canvasplayer.cpp -Lsrc/canvasplayer.cpp -u -r1.21 -r1.22
+--- src/canvasplayer.cpp
++++ src/canvasplayer.cpp
+@@ -207,6 +207,18 @@
+     }
+ }
+ 
++CanvasCard* CanvasPlayer::canvasCard( int index )
++{
++    if( index &lt; 0 || index &gt;= NUMCARDS )
++        return NULL;
++        
++    CanvasCard* card = m_items[index];
++    if( card-&gt;isVisible() )
++        return card;
++    else 
++        return NULL;
++}
++
+ CanvasCard* CanvasPlayer::hasCard( int cardid ) const
+ {
+     for(unsigned int i=0;i&lt;NUMCARDS;i++)
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.69
+retrieving revision 1.70
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.69 -r1.70
+--- src/game.cpp
++++ src/game.cpp
+@@ -35,6 +35,8 @@
+ #include &lt;kmessagebox.h&gt;
+ #include &lt;string.h&gt;
+ 
++unsigned int Game::def_id=0;
++
+ Game::Game(sem_t* sem, QObject *parent )
+  : QThread()
+ {
+@@ -48,9 +50,9 @@
+     
+     // Create our player objects
+     // delete these only in the destructor    
+-    m_players[0] = new HumanPlayer( this );
++    m_players[0] = new HumanPlayer( def_id++, this );
+     for( i=1;i&lt;PLAYERS;i++)
+-        m_players[i] = new ComputerPlayer( this );
++        m_players[i] = new ComputerPlayer( def_id++, this );
+     
+     updatePlayerNames();
+     
+@@ -501,7 +503,7 @@
+     data-&gt;playernames = names;
+     data-&gt;returncode = NULL;
+     data-&gt;quitgame = false;
+-    
++        
+     KApplication::postEvent( m_parent, new QCustomEvent( (QEvent::Type)SCHAFKOPF_EVENT, (void*)data) );
+     if( wait )
+     {
+@@ -511,7 +513,7 @@
+             endGame();
+ 
+         ret = data-&gt;returncode;
+-        
++    
+         if( data-&gt;cardids )
+             delete [] data-&gt;cardids;
+                 
+Index: game.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.h,v
+retrieving revision 1.35
+retrieving revision 1.36
+diff -Lsrc/game.h -Lsrc/game.h -u -r1.35 -r1.36
+--- src/game.h
++++ src/game.h
+@@ -105,6 +105,8 @@
+         void run();
+ 
+     private:
++        static unsigned int def_id;
++        
+         sem_t* m_sem;
+         bool terminated;
+         Player *m_players[PLAYERS];
+Index: humanplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/humanplayer.cpp,v
+retrieving revision 1.27
+retrieving revision 1.28
+diff -Lsrc/humanplayer.cpp -Lsrc/humanplayer.cpp -u -r1.27 -r1.28
+--- src/humanplayer.cpp
++++ src/humanplayer.cpp
+@@ -27,8 +27,8 @@
+ 
+ #include &lt;klocale.h&gt;
+ 
+-HumanPlayer::HumanPlayer(Game* game)
+- : Player(game)
++HumanPlayer::HumanPlayer(unsigned int id, Game* game)
++ : Player(id,game)
+ {
+     m_allowed = NULL;
+     m_card = NULL;
+Index: computerplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.cpp,v
+retrieving revision 1.28
+retrieving revision 1.29
+diff -Lsrc/computerplayer.cpp -Lsrc/computerplayer.cpp -u -r1.28 -r1.29
+--- src/computerplayer.cpp
++++ src/computerplayer.cpp
+@@ -27,8 +27,8 @@
+ 
+ #include &lt;kapplication.h&gt;
+ 
+-ComputerPlayer::ComputerPlayer(Game* game)
+-	: Player(game)
++ComputerPlayer::ComputerPlayer(unsigned int id,Game* game)
++	: Player(id,game)
+ {
+ 	int i;
+ 	
+Index: player.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.h,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -Lsrc/player.h -Lsrc/player.h -u -r1.23 -r1.24
+--- src/player.h
++++ src/player.h
+@@ -14,7 +14,7 @@
+     public:
+         enum { HUMAN = 0, COMPUTER, NETHUMAN };
+ 		
+-		Player(Game* game);
++		Player(unsigned int id, Game* game);
+         // this destructor should be virtual
+         // but setting it to virtual makes everything
+         // crash. Seems to be a good lenz-job ;) ...
+@@ -82,7 +82,6 @@
+ 		bool istTrumpf(Card* card);
+         
+     private:
+-        static unsigned int def_id;
+         double m_points;
+ 		
+ 		CardList* PlayerCards();
+Index: gamecanvas.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.h,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -Lsrc/gamecanvas.h -Lsrc/gamecanvas.h -u -r1.25 -r1.26
+--- src/gamecanvas.h
++++ src/gamecanvas.h
+@@ -101,13 +101,17 @@
+ 
+         void contentsMousePressEvent(QMouseEvent*);
+         void contentsMouseReleaseEvent(QMouseEvent*);
+-                
+-    private:
++        void keyPressEvent(QKeyEvent*);
++        void focusInEvent(QFocusEvent*);
++        void focusOutEvent(QFocusEvent*);
++        
++    private:        
+         int m_result;
+         QPoint getStichPosition( int player );
+         int getStichRotation( int player );
+-
++        CanvasPlayer* humanPlayer() const;
+         
++        QCanvasItemList m_focus_list;
+         CanvasPlayer* m_players[PLAYERS];
+         CanvasCard* m_stich[PLAYERS];
+         
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000076.html">[Schafkopf-devel] Commit Report - Schafkopf TODO upgedated
+</A></li>
+	<LI>Next message: <A HREF="000079.html">[Schafkopf-devel] Commit Report - Schafkopf (butt-ugly) Tastatursteuerung  Das spielen ist
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#77">[ date ]</a>
+              <a href="thread.html#77">[ thread ]</a>
+              <a href="subject.html#77">[ subject ]</a>
+              <a href="author.html#77">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,32 @@
+From benjamin.loewe at freenet.de  Sun Feb 12 18:33:08 2012
+From: benjamin.loewe at freenet.de (=?ISO-8859-15?Q?Benjamin_L=F6we?=)
+Date: Sun, 12 Feb 2012 18:33:08 +0100
+Subject: [Schafkopf-devel] SchafKopf ported to KDE4
+Message-ID: <4F37F7D4.6060400@freenet.de>
+
+Hi there,
+
+I don't know who is still reading this, but I just want to announce that
+I have ported SchafKopf to KDE4. There are still some small things that
+don't work yet (e.g. make install, which means no translations) but in
+general it should run just like back in good old KDE3 times.
+
+CVS is now dead as I moved SchafKopf to github:
+https://github.com/benni0815/SchafKopf
+
+To get the code just do a
+git clone git://github.com/benni0815/SchafKopf.git
+
+To compile you will need the development packages of libkdegames and
+qimageblitz (libkdegames-dev and libqimageblitz-dev on Ubuntu).
+SchafKopf will try to use the "XSkat German" card deck which you might
+need to install through your package manager.
+
+We will do a release when the remaining bugs are fixed, but we are also
+looking forward to receive some patches. :-)
+
+Greetings
+
+Benni
+
+

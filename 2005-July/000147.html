@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] bloewe: Commit Report - Schafkopf benni und lenz: bug mit der falschen
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20bloewe%3A%20Commit%20Report%20-%20Schafkopf%20benni%20und%20lenz%3A%20bug%20mit%20der%20falschen&In-Reply-To=%3C200507192300.j6JN0TRJ018825%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000146.html">
+   <LINK REL="Next"  HREF="000148.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] bloewe: Commit Report - Schafkopf benni und lenz: bug mit der falschen</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20bloewe%3A%20Commit%20Report%20-%20Schafkopf%20benni%20und%20lenz%3A%20bug%20mit%20der%20falschen&In-Reply-To=%3C200507192300.j6JN0TRJ018825%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] bloewe: Commit Report - Schafkopf benni und lenz: bug mit der falschen">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Wed Jul 20 01:00:29 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000146.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf Noch was hartgecodet gewesen...
+</A></li>
+        <LI>Next message: <A HREF="000148.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf lenz fixed a memleak
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#147">[ date ]</a>
+              <a href="thread.html#147">[ thread ]</a>
+              <a href="subject.html#147">[ subject ]</a>
+              <a href="author.html#147">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+benni und lenz:
+bug mit der falschen stichzuordnung bei kurzen karten ist gefixt
+
+Modified Files:
+--------------
+    schafkopf/src:
+        game.cpp
+        gameinfo.cpp
+        schafkopfdef.h
+
+-------------- next part --------------
+Index: schafkopfdef.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopfdef.h,v
+retrieving revision 1.14
+retrieving revision 1.15
+diff -Lsrc/schafkopfdef.h -Lsrc/schafkopfdef.h -u -r1.14 -r1.15
+--- src/schafkopfdef.h
++++ src/schafkopfdef.h
+@@ -29,10 +29,12 @@
+  
+ #ifdef SCHAFKOPF_LANG
+ #define NUMCARDS  8
++#define NUMTRUMPF 4
+ #define TURNS     8
+ #define CARD_CNT  32
+ #else
+ #define NUMCARDS  6
++#define NUMTRUMPF 4
+ #define TURNS     6
+ #define CARD_CNT  24
+ #endif // SCHAFKOPF_LANG
+Index: gameinfo.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gameinfo.cpp,v
+retrieving revision 1.21
+retrieving revision 1.22
+diff -Lsrc/gameinfo.cpp -Lsrc/gameinfo.cpp -u -r1.21 -r1.22
+--- src/gameinfo.cpp
++++ src/gameinfo.cpp
+@@ -309,8 +309,8 @@
+ 		}
+ 	}
+ 	if(trumpf_index!=-1)
+-		return CARD_CNT-(trumpf_index*PLAYERS+card-&gt;color());
+-	return CARD_CNT-(trumpf_cnt*PLAYERS+colors_index*(TURNS-trumpf_cnt)+cards_index);
++		return CARD_CNT-(trumpf_index*NUMTRUMPF+card-&gt;color());
++	return CARD_CNT-(trumpf_cnt*NUMTRUMPF+colors_index*(NUMCARDS-trumpf_cnt)+cards_index);
+ }
+ 
+ int GameInfo::laufende()
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.80
+retrieving revision 1.81
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.80 -r1.81
+--- src/game.cpp
++++ src/game.cpp
+@@ -305,14 +305,14 @@
+ 	{
+ 	    case GameInfo::GEIER:
+ 	    case GameInfo::WENZ:
+-		colcnt=7;
++		colcnt=NUMCARDS-1;
+ 		break;
+ 	    case GameInfo::RAMSCH:
+ 	    case GameInfo::RUFSPIEL:
+ 	    case GameInfo::STICHT:
+ 	    case GameInfo::DACHS:
+ 	    default:
+-		colcnt=6;
++		colcnt=NUMCARDS-2;
+ 		break;
+ 	}
+ 	if((highVal-1)/colcnt==(cardVal-1)/colcnt)
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000146.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf Noch was hartgecodet gewesen...
+</A></li>
+	<LI>Next message: <A HREF="000148.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf lenz fixed a memleak
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#147">[ date ]</a>
+              <a href="thread.html#147">[ thread ]</a>
+              <a href="subject.html#147">[ subject ]</a>
+              <a href="author.html#147">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

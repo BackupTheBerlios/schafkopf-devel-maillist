@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] bloewe: Commit Report - Schafkopf +aktuelle ebuilds
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-November/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20bloewe%3A%20Commit%20Report%20-%20Schafkopf%20%2Baktuelle%20ebuilds&In-Reply-To=%3C200511151204.jAFC42hr009963%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000211.html">
+   <LINK REL="Next"  HREF="000213.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] bloewe: Commit Report - Schafkopf +aktuelle ebuilds</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20bloewe%3A%20Commit%20Report%20-%20Schafkopf%20%2Baktuelle%20ebuilds&In-Reply-To=%3C200511151204.jAFC42hr009963%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] bloewe: Commit Report - Schafkopf +aktuelle ebuilds">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Tue Nov 15 13:04:02 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000211.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf New Directory
+</A></li>
+        <LI>Next message: <A HREF="000213.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf ueberarbeitetes ebuild fuer den gentoo portage
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#212">[ date ]</a>
+              <a href="thread.html#212">[ thread ]</a>
+              <a href="subject.html#212">[ subject ]</a>
+              <a href="author.html#212">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
++aktuelle ebuilds
+
+Added Files:
+-----------
+    schafkopf/gentoo:
+        schafkopf-0.6.ebuild
+        schafkopf-cvs-0.6.ebuild
+
+-------------- next part --------------
+--- /dev/null
++++ gentoo/schafkopf-cvs-0.6.ebuild
+@@ -0,0 +1,35 @@
++
++inherit kde
++need-kde 3
++
++ECVS_SERVER=&quot;cvs.berlios.de:/cvsroot/schafkopf&quot;
++ECVS_MODULE=&quot;schafkopf&quot;
++
++LICENSE=&quot;GPL-2&quot;
++DESCRIPTION=&quot;CVS-Version of the famous KDE game SchafKopf.&quot;
++HOMEPAGE=&quot;<A HREF="http://schafkopf.berlios.de">http://schafkopf.berlios.de</A>&quot;
++KEYWORDS=&quot;~x86&quot;
++SLOT=&quot;0&quot;
++
++DEPEND=&quot;|| ( kde-base/libkdegames &gt;=kde-base/kdegames-3.2 )&quot;
++RDEPEND=&quot;|| ( kde-base/libkdegames &gt;=kde-base/kdegames-3.2 )&quot;
++
++inherit cvs
++
++S=&quot;${WORKDIR}/${ECVS_MODULE}&quot;
++
++src_compile() {
++	PREFIX=`kde-config --prefix`
++	myconf=&quot;$myconf --prefix=$PREFIX&quot;
++
++	emake -f Makefile.cvs
++	
++	kde_src_compile $myconf configure
++    kde_src_compile make
++}
++
++src_install() {
++	kde_src_install
++	dodoc TODO README ChangeLog COPYING AUTHORS
++}
++
+--- /dev/null
++++ gentoo/schafkopf-0.6.ebuild
+@@ -0,0 +1,31 @@
++# Copyright 1999-2005 Gentoo Foundation
++# Distributed under the terms of the GNU General Public License v2
++# $Header: /cvsroot/schafkopf/schafkopf/gentoo/schafkopf-0.6.ebuild,v 1.1 2005/11/15 12:03:29 bloewe Exp $
++
++# we are a kde-ebuild
++inherit kde
++need-kde 3
++
++DESCRIPTION=&quot;SchafKopf is a KDE version of a popular Bavarian card game.&quot;
++SRC_URI=&quot;<A HREF="http://download.berlios.de/schafkopf/schafkopf-${PV">http://download.berlios.de/schafkopf/schafkopf-${PV</A>}.tar.gz&quot;
++HOMEPAGE=&quot;<A HREF="http://schafkopf.berlios.de">http://schafkopf.berlios.de</A>&quot;
++
++# we need kdegames
++DEPEND=&quot;|| ( kde-base/libkdegames &gt;=kde-base/kdegames-3.2 )&quot;
++RDEPEND=&quot;|| ( kde-base/libkdegames &gt;=kde-base/kdegames-3.2 )&quot;
++
++
++# kde is required ofcourse
++IUSE=&quot;X kde&quot;
++
++# only install one instance of SchafKopf
++SLOT=0
++LICENSE=GPL-2
++
++# we develop on amd64 and x86 so both can be considered stable
++KEYWORDS=&quot;amd64 x86&quot; 
++
++src_compile() {
++        PREFIX=&quot;`kde-config --prefix`&quot;
++        kde_src_compile configure make || die
++}
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000211.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf New Directory
+</A></li>
+	<LI>Next message: <A HREF="000213.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf ueberarbeitetes ebuild fuer den gentoo portage
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#212">[ date ]</a>
+              <a href="thread.html#212">[ thread ]</a>
+              <a href="subject.html#212">[ subject ]</a>
+              <a href="author.html#212">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

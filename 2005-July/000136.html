@@ -1,0 +1,562 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] domseichter: Commit Report - Schafkopf schmieren ist jetzt IMHO wesentlich besser
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20schmieren%20ist%20jetzt%20IMHO%20wesentlich%20besser&In-Reply-To=%3C200507031850.j63Io2Gi001468%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000135.html">
+   <LINK REL="Next"  HREF="000137.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] domseichter: Commit Report - Schafkopf schmieren ist jetzt IMHO wesentlich besser</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20schmieren%20ist%20jetzt%20IMHO%20wesentlich%20besser&In-Reply-To=%3C200507031850.j63Io2Gi001468%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] domseichter: Commit Report - Schafkopf schmieren ist jetzt IMHO wesentlich besser">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Sun Jul  3 20:50:02 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000135.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf clean up and comment
+</A></li>
+        <LI>Next message: <A HREF="000137.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf neu: sprechblasen
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#136">[ date ]</a>
+              <a href="thread.html#136">[ thread ]</a>
+              <a href="subject.html#136">[ subject ]</a>
+              <a href="author.html#136">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+schmieren ist jetzt IMHO wesentlich besser
+
+Modified Files:
+--------------
+    schafkopf/src:
+        computerplayer.cpp
+        computerplayer.h
+        game.cpp
+        game.h
+        openbook.cpp
+        player.cpp
+        player.h
+
+-------------- next part --------------
+Index: player.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.h,v
+retrieving revision 1.24
+retrieving revision 1.25
+diff -Lsrc/player.h -Lsrc/player.h -u -r1.24 -r1.25
+--- src/player.h
++++ src/player.h
+@@ -14,17 +14,18 @@
+     public:
+         enum { HUMAN = 0, COMPUTER, NETHUMAN };
+ 		
+-		Player(unsigned int id, Game* game);
++        Player(unsigned int id, Game* game);
++        
+         // this destructor should be virtual
+         // but setting it to virtual makes everything
+         // crash. Seems to be a good lenz-job ;) ...
+-		virtual ~Player();
++        virtual ~Player();
+ 
+-		virtual void init() {};
++        virtual void init() {};
+         /** set m_geklopft to true in this function if the player wants to double
+           * and to false if not. 
+           */
+-		virtual void klopfen();
++        virtual void klopfen();
+         virtual Card *play() = 0;
+         /** if @p force is true the player has to play wether he wants or not
+           * a valid GameInfo object has to be returned in this case!
+@@ -54,6 +55,10 @@
+           * count twice or not
+           */
+         bool geklopft() const { return m_geklopft; }
++
++        /** returns wether this player is part of the player party or not
++          */
++        bool isPlayer() const;
+ 
+         CardList *allowedCards();
+         void removeTrumpf(CardList* liste);
+Index: openbook.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/openbook.cpp,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lsrc/openbook.cpp -Lsrc/openbook.cpp -u -r1.11 -r1.12
+--- src/openbook.cpp
++++ src/openbook.cpp
+@@ -106,7 +106,7 @@
+     m_self = player;
+     m_game = game;
+     
+-    m_player = ((Player*)m_self == m_game-&gt;gameInfo()-&gt;spieler() || (Player*)m_self == m_game-&gt;gameInfo()-&gt;mitspieler() );
++    m_player = (Player*)m_self-&gt;isPlayer();
+ }
+ 
+ RuleBook::~RuleBook()
+@@ -129,7 +129,7 @@
+     CardList* list = new CardList();
+     unsigned int i = 0;
+ 
+-    m_player = ((Player*)m_self == m_game-&gt;gameInfo()-&gt;spieler() || (Player*)m_self == m_game-&gt;gameInfo()-&gt;mitspieler() );
++    m_player = (Player*)m_self-&gt;isPlayer();
+     for( i=0;i&lt;sizeof(rules)/sizeof(s_rule);i++)
+     {
+         s_rule r = rules[i];
+@@ -191,8 +191,7 @@
+      *    - abspatzen
+      */
+     highest = stiche-&gt;at( m_game-&gt;highestCard() );
+-    if( highest-&gt;owner() == m_game-&gt;gameInfo()-&gt;spieler() || 
+-        highest-&gt;owner() == m_game-&gt;gameInfo()-&gt;mitspieler() )
++    if( highest-&gt;owner()-&gt;isPlayer() )
+     {
+         // der stich geh??rt der spieler partei
+         unser_stich = m_player;
+Index: computerplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.cpp,v
+retrieving revision 1.34
+retrieving revision 1.35
+diff -Lsrc/computerplayer.cpp -Lsrc/computerplayer.cpp -u -r1.34 -r1.35
+--- src/computerplayer.cpp
++++ src/computerplayer.cpp
+@@ -30,22 +30,22 @@
+ ComputerPlayer::ComputerPlayer(unsigned int id,Game* game)
+ 	: Player(id,game)
+ {
+-	int i;
++    int i;
+ 	
+-	book = new OpenBook( this, game );
+-	for(i=0;i&lt;PLAYERS;i++)
+-		m_playedCards[i]=new CardList();
+-	m_angespielt=new CardList();
++    book = new OpenBook( this, game );
++    for(i=0;i&lt;PLAYERS;i++)
++        m_playedCards[i]=new CardList();
++    m_angespielt=new CardList();
+ }
+ 
+ ComputerPlayer::~ComputerPlayer()
+ {
+-	int i;
+-	
+-	for(i=0;i&lt;PLAYERS;i++)
+-		delete m_playedCards[i];
+-	delete m_angespielt;
+-	delete book;
++    int i;
++    
++    for(i=0;i&lt;PLAYERS;i++)
++        delete m_playedCards[i];
++    delete m_angespielt;
++    delete book;
+ }
+ 
+ void ComputerPlayer::klopfen()
+@@ -120,37 +120,37 @@
+ 
+ Card *ComputerPlayer::play()
+ {
+-	CardList* allowed=NULL;
+-	Card* ToPlay;
+-	int i;
++    CardList* allowed=NULL;
++    Card* ToPlay;
++    int i;
+ 			
+     if( m_game-&gt;currStich()-&gt;isEmpty() )
+-	{
++    {
+         allowed=book-&gt;possibleCards();
+-		if(!allowed)	        
+-			allowed=allowedCards();
+-		i=0;
+-		for(;;)
+-		{
+-			if(!(i&lt;allowed-&gt;count() &amp;&amp; allowed-&gt;count()&gt;1))
+-				break;
+-			if(allowed-&gt;at(i)-&gt;points()==10)
+-				allowed-&gt;remove(i);
+-			else
+-				i++;
+-		}
+-		i=0;
+-		for(;;)
+-		{
+-			if(!(i&lt;allowed-&gt;count() &amp;&amp; allowed-&gt;count()&gt;1))
+-				break;
+-			if(allowed-&gt;at(i)-&gt;points()==4)
+-				allowed-&gt;remove(i);
+-			else
+-				i++;
+-		}
+-		qDebug(&quot;%s: allowed-&gt;count() : %i&quot;, name().latin1(), allowed-&gt;count() );
+-	}
++        if(!allowed)	        
++            allowed=allowedCards();
++        i=0;
++        for(;;)
++        {
++            if(!(i&lt;allowed-&gt;count() &amp;&amp; allowed-&gt;count()&gt;1))
++                break;
++            if(allowed-&gt;at(i)-&gt;points()==10)
++                allowed-&gt;remove(i);
++            else
++                i++;
++        }
++        i=0;
++        for(;;)
++        {
++            if(!(i&lt;allowed-&gt;count() &amp;&amp; allowed-&gt;count()&gt;1))
++                break;
++            if(allowed-&gt;at(i)-&gt;points()==4)
++                allowed-&gt;remove(i);
++            else
++                i++;
++        }
++        qDebug(&quot;%s: allowed-&gt;count() : %i&quot;, name().latin1(), allowed-&gt;count() );
++    }
+     else if( m_game-&gt;currStich()-&gt;count() == 3 )
+     {
+         // last one to play a card
+@@ -160,19 +160,21 @@
+         // So it takes some work away from the real KI.
+         StrategyBook strategy( this, m_game );
+         allowed = strategy.possibleCards();
+-        
+-        
+     }
+-	if(!allowed)
+-		allowed=allowedCards();
+-        
+-	ToPlay=findCardToPlay(allowed);
+-	if(m_game-&gt;currStich()-&gt;isEmpty())
+-		m_angespielt-&gt;append(ToPlay);
+-	else
+-		m_angespielt-&gt;append(m_game-&gt;currStich()-&gt;first());
+-	delete allowed;
+-	return ToPlay;
++
++    if(!allowed)
++        allowed=allowedCards();
++    
++//    if( allowed-&gt;count() == 1 )
++//        return allowed-&gt;first();
++
++    ToPlay=findCardToPlay(allowed);
++    if(m_game-&gt;currStich()-&gt;isEmpty())
++        m_angespielt-&gt;append(ToPlay);
++    else
++        m_angespielt-&gt;append(m_game-&gt;currStich()-&gt;first());
++    delete allowed;
++    return ToPlay;
+ }
+ 
+ GameInfo* ComputerPlayer::gameInfo( bool force )
+@@ -244,12 +246,45 @@
+ 
+ Card *ComputerPlayer::findCardToPlay(CardList *cards)
+ {
++        Card* highestTrump = highestTrumpfInGame();
++
+ 	if(ownStich())
+ 	{
+-	    qDebug(&quot;%s: schmiere&quot;, name().latin1());
+-	    return findSchmiere(cards);
++            // nur schmieren wenn :
++            // -man letzter ist,
++            // -der partner mit dem hoechsten trumpf im spiel 
++            //  abzueglich der eigenen truempfe gestochen hat 
++            // -oder wenn der darauf folgende spieler der selben
++            //  partei angehoert wie man selbst (wichtig fuer solos)
++            if( m_game-&gt;currStich()-&gt;count() == PLAYERS - 1 ||
++                ( highestTrump &amp;&amp; 
++                  findHighestCard( m_game-&gt;currStich() )-&gt;id() == highestTrump-&gt;id() ) ||
++                ( m_game-&gt;currStich()-&gt;count() == PLAYERS - 2 &amp;&amp; 
++                  m_game-&gt;nextPlayer()-&gt;isPlayer() == this-&gt;isPlayer() ) )
++            {
++                qDebug(&quot;%s: schmiere!&quot;, name().latin1() );
++                return findSchmiere(cards);
++            }
+ 	}
+-	else if(canMakeStich(cards))
++        else
++        {
++            // Bei Solos wird geschmiert wenn:
++            // -man nicht spieler und nicht letzter oder erster ist
++            // -wenn jemand anders den stich noch machen kann
++            if( m_game-&gt;gameInfo()-&gt;mitspieler() == NULL &amp;&amp;      // Solo ?
++                m_game-&gt;currStich()-&gt;count() &lt; PLAYERS - 1 &amp;&amp;    // letzter ?
++                m_game-&gt;currStich()-&gt;count() &amp;&amp;                  // erster ?
++                !this-&gt;isPlayer() &amp;&amp;                             // selber spieler ?
++                ( highestTrump &amp;&amp; 
++                  findHighestCard( m_game-&gt;currStich() )-&gt;id() != highestTrump-&gt;id()) &amp;&amp; // Kann der Stich ueberhaupt gestochen werden
++                !canMakeStich(cards) )                           // kann ihn jemand ausser mir machen?
++            {
++                qDebug(&quot;%s: schmiere!&quot;, name().latin1() );
++                return findSchmiere(cards);
++            }
++        }
++	
++        if(canMakeStich(cards))
+ 	{
+         CardList* stich = m_game-&gt;currStich();
+         bool gestochen = false;
+@@ -312,18 +347,19 @@
+ 
+ Card *ComputerPlayer::findSchmiere(CardList *cards)
+ {
+-	Card *schmiere=cards-&gt;first();
+-	Card *card=cards-&gt;first();
++    Card *schmiere=cards-&gt;first();
++    Card *card=cards-&gt;first();
+ 	
+-	while( (card = cards-&gt;next() ) )
+-	{
+-		if( card-&gt;points() &gt; schmiere-&gt;points() )
+-		{
+-			schmiere = card;
+-			continue;
+-		}
+-	}
+-	return schmiere;
++    while( (card = cards-&gt;next() ) )
++    {
++        if( card-&gt;points() &gt; schmiere-&gt;points() )
++        {
++            schmiere = card;
++            continue;
++        }
++    }
++    
++    return schmiere;
+ }
+ 
+ Card *ComputerPlayer::findCheapestCard(CardList *cards)
+@@ -361,8 +397,6 @@
+ bool ComputerPlayer::ownStich()
+ {
+     Card* highestCard= m_game-&gt;currStich()-&gt;at(m_game-&gt;highestCard());
+-    bool spieler = ( m_game-&gt;gameInfo()-&gt;spieler() == this || m_game-&gt;gameInfo()-&gt;mitspieler() == this );
+-    qDebug(&quot;%s ist %s Spieler.&quot;, name().latin1(), (spieler ? &quot;&quot;:&quot;nicht&quot;) );
+ 
+     /* The stich cannot belong to us if we are to play
+      * the first card! 
+@@ -374,10 +408,10 @@
+      * We can only check if the card belongs to the player party, so we check afterwars
+      * if we are part of the player part!! Think about it... it does really work :)
+      */
+-    if( highestCard-&gt;owner() == m_game-&gt;gameInfo()-&gt;spieler() || highestCard-&gt;owner() == m_game-&gt;gameInfo()-&gt;mitspieler() )
+-        return ( spieler ? true : false );
++    if( highestCard-&gt;owner()-&gt;isPlayer() )
++        return ( this-&gt;isPlayer() ? true : false );
+     else
+-        return ( spieler ? false : true );
++        return ( this-&gt;isPlayer() ? false : true );
+ }
+ 
+ bool ComputerPlayer::istTrumpfFrei(int playerId)
+@@ -413,26 +447,28 @@
+ 
+ Card *ComputerPlayer::highestTrumpfInGame()
+ {
+-	CardList *trumpfs=new CardList();
+-	Card *c;
+-	int i;
++    CardList *trumpfs=new CardList();
++    Card *c;
++    int i;
+ 	
+-	//trumpfs.setAutoDelete(false);
+-	for(c=m_game-&gt;allCards()-&gt;first();c;c=m_game-&gt;allCards()-&gt;next())
+-		if(m_game-&gt;gameInfo()-&gt;istTrumpf(c))
+-			trumpfs-&gt;append(c);
+-	for(i=0;i&lt;PLAYERS;i++)
+-	{
+-		for(c=trumpfs-&gt;first();c;c=trumpfs-&gt;next())
+-			if(m_playedCards[i]-&gt;containsRef(c))
+-				trumpfs-&gt;removeRef(c);
+-	}
+-	for(c=m_cards-&gt;first();c;c=m_cards-&gt;next())
+-		trumpfs-&gt;removeRef(c);
+-	trumpfs-&gt;sort((eval_func)m_game-&gt;gameInfo()-&gt;evalCard, (void *)m_game-&gt;gameInfo());
+-	c=trumpfs-&gt;at(trumpfs-&gt;count()-1);
+-	delete trumpfs;
+-	return c;
++    for(c=m_game-&gt;allCards()-&gt;first();c;c=m_game-&gt;allCards()-&gt;next())
++        if(m_game-&gt;gameInfo()-&gt;istTrumpf(c))
++            trumpfs-&gt;append(c);
++
++    for(i=0;i&lt;PLAYERS;i++)
++    {
++        for(c=trumpfs-&gt;first();c;c=trumpfs-&gt;next())
++            if(m_playedCards[i]-&gt;containsRef(c))
++                trumpfs-&gt;removeRef(c);
++    }
++
++    for(c=m_cards-&gt;first();c;c=m_cards-&gt;next())
++        trumpfs-&gt;removeRef(c);
++
++    trumpfs-&gt;sort((eval_func)m_game-&gt;gameInfo()-&gt;evalCard, (void *)m_game-&gt;gameInfo());
++    c=trumpfs-&gt;at(trumpfs-&gt;count()-1);
++    delete trumpfs;
++    return c;
+ }
+ 
+ int ComputerPlayer::myTrumpfs()
+Index: game.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.h,v
+retrieving revision 1.37
+retrieving revision 1.38
+diff -Lsrc/game.h -Lsrc/game.h -u -r1.37 -r1.38
+--- src/game.h
++++ src/game.h
+@@ -40,13 +40,21 @@
+         Game(sem_t* sem, QObject *parent);
+         ~Game();
+         void gameLoop();
+-		CardList *currStich();
+-		inline CardList *allCards() { return &amp;m_allcards; }
++        CardList *currStich();
++        inline CardList *allCards() { return &amp;m_allcards; }
+         inline CardList *playedCards() { return &amp;m_playedcards; }
+-		GameInfo *gameInfo();
++        GameInfo *gameInfo();
+         
+         Player* findId( unsigned int id ) const;
+         Player* findIndex( unsigned int index ) const;
++
++        /** @returns the player who is the next to play 
++         *  a card in this turn or NULL if there is no player left.
++         * 
++         *  This should only be called from Player::play()
++         */
++        inline Player* nextPlayer() const { return m_nextPlayer; };
++
+ 		bool isTerminated() const { return terminated; }
+ 		int highestCard( CardList* list = 0 );
+ 		bool isHigher( Card* card, Card* high );
+@@ -109,7 +117,10 @@
+         
+         sem_t* m_sem;
+         bool terminated;
++
+         Player *m_players[PLAYERS];
++        Player *m_nextPlayer; // player who is the next to play a card (for nextPlayer() )
++
+         CardList m_allcards;
+         CardList m_playedcards;
+         CardList m_currstich;
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.76
+retrieving revision 1.77
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.76 -r1.77
+--- src/game.cpp
++++ src/game.cpp
+@@ -166,8 +166,15 @@
+            
+ 	    for(a=0;a&lt;PLAYERS;a++) 
+ 	    {
++                // TODO: if this check fails we have
++                //       a problem anyways so we should
++                //       maybe remove it
+             	if(tmp[a])
++                {
++                    m_nextPlayer = ( a+1 &lt; PLAYERS ? tmp[a+1] : NULL );
+ 		    c = tmp[a]-&gt;play();
++                }
++
+ 		if(terminated || c==NULL)
+ 		    return;
+ 			
+Index: player.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.cpp,v
+retrieving revision 1.31
+retrieving revision 1.32
+diff -Lsrc/player.cpp -Lsrc/player.cpp -u -r1.31 -r1.32
+--- src/player.cpp
++++ src/player.cpp
+@@ -69,6 +69,14 @@
+     m_game-&gt;postEvent( PlayerHasDoubled, id() );
+ }
+ 
++bool Player::isPlayer() const
++{
++    if( m_game &amp;&amp; m_game-&gt;gameInfo() ) 
++        return ( m_game-&gt;gameInfo()-&gt;spieler() == this || m_game-&gt;gameInfo()-&gt;mitspieler() == this );
++    else
++        return false;
++}
++
+ void Player::DebugCardOutput(Card* card)
+ {
+ // DS: disabled to fix compiler warnings
+Index: computerplayer.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.h,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -Lsrc/computerplayer.h -Lsrc/computerplayer.h -u -r1.16 -r1.17
+--- src/computerplayer.h
++++ src/computerplayer.h
+@@ -76,7 +76,15 @@
+         bool istFarbFrei(int playerId, int c);
+         float gehtDurch(Card *card);
+         float gegnerSticht(Card *card);
++
++        /** returns the highest trump that is still 
++         *  in the game not counting the own cards
++         *  of the player. 
++         *  NULL is returned if there is no trump in
++         *  the game anymore.
++         */
+         Card *highestTrumpfInGame();
++
+         int myTrumpfs();
+         int trumpfsInGame();
+         
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000135.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf clean up and comment
+</A></li>
+	<LI>Next message: <A HREF="000137.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf neu: sprechblasen
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#136">[ date ]</a>
+              <a href="thread.html#136">[ thread ]</a>
+              <a href="subject.html#136">[ subject ]</a>
+              <a href="author.html#136">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

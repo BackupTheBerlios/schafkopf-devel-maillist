@@ -1,0 +1,144 @@
+From domseichter at web.de  Mon Jun  4 22:10:17 2007
+From: domseichter at web.de (Dominik Seichter)
+Date: Mon, 4 Jun 2007 22:10:17 +0200
+Subject: [Schafkopf-devel] The future of SchafKopf
+In-Reply-To: <466159D7.10507@web-diehm.org>
+References: <200705281909.13010.domseichter@web.de>
+	<466159D7.10507@web-diehm.org>
+Message-ID: <200706042210.19987.domseichter@web.de>
+
+Servus Stefan,
+
+Vielen Dank f?r Deine Mail! Und nat?rlich auch daf?r, dass Du Helfen m?chtest. 
+Das mit Python ist ja noch nicht ganz durch - vor kurzem ist die Idee eines 
+Servers in C++ mit boost aufgekommen. Das klingt finde ich auch nicht 
+schlecht.
+
+Aber ob server in Python oder C++, wir werden auch sonst genug C++ code haben 
+wo Du bestimmt mit helfen kannst. Und Python ist ja nicht schwer :)
+
+Ich w?rde mich freuen, wenn Du noch ein bischen Geduld mit uns hast, weil wir 
+sicher noch ein bischen brauchen bis wir unseren A** hochbekommen und 
+anfangen und dann mit uns an einem richtig guten freien Schafkopf arbeitest.
+
+Vor allem die Beratung zu den Eigenheiten der Franken wird wichtig, da wir ja 
+alles Oberbayern sind bis jetzt :)
+
+Ciao,
+	Dom
+
+Am Saturday 02 June 2007 schrieb Stefan Diehm:
+> Servus Dom,
+> servus Liste!
+>
+> Eigentlich wollte ich deinen blog kommentieren, aber da bin ich zu bl?d
+> dazu. (liegt wahrscheinlich mal wieder an cookies)
+>
+> Ich beobachte die Entwicklung von SchafKopf jetzt schon sehr lange Zeit.
+> Was mir bisher immer am meisten gefehlt hat war die M?glichkeit mit
+> echten Gegnern zu spielen. Alle KIs gegen die ich bis jetzt gespielt
+> habe sind einfach zu leicht zu durchschauen.
+>
+> Daher begr??e ich sehr, dass das jetzt offensichtlich umgesetzt werden
+> soll.
+>
+> Ich w?rde euch sehr gerne dabei unterst?tzen. Aber so siehts bei mir aus:
+> - Ich hab eingentlich so gut wie keine Zeit (wird vielleicht besser wenn
+> meine Hochzeit im Juli mal vorbei ist)
+> - Ich bin native-speaking C/C++ Softwareentwickler, habe aber aufgrund
+> meiner vielen freien Zeit noch nichts unter Linux programmiert, obwohl
+> ich privat seit ?ber 3 Jahren nur noch Linux einsetze.
+> - Ich habe keine Ahnung von Python.
+>
+> Mit folgenden Sachen kann ich euch aber sicher trotzdem unterst?tzen:
+> - Testentestentesten. Ich spiele leidenschaftlich gerne Schafkopf (wenn
+> auch mit diesen f?r viele seltsamen Eigenheiten der Franken wie Ramsch
+> und Bettel). Um SchafKopf rund zu kriegen k?nnte ich also sicher etwas
+> Zeit aufbringen, solange mich die KI nicht zu schnell langweilt.
+> - Im C/C++ Bereich k?nnte ich sicher das ein oder andere Code-Review
+> machen. Mit gro?en Softwareprojekten verdiene ich schlie?lich mein Geld...
+> - Ich habe relativ genaue Vorstellungen von dem, was ein
+> Netzwerktaugliches Schafkopf f?r mich k?nnen mu?/sollte. (ich finde z.B.
+> online-schafkopf.de nicht schlecht, wenn auch verbesserungsf?hig.)
+>
+> So, wenn ich irgendetwas f?r euch tun kann, lasst es mich wissen!
+> Ich bin aber auch nicht b?se und ?ndere auch nicht meine Einstellung,
+> wenn ich erst in Wochen/Monaten was machen kann.
+>
+> machts gut!
+>
+> Stefan
+>
+> Dominik Seichter wrote:
+> > Irgendwann muss SchafKopf f?rchte ich auf KDE4 portiert werden. Das w?re
+> > die Chance es ordentlich zu machen.
+> >
+> > Nachdem mich der Lenz heut inspiriert hat, hab ich mal
+> > zusammengeschrieben, wie ich mir das ganze vorstellen k?nnte.
+> >
+> > http://domseichter.blogspot.com/2007/05/future-of-schafkopf.html
+> >
+> > Eure Ideen sind Willkommen und dann vor allem Eure Mithilfe. VIeleicht
+> > finden wir ja alle mal Zeit um das wirklich durchzuziehen. W?re schade
+> > wenn es irgendwann kein SchafKopf mehr gibt f?r uns :)
+> >
+> > 	Dom
+> >
+> >
+> > ------------------------------------------------------------------------
+> >
+> > _______________________________________________
+> > Schafkopf-devel mailing list
+> > Schafkopf-devel at lists.berlios.de
+> > https://lists.berlios.de/mailman/listinfo/schafkopf-devel
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20070604/af949797/attachment.pgp>
+
+From stefan.deser at web.de  Mon Jun  4 22:48:06 2007
+From: stefan.deser at web.de (Stefan Deser)
+Date: Mon, 04 Jun 2007 22:48:06 +0200
+Subject: [Schafkopf-devel] The future of SchafKopf
+In-Reply-To: <200706042210.19987.domseichter@web.de>
+References: <200705281909.13010.domseichter@web.de>	<466159D7.10507@web-diehm.org>
+	<200706042210.19987.domseichter@web.de>
+Message-ID: <46647A86.3060105@web.de>
+
+Hallo Dom und hallo Liste,
+
+gerade eben flatterte die Mail von Dom an Stefan (Diehm) bei mir rein.
+Einen Moment war ich v?llig baff, weil ich dachte, die w?r an mich
+pers?nlich adressiert ("Servus Stefan") - ich hatte n?mlich genau zu dem
+Thema auch im Kopf eine Mail zu schreiben, hab das aber bisher noch
+nicht getan. Und da ich mich nicht mehr restlos an Freitag abend
+erinnern kann, dachte ich, ich h?tte vielleicht im Suff... ;)
+
+Nichtsdestoweniger bietet mir das jetzt die Gelegenheit auch mein
+Interesse an Mitarbeit kundzutun. Leider hab ich bisher noch kein
+bisschen Python programmiert - hab aber schon l?ngere Zeit vor, mir
+diese Sprache anzueignen und dachte mir von daher auch, dass sich da ein
+SchafKopf-Server perfekt dazu eignet. Zwar werd ich anf?nglich eher
+beobachten, aber ich hab durchaus Ambitionen, dann auch ordentlich aktiv
+zu werden :)
+
+Sch?ne Gr??e,
+
+Stefan (Deser)
+
+

@@ -1,0 +1,462 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] domseichter: Commit Report - Schafkopf Ich habe einen Simulations Modus hinzugef&#195;&#188;gt,
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20Ich%20habe%20einen%20Simulations%20Modus%20hinzugef%C3%BCgt%2C&In-Reply-To=%3C200505081434.j48EYYHh032301%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000121.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] domseichter: Commit Report - Schafkopf Ich habe einen Simulations Modus hinzugef&#195;&#188;gt,</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20domseichter%3A%20Commit%20Report%20-%20Schafkopf%20Ich%20habe%20einen%20Simulations%20Modus%20hinzugef%C3%BCgt%2C&In-Reply-To=%3C200505081434.j48EYYHh032301%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] domseichter: Commit Report - Schafkopf Ich habe einen Simulations Modus hinzugef&#195;&#188;gt,">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Sun May  8 16:34:34 CEST 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000121.html">[Schafkopf-devel] Fwd: Feedback: Schafkopf:  Wunsch: Spielpreis selbst verlangen
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#120">[ date ]</a>
+              <a href="thread.html#120">[ thread ]</a>
+              <a href="subject.html#120">[ subject ]</a>
+              <a href="author.html#120">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+Ich habe einen Simulations Modus hinzugef&#195;&#188;gt, der einfach Spiele bist zum Wert SIMULATION_MODE_MAX simuliert (mit 4 Computer Spielern ohne User interaktion). Damit habe ich gerade 10000 Spiele in ca. 35 Minuten simuliert. Das (f&#195;&#188;r mich harte ;) ) Ergebnis:
+
+dominik: -279,90
+dom: -373,90
+lenz: 293,10
+gj: 360,70
+
+Das positive daran war, dass es anscheinend keine Memory Leaks mehr gibt (eines habe ich gefixt). Der Speicher verbrauch bleibt w&#195;&#164;hrend allen 10000 Spielen konstant.
+Das ganze ist hoffentlich mal sinnvoll, wenn wir das Neuronetz trainieren m&#195;&#188;ssen, das der Lenz sicher bald einbaut. Aktiviert wird das ganze durch das definieren von SIMULATION_MODE in schafkopfdef.h .
+
+Modified Files:
+--------------
+    schafkopf/src:
+        canvascard.cpp
+        canvasplayer.cpp
+        card.h
+        computerplayer.cpp
+        game.cpp
+        gamecanvas.cpp
+        openbook.cpp
+        player.cpp
+        schafkopfdef.h
+        stichdlg.cpp
+
+-------------- next part --------------
+Index: stichdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/stichdlg.cpp,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/stichdlg.cpp -Lsrc/stichdlg.cpp -u -r1.8 -r1.9
+--- src/stichdlg.cpp
++++ src/stichdlg.cpp
+@@ -55,7 +55,8 @@
+ void StichDlg::changed( const QString &amp; name, int* list, QStringList* playerlist )
+ {
+     CardList stich( list );
+-    
++    stich.setAutoDelete( true );
++
+     if( stich.count() )
+         trick-&gt;setText( i18n(&quot;Trick was made by: &lt;b&gt;&quot;) + name + &quot;&lt;/b&gt;&quot; );
+     else
+Index: openbook.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/openbook.cpp,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -Lsrc/openbook.cpp -Lsrc/openbook.cpp -u -r1.10 -r1.11
+--- src/openbook.cpp
++++ src/openbook.cpp
+@@ -130,7 +130,6 @@
+     unsigned int i = 0;
+ 
+     m_player = ((Player*)m_self == m_game-&gt;gameInfo()-&gt;spieler() || (Player*)m_self == m_game-&gt;gameInfo()-&gt;mitspieler() );
+-    qDebug(&quot; %s : player : %i&quot;, m_self-&gt;name().latin1(), (int)m_player );
+     for( i=0;i&lt;sizeof(rules)/sizeof(s_rule);i++)
+     {
+         s_rule r = rules[i];
+Index: game.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/game.cpp,v
+retrieving revision 1.73
+retrieving revision 1.74
+diff -Lsrc/game.cpp -Lsrc/game.cpp -u -r1.73 -r1.74
+--- src/game.cpp
++++ src/game.cpp
+@@ -45,13 +45,18 @@
+     m_parent = parent;
+     m_laufende = 0;
+     m_timesThrownTogether = 0;
+-    
++
++#ifndef SIMULATION_MODE
+     // Create our player objects
+     // delete these only in the destructor    
+     m_players[0] = new HumanPlayer( def_id++, this );
+     for( i=1;i&lt;PLAYERS;i++)
+         m_players[i] = new ComputerPlayer( def_id++, this );
+-    
++#else
++    for( i=0;i&lt;PLAYERS;i++)
++        m_players[i] = new ComputerPlayer( def_id++, this );
++#endif // SIMULATION_MODE    
++
+     updatePlayerNames();
+     
+     // make sure that results get cleaned up, when the results type is changed
+@@ -181,8 +186,11 @@
+                 cards[1] = 0;
+                 postEvent( CardPlayed, tmp[a]-&gt;id(), cards, QString::null, true );
+             	//emit playerPlayedCard(tmp[a]-&gt;id(),c);
+-                
++
++#ifndef SIMULATION_MODE
+             	sleep( 1 );
++#endif // SIMULATION_MODE
++
+ 		if( terminated )
+ 		    return;
+ 	    }
+@@ -208,6 +216,14 @@
+ 	if(!terminated)
+ 	    gameResults();
+ 	gamecnt++;
++
++#ifdef SIMULATION_MODE
++        if( gamecnt &gt;= SIMULATION_MODE_MAX )
++        {
++            terminated = true;
++            qDebug(&quot;Terminating Simulation after %i games.&quot;, SIMULATION_MODE_MAX );
++        }
++#endif // SIMULATION_MODE
+     }
+ }
+ 
+@@ -499,7 +515,24 @@
+ {
+     t_EventData* data = new t_EventData;
+     void* ret = NULL;
+-    
++
++#ifdef SIMULATION_MODE
++    // ignore all actions that require user 
++    // interaction in simulation mode
++    if( action == InfoMessage ||
++        action == PlayerDoubled )
++    {
++        if( cardids )
++            delete [] cardids;
++
++        if( names )
++            delete names;
++
++        delete data;
++        return NULL;
++    }
++#endif // SIMULATION_MODE
++
+     data-&gt;type = action;
+     data-&gt;playerid = playerid;
+     data-&gt;cardids = cardids;
+Index: schafkopfdef.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/schafkopfdef.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/schafkopfdef.h -Lsrc/schafkopfdef.h -u -r1.8 -r1.9
+--- src/schafkopfdef.h
++++ src/schafkopfdef.h
+@@ -88,6 +88,15 @@
+     #warning &quot;CHEATING ENABLED!!!&quot;
+ #endif
+ 
++/** 
++ * Enable the simulation mode, might be useful for training 
++ * the neuro-net we will surely get soon.
++ */
++//#define SIMULATION_MODE
++/**
++ * How many games should be simulated in SIMULATION_MODE?
++ */
++#define SIMULATION_MODE_MAX 10000
+ 
+ // DISTANCE from the border used in CanvasPlayer
+ #define DIST 20
+Index: card.h
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/card.h,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -Lsrc/card.h -Lsrc/card.h -u -r1.8 -r1.9
+--- src/card.h
++++ src/card.h
+@@ -44,6 +44,7 @@
+         QPixmap* pixmap();
+         
+         /** return a pixmap for the background of a card.
++          * Do not delete the returned pixmap!
+           */
+         static QPixmap* backgroundPixmap();
+         
+Index: player.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/player.cpp,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -Lsrc/player.cpp -Lsrc/player.cpp -u -r1.30 -r1.31
+--- src/player.cpp
++++ src/player.cpp
+@@ -23,8 +23,8 @@
+ 
+ Player::~ Player()
+ {
+-	delete m_cards;
+-	delete m_stiche;
++    delete m_cards;
++    delete m_stiche;
+ }
+ 
+ const QString &amp; Player::name() const
+Index: gamecanvas.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/gamecanvas.cpp,v
+retrieving revision 1.47
+retrieving revision 1.48
+diff -Lsrc/gamecanvas.cpp -Lsrc/gamecanvas.cpp -u -r1.47 -r1.48
+--- src/gamecanvas.cpp
++++ src/gamecanvas.cpp
+@@ -97,7 +97,6 @@
+     m_focus_list.append( m_ok );
+     for( i=0;i&lt;NUMCARDS;i++ )
+         m_focus_list.append( m_players[0]-&gt;canvasCard( i ) );
+-    
+ }    
+ 
+ GameCanvas::~GameCanvas()
+@@ -223,7 +222,7 @@
+     connect( this, SIGNAL(clicked( QCanvasItem* )), this, SLOT(cardClicked(QCanvasItem*)));
+     m_result = -1;
+ 
+-    if( hasFocus() )
++    if( hasFocus() &amp;&amp; human )
+         for( i=0;i&lt;NUMCARDS;i++)
+         {
+             c = human-&gt;canvasCard( i );
+@@ -346,7 +345,7 @@
+ 	
+     for(i=0;i&lt;PLAYERS;i++)
+     {
+-		m_players[i]-&gt;init();
++        m_players[i]-&gt;init();
+         m_stich[i]-&gt;hide();
+     }
+ }
+Index: computerplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/computerplayer.cpp,v
+retrieving revision 1.31
+retrieving revision 1.32
+diff -Lsrc/computerplayer.cpp -Lsrc/computerplayer.cpp -u -r1.31 -r1.32
+--- src/computerplayer.cpp
++++ src/computerplayer.cpp
+@@ -98,23 +98,24 @@
+ 
+ void ComputerPlayer::init()
+ {
+-	int i;
++    int i;
+ 	
+-	for(i=0;i&lt;PLAYERS;i++)
+-		m_playedCards[i]-&gt;clear();
+-	m_angespielt-&gt;clear();
+-	if(m_game-&gt;gameInfo()-&gt;mitspieler()==this)
+-	{
+-		for(mitspieler=0;mitspieler&lt;PLAYERS;mitspieler++)
+-			if(m_game-&gt;findIndex(mitspieler)==m_game-&gt;gameInfo()-&gt;spieler())
+-				break;
+-	}
+-	else if(m_game-&gt;gameInfo()-&gt;mode()!=GameInfo::RUFSPIEL &amp;&amp; 
++    for(i=0;i&lt;PLAYERS;i++)
++	m_playedCards[i]-&gt;clear();
++
++    m_angespielt-&gt;clear();
++    if(m_game-&gt;gameInfo()-&gt;mitspieler()==this)
++    {
++	for(mitspieler=0;mitspieler&lt;PLAYERS;mitspieler++)
++	    if(m_game-&gt;findIndex(mitspieler)==m_game-&gt;gameInfo()-&gt;spieler())
++		break;
++    }
++    else if(m_game-&gt;gameInfo()-&gt;mode()!=GameInfo::RUFSPIEL &amp;&amp; 
+             m_game-&gt;gameInfo()-&gt;mode()!=GameInfo::RAMSCH &amp;&amp;
+             m_game-&gt;gameInfo()-&gt;spieler()!=this)
+-		mitspieler=m_game-&gt;gameInfo()-&gt;spieler()-&gt;id();
+-	else
+-		mitspieler=-1;
++	mitspieler=m_game-&gt;gameInfo()-&gt;spieler()-&gt;id();
++    else
++	mitspieler=-1;
+ }
+ 
+ Card *ComputerPlayer::play()
+@@ -245,8 +246,8 @@
+ {
+ 	if(ownStich())
+ 	{
+-		qDebug(&quot;schmiere&quot;);
+-		return findSchmiere(cards);
++	    qDebug(&quot;%s: schmiere&quot;, name().latin1());
++	    return findSchmiere(cards);
+ 	}
+ 	else if(canMakeStich(cards))
+ 	{
+@@ -359,21 +360,34 @@
+ 
+ bool ComputerPlayer::ownStich()
+ {
+-	Card *highestCard=m_game-&gt;currStich()-&gt;at(m_game-&gt;highestCard());
+-	
+-	if(mitspieler==-1)
+-		return false;
+-	if(m_game-&gt;gameInfo()-&gt;mode()==GameInfo::RUFSPIEL)
+-	{
+-		if(m_playedCards[mitspieler]-&gt;containsRef(highestCard))
+-			return true;
+-	}
+-	else
+-	{
+-		if(!m_playedCards[mitspieler]-&gt;containsRef(highestCard))	
+-			return true;
+-	}
++    Card* highestCard= m_game-&gt;currStich()-&gt;at(m_game-&gt;highestCard());
++    CardList spielercards;
++    bool spieler = ( m_game-&gt;gameInfo()-&gt;spieler() == this || m_game-&gt;gameInfo()-&gt;mitspieler() == this );
++
++    /* The stich cannot belong to us if we are to play
++     * the first card! 
++     */
++    if( !m_game-&gt;currStich()-&gt;count() )
+ 	return false;
++
++    qDebug(&quot;%s is spieler ? %i Highest Card=%p&quot;, name().latin1(), (int)spieler, highestCard );
++
++    if( m_game-&gt;gameInfo()-&gt;spieler() )
++	spielercards.appendList( m_game-&gt;gameInfo()-&gt;spieler()-&gt;cards() );
++
++    if( m_game-&gt;gameInfo()-&gt;mitspieler() )
++	spielercards.appendList( m_game-&gt;gameInfo()-&gt;mitspieler()-&gt;cards() );
++
++    if( spielercards.containsRef( highestCard ) )
++    {
++	qDebug(&quot;Spieler hat die hoechste Karte: %i&quot;,  (spieler ? true : true));
++	return (spieler ? true : false);
++    }
++    else
++    {
++	qDebug(&quot;Gegenspieler hat die hoechste Karte: %i&quot;, (spieler ? false : true) );
++	return (spieler ? false : true);
++    }
+ }
+ 
+ bool ComputerPlayer::istTrumpfFrei(int playerId)
+Index: canvasplayer.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvasplayer.cpp,v
+retrieving revision 1.22
+retrieving revision 1.23
+diff -Lsrc/canvasplayer.cpp -Lsrc/canvasplayer.cpp -u -r1.22 -r1.23
+--- src/canvasplayer.cpp
++++ src/canvasplayer.cpp
+@@ -37,7 +37,14 @@
+     m_position = i;
+     // TODO: get a correct id! especially important for networking!
+     m_id = i;
++
++#ifndef SIMULATION_MODE
++    // TODO: This should be passed as flag depending on Player::isHuman();
+     m_is_human = (m_id == 0);
++#else
++    m_is_human = false;
++#endif // SIMULATION_MODE
++
+ }
+ 
+ CanvasPlayer::~CanvasPlayer()
+@@ -243,7 +250,9 @@
+ {
+     int i;
+     for( i = 0; i &lt; NUMCARDS; i++ ) 
++    {
+         m_items[i]-&gt;setCard( NULL );
++    }
+ 
+     m_cards-&gt;clear();
+     m_cards-&gt;appendList( cards );
+Index: canvascard.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvascard.cpp,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -Lsrc/canvascard.cpp -Lsrc/canvascard.cpp -u -r1.19 -r1.20
+--- src/canvascard.cpp
++++ src/canvascard.cpp
+@@ -20,6 +20,7 @@
+ #include &quot;canvascard.h&quot;
+ #include &quot;card.h&quot;
+ #include &quot;settings.h&quot;
++#include &quot;schafkopfdef.h&quot;
+ 
+ #include &lt;qpainter.h&gt;
+ #include &lt;qtimer.h&gt;
+@@ -52,6 +53,10 @@
+ 
+ void CanvasCard::draw( QPainter &amp; p )
+ {
++#ifdef SIMULATION_MODE
++    return;
++#endif // SIMULATION_MODE    
++
+     if( m_card )
+     {
+         QPixmap* pixmap = m_visible ? m_card-&gt;pixmap() : Card::backgroundPixmap();
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000121.html">[Schafkopf-devel] Fwd: Feedback: Schafkopf:  Wunsch: Spielpreis selbst verlangen
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#120">[ date ]</a>
+              <a href="thread.html#120">[ thread ]</a>
+              <a href="subject.html#120">[ subject ]</a>
+              <a href="author.html#120">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

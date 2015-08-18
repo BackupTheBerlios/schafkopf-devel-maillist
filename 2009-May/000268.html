@@ -1,0 +1,177 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] SchafKopf
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2009-May/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20SchafKopf&In-Reply-To=%3C200905201701.42186.domseichter%40web.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] SchafKopf</H1>
+    <B>Dominik Seichter</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20SchafKopf&In-Reply-To=%3C200905201701.42186.domseichter%40web.de%3E"
+       TITLE="[Schafkopf-devel] SchafKopf">domseichter at web.de
+       </A><BR>
+    <I>Wed May 20 17:01:39 CEST 2009</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#268">[ date ]</a>
+              <a href="thread.html#268">[ thread ]</a>
+              <a href="subject.html#268">[ subject ]</a>
+              <a href="author.html#268">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hallo Kurt,
+
+Schafkopf ben&#246;tigt die KDE3 Bibliotheken und insbesondere die KDE3 Version der 
+KDEGames Bibliothek. Einfach einen Sym-Link auf eine andere Version der 
+Bibliothek setzen hilft da leider nichts, da diese grundverschieden sind.
+
+Soweit ich wei&#223;, m&#252;sstest Du die Packete f&#252;r KDE3 und KDEGames 3 &#252;ber Yast 
+einfach nachinstallieren k&#246;nnen. Wichtig: Zum Kompilieren ben&#246;tigst Du auch 
+kdegames-devel sowie kdelibs-devel (die Paketnamen k&#246;nnen auf SuSE leicht 
+utnerschiedlich sein)
+
+Ciao,
+	Dominik
+
+Am Mittwoch, 20. Mai 2009 schrieb Kurt Schneider:
+&gt;<i> --
+</I>&gt;<i> Hallo Dominik,
+</I>&gt;<i>
+</I>&gt;<i> so langsam bin ich am verzweifeln, was die Installation von SchafKopf auf
+</I>&gt;<i> Linux angeht :-(((. Ich habe ein SuSE 11.1 System und habe alle
+</I>&gt;<i> M&#246;glichkeiten versucht.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Download der Sourcen und anschlie&#223;endes make enden mit folgender
+</I>&gt;<i> Fehlermeldung:
+</I>&gt;<i> ---------------------------------------------------------------------------
+</I>&gt;<i>---- /usr/lib/qt3/include/qpushbutton.h: In member function &#145;virtual void
+</I>&gt;<i> QPushButton::setIsMenuButton(bool)&#146;: /usr/lib/qt3/include/qpushbutton.h:94:
+</I>&gt;<i> warning: conversion to &#145;unsigned char:1&#146; from &#145;int&#146; may alter its value
+</I>&gt;<i> schafkopf.cpp: In member function &#145;virtual void
+</I>&gt;<i> SchafKopf::customEvent(QCustomEvent*)&#146;: schafkopf.cpp:249: warning:
+</I>&gt;<i> deleting &#145;void*&#146; is undefined
+</I>&gt;<i> schafkopf.cpp: In member function &#145;void SchafKopf::setupActions()&#146;:
+</I>&gt;<i> schafkopf.cpp:277: error: &#145;KStdGameAction&#146; has not been declared
+</I>&gt;<i> schafkopf.cpp:278: error: &#145;KStdGameAction&#146; has not been declared
+</I>&gt;<i> schafkopf.cpp:288: error: &#145;KStdGameAction&#146; has not been declared
+</I>&gt;<i> schafkopf.cpp:294: error: &#145;KStdGameAction&#146; has not been declared
+</I>&gt;<i> make[2]: *** [schafkopf.o] Error 1
+</I>&gt;<i> make[2]: Leaving directory `/home/kurt/tmp/schafkopf-0.7/src'
+</I>&gt;<i> make[1]: *** [all-recursive] Error 1
+</I>&gt;<i> make[1]: Leaving directory `/home/kurt/tmp/schafkopf-0.7'
+</I>&gt;<i> make: *** [all] Error 2
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Download des CVS Tree und make endet mit der f&#252;r mich V&#214;LLIG
+</I>&gt;<i> unverst&#228;ndlichen Meldung:
+</I>&gt;<i> ---------------------------------------------------------------------------
+</I>&gt;<i>----------- This Makefile is only for the CVS repository
+</I>&gt;<i> This will be deleted before making the distribution
+</I>&gt;<i>
+</I>&gt;<i> *** YOU'RE USING autoconf (GNU Autoconf) 2.63.
+</I>&gt;<i> *** KDE requires autoconf 2.53 or newer
+</I>&gt;<i> make[1]: *** [cvs] Error 1
+</I>&gt;<i> make: *** [all] Error 2
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Installationsversuch des rpm Package f&#252;r SuSE 10.0 (ein aktuelleres scheint
+</I>&gt;<i> es ja nicht zu geben) endet in:
+</I>&gt;<i> ---------------------------------------------------------------------------
+</I>&gt;<i>-------------------------------- warning:
+</I>&gt;<i> schafkopf-0.7-0.oc2pus.1SuSE10.i586.rpm: Header V3 DSA signature: NOKEY,
+</I>&gt;<i> key ID 1dfa8f0c error: Failed dependencies:
+</I>&gt;<i>         libkdegames.so.1 is needed by schafkopf-0.7-0.oc2pus.1.i586
+</I>&gt;<i>         libpng.so.3 is needed by schafkopf-0.7-0.oc2pus.1.i586
+</I>&gt;<i>
+</I>&gt;<i> obwohl:
+</I>&gt;<i>
+</I>&gt;<i> $ ls -l /usr/lib/libkdegames* /usr/lib/libpng*
+</I>&gt;<i> lrwxrwxrwx 1 root root     16 2009-05-19 15:04 /usr/lib/libkdegames.so -&gt;
+</I>&gt;<i> libkdegames.so.5 lrwxrwxrwx 1 root root     20 2009-05-15 20:11
+</I>&gt;<i> /usr/lib/libkdegames.so.5 -&gt; libkdegames.so.5.0.0 -rwxr-xr-x 1 root root
+</I>&gt;<i> 984104 2008-12-03 13:35 /usr/lib/libkdegames.so.5.0.0 lrwxrwxrwx 1 root
+</I>&gt;<i> root     18 2009-05-15 21:26 /usr/lib/libpng12.so -&gt; libpng12.so.0.31.0
+</I>&gt;<i> lrwxrwxrwx 1 root root     18 2009-05-15 21:09 /usr/lib/libpng12.so.0 -&gt;
+</I>&gt;<i> libpng12.so.0.31.0 -rwxr-xr-x 1 root root 165848 2009-02-25 18:17
+</I>&gt;<i> /usr/lib/libpng12.so.0.31.0 lrwxrwxrwx 1 root root     11 2009-05-15 21:26
+</I>&gt;<i> /usr/lib/libpng.so -&gt; libpng12.so
+</I>&gt;<i>
+</I>&gt;<i> Es scheint also alles da zu sein. Verlinken von libkdegames.so.1 und
+</I>&gt;<i> libkdegames.so.5 bringt auch nichts.
+</I>&gt;<i>
+</I>&gt;<i> Tja, wie ich schon sagte: ich bin hier ziemlich am Ende :-(((
+</I>&gt;<i>
+</I>&gt;<i> Hast Du noch eine Idee?
+</I>&gt;<i>s
+</I>&gt;<i> Vielen Dank und lieben Gru&#223;
+</I>&gt;<i>
+</I>&gt;<i> Kurt
+</I>&gt;<i>
+</I>&gt;<i> -----------------------------------
+</I>&gt;<i> Kurt Schneider
+</I>&gt;<i> Merowingerstra&#223;e 1a
+</I>&gt;<i> D-40223 D&#252;sseldorf
+</I>&gt;<i>
+</I>&gt;<i> Tel.       +49 / 211 / 543 543 0
+</I>&gt;<i> Tel.       +49 / 211 / 81-11677
+</I>&gt;<i> Mobile: +49 / 172 / 93 93 027
+</I>&gt;<i> Email:   <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">Kurt.Schneider at uni-duesseldorf.de</A>
+</I>&gt;<i>
+</I>&gt;<i> ____________________________________________________________
+</I>&gt;<i> Text: GRATIS f&#252;r alle WEB.DE-Nutzer: Die maxdome Movie-FLAT!
+</I>&gt;<i> Jetzt freischalten unter <A HREF="http://movieflat.web.de">http://movieflat.web.de</A>
+</I>
+
+
+-- 
+**********************************************************************
+Dominik Seichter - <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>
+KRename  - <A HREF="http://www.krename.net">http://www.krename.net</A>  - Powerful batch renamer for KDE
+KBarcode - <A HREF="http://www.kbarcode.net">http://www.kbarcode.net</A> - Barcode and label printing
+PoDoFo - <A HREF="http://podofo.sf.net">http://podofo.sf.net</A> - PDF generation and parsing library
+SchafKopf - <A HREF="http://schafkopf.berlios.de">http://schafkopf.berlios.de</A> - Schafkopf, a card game,  for KDE
+Alan - <A HREF="http://alan.sf.net">http://alan.sf.net</A> - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: This is a digitally signed message part.
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20090520/a5926903/attachment.pgp">https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20090520/a5926903/attachment.pgp</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#268">[ date ]</a>
+              <a href="thread.html#268">[ thread ]</a>
+              <a href="subject.html#268">[ subject ]</a>
+              <a href="author.html#268">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

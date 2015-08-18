@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] [RFC][PATCH] Threading
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20%5BRFC%5D%5BPATCH%5D%20Threading&In-Reply-To=%3C200502101226.40431.domseichter%40web.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000050.html">
+   <LINK REL="Next"  HREF="000052.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] [RFC][PATCH] Threading</H1>
+    <B>Dominik Seichter</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20%5BRFC%5D%5BPATCH%5D%20Threading&In-Reply-To=%3C200502101226.40431.domseichter%40web.de%3E"
+       TITLE="[Schafkopf-devel] [RFC][PATCH] Threading">domseichter at web.de
+       </A><BR>
+    <I>Thu Feb 10 12:26:39 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000050.html">[Schafkopf-devel] Screenshot
+</A></li>
+        <LI>Next message: <A HREF="000052.html">[Schafkopf-devel] [RFC][PATCH] Threading
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#51">[ date ]</a>
+              <a href="thread.html#51">[ thread ]</a>
+              <a href="subject.html#51">[ subject ]</a>
+              <a href="author.html#51">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hey Hey,
+
+Der Angeh&#228;ngt Patch l&#228;sst Game in einem eigenem Thread laufen. Mit dem Patch 
+(gegen HEAD) ist Schafkopf schon spielbar, einige Sachen funktionieren jedoch 
+noch nicht. Daher hab ich das auch noch nicht ins CVS gestellt. Auserdem 
+h&#228;tte ich gerne Feedback, ob das &#252;berhaupt so passt was ich mache, da dass 
+das erste gro&#223;e Ding ist das ich mit Threads mache.
+
+Am Ende sollte die Klasse GameCanvas kein Game Objekt mehr brauchen, da muss 
+ich noch ein paar Sachen machen. Game braucht mittlerweile immerhin schon 
+keine GameCanvas Objekt mehr. Zur Komunikation verwende ich im Moment QEvents 
+da ich die unter Qt leicht mit postEvent von Thread zu Thread schicken kann. 
+Das sollte sich aber sp&#228;ter leicht auf Sockets umstellen lassen, aber das 
+&#252;berlasse ich den Leuten die den Netzwerk Code machen wollen.
+
+Zur Komunikation wird im Moment die folgende Struktur verwendet:
+
+typedef enum EAction { NoAction, GameStarted, GameEnded, PlayerDoubled, 
+                       CardPlayed, PlayerMadeStich, PlayerResults, 
+GameInfoSetup,
+                       RedrawPlayers, InfoMessage, QuestionYesNo, 
+                       HumanPlayerGetCard, ForbiddenCard, SelectGame,
+                       ForcedSelectGame };
+
+typedef struct t_EventData {
+    EAction type;
+    
+    unsigned int playerid;
+    void* returncode;
+    int cardid;
+    
+    QString playername;
+    QString data;
+    QSemaphore* wait;
+};
+
+data verwende ich im Moment um Sachen wie &quot;Do you want to play?&quot; oder so zu 
+fragen. Das sollte nat&#252;rlich auch &#252;ber eine MessageTable geregelt werden, 
+dann muss man da auch nur einen Enum Schicken. Auch sonst kann man das sicher 
+noch vereinfachen. Das ich die Semaphore &#252;ber die Struktur schicke ist im 
+Moment auch reine Bequemlichkeit. Kann eigentlich auch &#252;ber den Konstruktur 
+des Threads gemacht werden.
+
+Die Ankommenden Events werden in schafkopf.cpp abgefangen und von dort aus 
+werden die Betreffenden Funktionen aufgerufen.
+
+So: Bitte feedback! Kann man das so machen? Wollen wir das so machen? 
+
+CU Dom
+-- 
+**********************************************************************
+Dominik Seichter - <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>
+KRename  - <A HREF="http://www.krename.net">http://www.krename.net</A>  - Powerful batch renamer for KDE
+KBarcode - <A HREF="http://www.kbarcode.net">http://www.kbarcode.net</A> - Barcode and label printing
+KDE Mass Mailer - <A HREF="http://www.kmassmailer.net">http://www.kmassmailer.net</A> - Mass mailing for KDE
+SchafKopf - <A HREF="http://schafkopf.berlios.de">http://schafkopf.berlios.de</A> - Schafkopf, a card game,  for KDE
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: schafkopf_thread.diff.bz2
+Type: application/x-bzip2
+Size: 9508 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20050210/f2070873/attachment.bin">https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20050210/f2070873/attachment.bin</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000050.html">[Schafkopf-devel] Screenshot
+</A></li>
+	<LI>Next message: <A HREF="000052.html">[Schafkopf-devel] [RFC][PATCH] Threading
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#51">[ date ]</a>
+              <a href="thread.html#51">[ thread ]</a>
+              <a href="subject.html#51">[ subject ]</a>
+              <a href="author.html#51">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,161 @@
+From domseichter at web.de  Wed May  2 20:01:50 2007
+From: domseichter at web.de (Dominik Seichter)
+Date: Wed, 2 May 2007 20:01:50 +0200
+Subject: [Schafkopf-devel] schafKopf Wunsch
+In-Reply-To: <200705011431.32600.sliero@nefkom.net>
+References: <200705011431.32600.sliero@nefkom.net>
+Message-ID: <200705022001.53448.domseichter@web.de>
+
+Hallo Stephan,
+
+Danke f?r den Vorschlag. Selbst habe ich im Moment leider keine Zeit f?r 
+Schafkopf, aber ich leite die Idee mal an die Mailingliste weiter. Vieleicht 
+hat ja einer von den anderen gerade langeweile und so ist Deine Idee dann 
+auch f?rs n?chste Release gut aufgehobem
+
+Ciao,
+	Dom
+
+Am Tuesday 01 May 2007 schrieben Sie:
+> Hallo,
+>
+> tolles Programm! :-) Ich das einzige was mich sehr st?rt ist, dass man die
+> Karten nicht von links nach rechts absteigend sortieren kann....
+>
+> W?re sch?n, wenn das ginge...
+>
+> Gr??e,
+>
+> Stephan
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20070502/34ca7a04/attachment.pgp>
+
+From domseichter at web.de  Sun May  6 12:27:10 2007
+From: domseichter at web.de (Dominik Seichter)
+Date: Sun, 6 May 2007 12:27:10 +0200
+Subject: [Schafkopf-devel] schafKopf Wunsch
+In-Reply-To: <200705022351.04037.sliero@nefkom.net>
+References: <200705011431.32600.sliero@nefkom.net>
+	<200705022001.53448.domseichter@web.de>
+	<200705022351.04037.sliero@nefkom.net>
+Message-ID: <200705061227.12340.domseichter@web.de>
+
+Hallo,
+
+Wir haben auch extra unseren eigenen Schafkopftisch Fotografiert :)
+
+Wenn Du Zeit f?r ein Kartenset hast, w?rden wir das nat?rlich auch gerne zum 
+Download anbieten!
+
+CU Dom
+
+Am Wednesday 02 May 2007 schrieben Sie:
+> Jo, danke! Das ist nett. Ich bin n?mlich schon lange auf der Suche nach nem
+> gscheiten Schafkopfprogramm f?r Linux. Leider reichen meine
+> Programmier-Kenntnisse noch nicht ganz aus selbst ans Werk zu gehen...
+> Was ich ganz cool fand ist WinSchafkopf. L?uft aber leider nicht mit Wine,
+> nur ?ber Vmware. Aber SchafKopf finde ich schon mal vom Design her viel
+> cooler - mit dem Biertischbackground... das erzeugt schon mal die richtige
+> Stimmung :-)
+> Vielleicht kann ich mich ja mal mit nem ordentlichen Karten-Set daran
+> beteiligen (grafikm??ig bin ich da schon etwas bewanderter...)
+>
+> Viele Gr??e,
+>
+> Stephan
+>
+> On Wednesday 02 May 2007 20:01:50 Dominik Seichter wrote:
+> > Hallo Stephan,
+> >
+> > Danke f?r den Vorschlag. Selbst habe ich im Moment leider keine Zeit f?r
+> > Schafkopf, aber ich leite die Idee mal an die Mailingliste weiter.
+> > Vieleicht hat ja einer von den anderen gerade langeweile und so ist Deine
+> > Idee dann auch f?rs n?chste Release gut aufgehobem
+> >
+> > Ciao,
+> > 	Dom
+> >
+> > Am Tuesday 01 May 2007 schrieben Sie:
+> > > Hallo,
+> > >
+> > > tolles Programm! :-) Ich das einzige was mich sehr st?rt ist, dass man
+> > > die Karten nicht von links nach rechts absteigend sortieren kann....
+> > >
+> > > W?re sch?n, wenn das ginge...
+> > >
+> > > Gr??e,
+> > >
+> > > Stephan
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20070506/1053670d/attachment.pgp>
+
+From domseichter at web.de  Mon May 28 19:09:09 2007
+From: domseichter at web.de (Dominik Seichter)
+Date: Mon, 28 May 2007 19:09:09 +0200
+Subject: [Schafkopf-devel] The future of SchafKopf
+Message-ID: <200705281909.13010.domseichter@web.de>
+
+Irgendwann muss SchafKopf f?rchte ich auf KDE4 portiert werden. Das w?re die 
+Chance es ordentlich zu machen.
+
+Nachdem mich der Lenz heut inspiriert hat, hab ich mal zusammengeschrieben, 
+wie ich mir das ganze vorstellen k?nnte.
+
+http://domseichter.blogspot.com/2007/05/future-of-schafkopf.html
+
+Eure Ideen sind Willkommen und dann vor allem Eure Mithilfe. VIeleicht finden 
+wir ja alle mal Zeit um das wirklich durchzuziehen. W?re schade wenn es 
+irgendwann kein SchafKopf mehr gibt f?r uns :)
+
+	Dom 
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20070528/0129767c/attachment.pgp>
+

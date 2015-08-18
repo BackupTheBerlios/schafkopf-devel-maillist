@@ -1,0 +1,58 @@
+From domseichter at web.de  Fri Mar 28 11:46:25 2008
+From: domseichter at web.de (Dominik Seichter)
+Date: Fri, 28 Mar 2008 11:46:25 +0100
+Subject: [Schafkopf-devel]
+	=?iso-8859-15?q?Schafkopf_=280=2E73=2E5=2E5=29_?=
+	=?iso-8859-15?q?PROBLEM=3A_Namen_der_Spieler_werden_nicht_=FCberno?=
+	=?iso-8859-15?q?mmen_WUNSCH=3ASchafkopf_mit_kurze_Karte?=
+In-Reply-To: <1967536839@web.de>
+References: <1967536839@web.de>
+Message-ID: <200803281146.26265.domseichter@web.de>
+
+Hallo,
+
+?ffne die Datei schafkopfdef.h und kommetiere die Zeile
+#define SCHAFKOPF_LANG
+aus (einfach ersetzen durch: //#define SCHAFKOPF_LANG) und dann neu 
+kompilieren: voila :)
+
+Ciao,
+	Dom
+
+Am Freitag, 28. M?rz 2008 schrieben Sie:
+> Hallo,
+>
+> habe soeben das Spiel installiert (make...) und muss sagen - toll. Tja ich
+> bin aus Regensburg und bei uns wird haupts?chlich mit der "kurzen Karte"
+> gespielt. W?r super wenn man das ausw?hlen k?nnte
+>
+>
+>
+> ciao j.
+> --------------------------------------
+> openSUSE 10.2
+> Linux (i586)
+>
+> _________________________________________________________________________
+> In 5 Schritten zur eigenen Homepage. Jetzt Domain sichern und gestalten!
+> Nur 3,99 EUR/Monat! http://www.maildomain.web.de/?mc=02214
+
+
+
+-- 
+**********************************************************************
+Dominik Seichter - domseichter at web.de
+KRename  - http://www.krename.net  - Powerful batch renamer for KDE
+KBarcode - http://www.kbarcode.net - Barcode and label printing
+PoDoFo - http://podofo.sf.net - PDF generation and parsing library
+SchafKopf - http://schafkopf.berlios.de - Schafkopf, a card game,  for KDE
+Alan - http://alan.sf.net - A Turing Machine in Java
+**********************************************************************
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: signature.asc
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: This is a digitally signed message part.
+URL: <https://lists.berlios.de/pipermail/schafkopf-devel/attachments/20080328/7d2ced50/attachment.pgp>
+

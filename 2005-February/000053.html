@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] [RFC][PATCH] Threading
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20%5BRFC%5D%5BPATCH%5D%20Threading&In-Reply-To=%3C200502101347.10577.domseichter%40web.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000052.html">
+   <LINK REL="Next"  HREF="000055.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] [RFC][PATCH] Threading</H1>
+    <B>Dominik Seichter</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20%5BRFC%5D%5BPATCH%5D%20Threading&In-Reply-To=%3C200502101347.10577.domseichter%40web.de%3E"
+       TITLE="[Schafkopf-devel] [RFC][PATCH] Threading">domseichter at web.de
+       </A><BR>
+    <I>Thu Feb 10 13:47:09 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000052.html">[Schafkopf-devel] [RFC][PATCH] Threading
+</A></li>
+        <LI>Next message: <A HREF="000055.html">[Schafkopf-devel] Commit Report - Schafkopf Ueberprfuefung einbaut ob Hintergrundbild und
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#53">[ date ]</a>
+              <a href="thread.html#53">[ thread ]</a>
+              <a href="subject.html#53">[ subject ]</a>
+              <a href="author.html#53">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hallo Ihr,
+
+Am Thursday, 10. February 2005 13:11 schrieb Lorenz M&#246;senlechner:
+&gt;<i> Sars die Liste :)
+</I>&gt;<i> Hab mal ein wenig in dem Patch rumgelesen. Sind einige ganz gute ans&#228;tze
+</I>&gt;<i> drin.
+</I>Thanks a lot!
+
+&gt;<i> Was mich da interessieren w&#252;rde: f&#252;r was benutzt du denn den semaphor?
+</I>&gt;<i> Um zu warten, ob der Event schon bearbeitet wurde? Initialisier den doch
+</I>&gt;<i> einfach mit null und versuch im postEvent nen dekrement. Und im
+</I>&gt;<i> customEvent machst du einfach nen inkrement, wenn du fertig bist. Dann
+</I>&gt;<i> sparst du dir das doppelte inkrement und dekrement (ich versteh eh nicht
+</I>&gt;<i> wieso :) )
+</I>Der Gamethread muss ja bei manchen Events auf den Returncode warten. Daher 
+benutze ich die Semaphore zum Blocken. Mit dem ersten inkrement belege ich 
+sie und beim 2. inkrement blocked der Game Thread. 
+Das mit dem dekrement Funzt bei Qt Semaphoren nicht. Evtl. sollten wir dann 
+POSIX semaphoren verwenden wenn es da geht. Obwohl ich das jetzt so lassen 
+w&#252;rde, da wir es sowieso anders l&#246;sen m&#252;ssen sobald wir aus Sockets 
+umstellen.
+
+&gt;<i> Was ich noch nicht optimal finde, ist, dass die spieler im Thread vom
+</I>&gt;<i> Spiel laufen. Die spieler und das spiel sollten auch entweder &#252;ber die
+</I>&gt;<i> events oder sp&#228;ter evtl. &#252;ber socks kommunizieren. Dann sparst du dir
+</I>&gt;<i> auch die synchronisation von HumanPlayer und GameCanvas weil der
+</I>&gt;<i> HumanPlayer im Hauptprogramm-Tread laufen kann und nur das spiel und die
+</I>&gt;<i> computerspieler in nem extra thread. Ich werd das game und die
+</I>&gt;<i> player-schnittstelle sowieso f&#252;r meine ki-experimente fr&#252;her oder sp&#228;ter
+</I>&gt;<i> ohne qt brauchen. Aber so wies im mom l&#228;uft is es nicht allzu schwierig
+</I>&gt;<i> umzustellen.
+</I>Auf ohne Qt umstellen sollte jetzt deutlich leichter sein. Im wesentlichen 
+m&#252;ssen denke ich bloss CardList und einige QStrings umgestellt werden.
+
+Die Spieler in eigene Threads packen ist dann der n&#228;chste Schritt, sobald Game 
+und GameCanvas unabh&#228;ngig von einander laufen.
+
+&gt;<i> Was ich sehr sehr gut finde, ist, dass wir kein enter- und exitloop haben.
+</I>:<i>-D
+</I>
+Was ich auch noch &#228;ndern muss ist die Settings Sache, so wie es jetzt ist kann 
+das nicht gut gehen, da das Settings Object von 2 Threads gleichzeitig 
+verwendet wird. 
+
+CU Dom
+-- 
+**********************************************************************
+Dominik Seichter - <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>
+KRename  - <A HREF="http://www.krename.net">http://www.krename.net</A>  - Powerful batch renamer for KDE
+KBarcode - <A HREF="http://www.kbarcode.net">http://www.kbarcode.net</A> - Barcode and label printing
+KDE Mass Mailer - <A HREF="http://www.kmassmailer.net">http://www.kmassmailer.net</A> - Mass mailing for KDE
+SchafKopf - <A HREF="http://schafkopf.berlios.de">http://schafkopf.berlios.de</A> - Schafkopf, a card game,  for KDE
+**********************************************************************
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000052.html">[Schafkopf-devel] [RFC][PATCH] Threading
+</A></li>
+	<LI>Next message: <A HREF="000055.html">[Schafkopf-devel] Commit Report - Schafkopf Ueberprfuefung einbaut ob Hintergrundbild und
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#53">[ date ]</a>
+              <a href="thread.html#53">[ thread ]</a>
+              <a href="subject.html#53">[ subject ]</a>
+              <a href="author.html#53">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

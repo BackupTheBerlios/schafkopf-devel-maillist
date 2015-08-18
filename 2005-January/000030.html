@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf uebersetzung
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-January/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20uebersetzung&In-Reply-To=%3C200501072150.j07LorkR029509%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000029.html">
+   <LINK REL="Next"  HREF="000031.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf uebersetzung</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20uebersetzung&In-Reply-To=%3C200501072150.j07LorkR029509%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf uebersetzung">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Fri Jan  7 22:50:53 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000029.html">[Schafkopf-devel] Commit Report - Schafkopf use settings allowed games settings from the
+</A></li>
+        <LI>Next message: <A HREF="000031.html">[Schafkopf-devel] Commit Report - Schafkopf uebersetzung
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#30">[ date ]</a>
+              <a href="thread.html#30">[ thread ]</a>
+              <a href="subject.html#30">[ subject ]</a>
+              <a href="author.html#30">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+uebersetzung
+
+Modified Files:
+--------------
+    schafkopf/po:
+        de.po
+    schafkopf/src:
+        canvascard.cpp
+        preferencesdlg.cpp
+
+-------------- next part --------------
+Index: de.po
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/po/de.po,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -Lpo/de.po -Lpo/de.po -u -r1.16 -r1.17
+--- po/de.po
++++ po/de.po
+@@ -320,6 +320,25 @@
+ msgid &quot;Cards will be rearranged after each trick.&quot;
+ msgstr &quot;Die Karten werden nach jedem Stich neu angeordnet.&quot;
+ 
++msgid &quot;Games&quot;
++msgstr &quot;Spiele&quot;
++
++msgid &quot;Colored &amp;Wenz&quot;
++msgstr &quot;Farbwenz&quot;
++
++msgid &quot;Colored &amp;Geier&quot;
++msgstr &quot;Farbgeier&quot;
++
++msgid &quot;&amp;Badger&quot;
++msgstr &quot;&amp;Dachs&quot;
++
++msgid &quot;&lt;qt&gt;You can configure which games are allowed to play.&quot;
++                                        &quot;You cannot disable certain games, such as Callgames and Solos as they are always &quot; &quot;enabled by default.&lt;/qt&gt;&quot;
++msgstr &quot;&lt;qt&gt;Hier kannst du einstellen welche Spiele gespielt werden d??rfen. Bestimmte Spiele, wie Rufspiel und Solo, k??nnen nicht deaktiviert werden.&lt;/qt&gt;&quot;
++
++msgid &quot;&lt;qt&gt;The badger is no official game in Schafkopf and is therefore not played at tournaments.&lt;/qt&gt;&quot;
++msgstr &quot;&lt;qt&gt;Der Dachs ist kein offizielles Spiel, und wird daher bei Turnieren nicht gespielt.&lt;/qt&gt;&quot;
++
+ #: results.cpp:44
+ msgid &quot; schneider&quot;
+ msgstr &quot; Schneider&quot;
+Index: canvascard.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/canvascard.cpp,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -Lsrc/canvascard.cpp -Lsrc/canvascard.cpp -u -r1.11 -r1.12
+--- src/canvascard.cpp
++++ src/canvascard.cpp
+@@ -108,9 +108,8 @@
+ 
+ void CanvasCard::animatedMove()
+ {
+-	//timer = new QTimer( this );
+         connect( timer, SIGNAL(timeout()), this, SLOT(moveLoop()) );
+-        timer-&gt;start( 5 );
++        timer-&gt;start( 2 );
+ }
+ 
+ void CanvasCard::moveLoop()
+@@ -128,4 +127,4 @@
+ 		timer-&gt;stop();
+ 		disconnect( timer, SIGNAL(timeout()), this, SLOT(moveLoop()) );
+ 	}
+-}
+\ No newline at end of file
++}
+Index: preferencesdlg.cpp
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/src/preferencesdlg.cpp,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -Lsrc/preferencesdlg.cpp -Lsrc/preferencesdlg.cpp -u -r1.13 -r1.14
+--- src/preferencesdlg.cpp
++++ src/preferencesdlg.cpp
+@@ -298,7 +298,7 @@
+     m_games_dachs = new QCheckBox( i18n(&quot;&amp;Badger&quot;), box );
+     
+     layout-&gt;addWidget( new QLabel( i18n(&quot;&lt;qt&gt;You can configure which games are allowed to play.&quot;
+-                                        &quot;You cannot disable certain games, such as Callgames and Solos as they are always &quot; &quot;enabled by default.&quot;), box ) );
++                                        &quot;You cannot disable certain games, such as Callgames and Solos as they are always &quot; &quot;enabled by default.&lt;/qt&gt;&quot;), box ) );
+                                         
+     farbWenzLayout-&gt;addItem( smallSpace );
+     farbWenzLayout-&gt;addWidget( m_games_farbwenz );
+@@ -326,7 +326,7 @@
+     connect( m_games_geier, SIGNAL( clicked() ), this, SLOT( enableControls() ) );
+     
+     // tool tips
+-    QToolTip::add( m_games_dachs, i18n(&quot;&lt;qt&gt;The badger is no official game in SchafKopf and is therefore not played and tournaments.&quot;) );
++    QToolTip::add( m_games_dachs, i18n(&quot;&lt;qt&gt;The badger is no official game in Schafkopf and is therefore not played at tournaments.&lt;/qt&gt;&quot;) );
+ }
+ 
+ void PreferencesDlg::enableControls()
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000029.html">[Schafkopf-devel] Commit Report - Schafkopf use settings allowed games settings from the
+</A></li>
+	<LI>Next message: <A HREF="000031.html">[Schafkopf-devel] Commit Report - Schafkopf uebersetzung
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#30">[ date ]</a>
+              <a href="thread.html#30">[ thread ]</a>
+              <a href="subject.html#30">[ subject ]</a>
+              <a href="author.html#30">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

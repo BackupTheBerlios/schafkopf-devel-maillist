@@ -1,0 +1,43 @@
+From domseichter at web.de  Wed Oct 14 23:24:40 2009
+From: domseichter at web.de (Dominik Seichter)
+Date: Wed, 14 Oct 2009 23:24:40 +0200
+Subject: [Schafkopf-devel] Frage zu "schafkopf" ...
+In-Reply-To: <4AD63D4E.2050701@freenet.de>
+References: <4AD63D4E.2050701@freenet.de>
+Message-ID: <200910142324.41560.domseichter@web.de>
+
+Servus Thomas,
+
+Ich denke den Ramsch gewinnt der, der die wenigsten Punkte hat. Was bei 
+Punkte-Gleichstand oder Durchmarsch passiert ist nicht implementiert.
+
+Gerade Ramsch ist leider nicht sehr gut implementiert, da wir bei zum Beispiel 
+Solos noch viel gr??ere Schw?chen haben. Wie Du wohl auch bemerkt hast, haben 
+wir seid ca. 2 Jahren nicht viel geschaft beim Spiel. Haben alle leider nicht 
+viel Zeit f?r OpenSource. Wenn Du Verbesserungen hast, nehmen wir die aber 
+gerne auf!
+
+Ciao,
+	Dom
+
+PS: Hast Du mal in Rosenheim studiert?
+
+
+On Wednesday 14 October 2009 23:06:22 you wrote:
+> Hi!
+>
+> zuallererst: "schafkopf" gef?llt mir gut: Es spielt in etwa wie meine
+> sonstigen Partner auch,
+> ist aber leiser ;-)
+>
+> Was ich mich nun frage: Nach welchen Regeln gibt's bei seiner
+> Ramsch-Variante einen Gewinner?
+> Ich k?nnte nat?rlich die sources fl?hen, aber so erscheint's mir
+> leichter...
+>
+> Vielen Dank f?r die Antwort (und nat?rlich auch das Spiel ;-)
+>
+> Tom
+		
+
+

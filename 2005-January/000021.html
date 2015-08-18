@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2005-January/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20auf%20allgemeinen%20wunsch%20laesst%20sich%20das&In-Reply-To=%3C200501061202.47193.domseichter%40web.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000020.html">
+   <LINK REL="Next"  HREF="000022.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das</H1>
+    <B>Dominik Seichter</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20Commit%20Report%20-%20Schafkopf%20auf%20allgemeinen%20wunsch%20laesst%20sich%20das&In-Reply-To=%3C200501061202.47193.domseichter%40web.de%3E"
+       TITLE="[Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das">domseichter at web.de
+       </A><BR>
+    <I>Thu Jan  6 12:02:47 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000020.html">[Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das
+</A></li>
+        <LI>Next message: <A HREF="000022.html">[Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#21">[ date ]</a>
+              <a href="thread.html#21">[ thread ]</a>
+              <a href="subject.html#21">[ subject ]</a>
+              <a href="author.html#21">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE> bool Settings::doublerHasToPlay() const
+ {
+-    bool b = false;
++    bool b = true;
+     KConfig* config = kapp-&gt;config(); 
+     config-&gt;setGroup(&quot;SchafKopf&quot;);
+     b = config-&gt;readBoolEntry( &quot;DoublerHasToPlay&quot;, b );
+@@ -253,12 +253,28 @@
+ 
+ bool Settings::doubleNextGame() const
+ {
+-    bool b = false;
++    bool b = true;
+     KConfig* config = kapp-&gt;config();
+     config-&gt;setGroup(&quot;SchafKopf&quot;);
+     b = config-&gt;readBoolEntry( &quot;DoubleNextGame&quot;, b );
+     return b;
+ }
+
+Hmmm, ist das ein gutes DefaultSetting? Im 2. Fall ist es denke ich Ok, das 
+wir nach dem zusammen schmeissen doppeln. Aber ich weiss nicht ob das im 
+ersten Fall so gut ist (vor allem da ich privat immer ohne diese Regel 
+gespielt habe wenn ich mich recht errinnere). Was meint der Rest?
+
+CU Dom
+
+Am Thursday, 6. January 2005 01:07 schrieb <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">schafkopf-devel at berlios.de</A>:
+&gt;<i> Log Message:
+</I>&gt;<i> -----------
+</I>&gt;<i> auf allgemeinen wunsch laesst sich das neuanordnen der karten nach jedem
+</I>&gt;<i> stich unter einstellungen-&gt;anzeige abschalten
+</I>&gt;<i>
+</I>&gt;<i> Modified Files:
+</I>&gt;<i> --------------
+</I>&gt;<i>     schafkopf/po:
+</I>&gt;<i>         de.po
+</I>&gt;<i>     schafkopf/src:
+</I>&gt;<i>         gamecanvas.cpp
+</I>&gt;<i>         preferencesdlg.cpp
+</I>&gt;<i>         preferencesdlg.h
+</I>&gt;<i>         settings.cpp
+</I>&gt;<i>         settings.h
+</I>
+-- 
+**********************************************************************
+Dominik Seichter - <A HREF="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">domseichter at web.de</A>
+KRename  - <A HREF="http://www.krename.net">http://www.krename.net</A>  - Powerful batch renamer for KDE
+KBarcode - <A HREF="http://www.kbarcode.net">http://www.kbarcode.net</A> - Barcode and label printing
+KDE Mass Mailer - <A HREF="http://www.kmassmailer.net">http://www.kmassmailer.net</A> - Mass mailing for KDE
+SchafKopf - <A HREF="http://schafkopf.berlios.de">http://schafkopf.berlios.de</A> - Schafkopf, a card game,  for KDE
+**********************************************************************
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000020.html">[Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das
+</A></li>
+	<LI>Next message: <A HREF="000022.html">[Schafkopf-devel] Commit Report - Schafkopf auf allgemeinen wunsch laesst sich das
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#21">[ date ]</a>
+              <a href="thread.html#21">[ thread ]</a>
+              <a href="subject.html#21">[ subject ]</a>
+              <a href="author.html#21">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>

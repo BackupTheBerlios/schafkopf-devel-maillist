@@ -1,0 +1,222 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Schafkopf-devel] bloewe: Commit Report - Schafkopf added targets: release and debug
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/schafkopf-devel/2006-January/index.html" >
+   <LINK REL="made" HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20bloewe%3A%20Commit%20Report%20-%20Schafkopf%20added%20targets%3A%20release%20and%20debug&In-Reply-To=%3C200601281638.k0SGc3wL023977%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000223.html">
+   <LINK REL="Next"  HREF="000225.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Schafkopf-devel] bloewe: Commit Report - Schafkopf added targets: release and debug</H1>
+    <B>schafkopf-devel at berlios.de</B> 
+    <A HREF="mailto:schafkopf-devel%40lists.berlios.de?Subject=Re%3A%20%5BSchafkopf-devel%5D%20bloewe%3A%20Commit%20Report%20-%20Schafkopf%20added%20targets%3A%20release%20and%20debug&In-Reply-To=%3C200601281638.k0SGc3wL023977%40sheep.berlios.de%3E"
+       TITLE="[Schafkopf-devel] bloewe: Commit Report - Schafkopf added targets: release and debug">schafkopf-devel at berlios.de
+       </A><BR>
+    <I>Sat Jan 28 17:38:03 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000223.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf fixed desktop file
+</A></li>
+        <LI>Next message: <A HREF="000225.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf unsere Karten werden jetzt auch auf Ubuntu
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#224">[ date ]</a>
+              <a href="thread.html#224">[ thread ]</a>
+              <a href="subject.html#224">[ subject ]</a>
+              <a href="author.html#224">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Log Message:
+-----------
+added targets: release and debug
+
+Modified Files:
+--------------
+    schafkopf:
+        schafkopf.kdevelop
+
+-------------- next part --------------
+Index: schafkopf.kdevelop
+===================================================================
+RCS file: /cvsroot/schafkopf/schafkopf/schafkopf.kdevelop,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -Lschafkopf.kdevelop -Lschafkopf.kdevelop -u -r1.23 -r1.24
+--- schafkopf.kdevelop
++++ schafkopf.kdevelop
+@@ -12,11 +12,12 @@
+     &lt;/keywords&gt;
+     &lt;projectdirectory&gt;.&lt;/projectdirectory&gt;
+     &lt;absoluteprojectpath&gt;false&lt;/absoluteprojectpath&gt;
+-    &lt;description/&gt;
++    &lt;description&gt;&lt;/description&gt;
+     &lt;ignoreparts/&gt;
+     &lt;secondaryLanguages&gt;
+       &lt;language&gt;C&lt;/language&gt;
+     &lt;/secondaryLanguages&gt;
++    &lt;versioncontrol&gt;&lt;/versioncontrol&gt;
+   &lt;/general&gt;
+   &lt;kdevfileview&gt;
+     &lt;groups&gt;
+@@ -79,11 +80,11 @@
+   &lt;kdevdebugger&gt;
+     &lt;general&gt;
+       &lt;dbgshell&gt;libtool&lt;/dbgshell&gt;
+-      &lt;programargs/&gt;
+-      &lt;gdbpath/&gt;
+-      &lt;configGdbScript/&gt;
+-      &lt;runShellScript/&gt;
+-      &lt;runGdbScript/&gt;
++      &lt;programargs&gt;&lt;/programargs&gt;
++      &lt;gdbpath&gt;&lt;/gdbpath&gt;
++      &lt;configGdbScript&gt;&lt;/configGdbScript&gt;
++      &lt;runShellScript&gt;&lt;/runShellScript&gt;
++      &lt;runGdbScript&gt;&lt;/runGdbScript&gt;
+       &lt;breakonloadinglibs&gt;true&lt;/breakonloadinglibs&gt;
+       &lt;separatetty&gt;false&lt;/separatetty&gt;
+       &lt;floatingtoolbar&gt;false&lt;/floatingtoolbar&gt;
+@@ -111,14 +112,14 @@
+       &lt;abortonerror&gt;false&lt;/abortonerror&gt;
+       &lt;numberofjobs&gt;1&lt;/numberofjobs&gt;
+       &lt;dontact&gt;false&lt;/dontact&gt;
+-      &lt;makebin/&gt;
++      &lt;makebin&gt;&lt;/makebin&gt;
+       &lt;prio&gt;0&lt;/prio&gt;
+     &lt;/make&gt;
+     &lt;run&gt;
+       &lt;directoryradio&gt;executable&lt;/directoryradio&gt;
+       &lt;customdirectory&gt;/&lt;/customdirectory&gt;
+       &lt;mainprogram&gt;src/schafkopf&lt;/mainprogram&gt;
+-      &lt;programargs/&gt;
++      &lt;programargs&gt;&lt;/programargs&gt;
+       &lt;terminal&gt;false&lt;/terminal&gt;
+       &lt;autocompile&gt;true&lt;/autocompile&gt;
+       &lt;envvars/&gt;
+@@ -130,21 +131,55 @@
+     &lt;configurations&gt;
+       &lt;default&gt;
+         &lt;envvars/&gt;
+-        &lt;configargs&gt;--enable-debug=full&lt;/configargs&gt;
+-        &lt;builddir/&gt;
+-        &lt;topsourcedir/&gt;
+-        &lt;cppflags/&gt;
+-        &lt;ldflags/&gt;
++        &lt;configargs&gt;&lt;/configargs&gt;
++        &lt;builddir&gt;&lt;/builddir&gt;
++        &lt;topsourcedir&gt;&lt;/topsourcedir&gt;
++        &lt;cppflags&gt;&lt;/cppflags&gt;
++        &lt;ldflags&gt;&lt;/ldflags&gt;
+         &lt;ccompiler&gt;kdevgccoptions&lt;/ccompiler&gt;
+         &lt;cxxcompiler&gt;kdevgppoptions&lt;/cxxcompiler&gt;
+         &lt;f77compiler&gt;kdevg77options&lt;/f77compiler&gt;
+-        &lt;ccompilerbinary/&gt;
+-        &lt;cxxcompilerbinary/&gt;
+-        &lt;f77compilerbinary/&gt;
+-        &lt;cflags/&gt;
+-        &lt;cxxflags/&gt;
+-        &lt;f77flags/&gt;
++        &lt;ccompilerbinary&gt;&lt;/ccompilerbinary&gt;
++        &lt;cxxcompilerbinary&gt;&lt;/cxxcompilerbinary&gt;
++        &lt;f77compilerbinary&gt;&lt;/f77compilerbinary&gt;
++        &lt;cflags&gt;&lt;/cflags&gt;
++        &lt;cxxflags&gt;&lt;/cxxflags&gt;
++        &lt;f77flags&gt;&lt;/f77flags&gt;
+       &lt;/default&gt;
++      &lt;debug&gt;
++        &lt;envvars/&gt;
++        &lt;configargs&gt;--enable-debug=full&lt;/configargs&gt;
++        &lt;builddir&gt;debug&lt;/builddir&gt;
++        &lt;topsourcedir&gt;&lt;/topsourcedir&gt;
++        &lt;cppflags&gt;&lt;/cppflags&gt;
++        &lt;ldflags&gt;&lt;/ldflags&gt;
++        &lt;ccompiler&gt;kdevgccoptions&lt;/ccompiler&gt;
++        &lt;cxxcompiler&gt;kdevgppoptions&lt;/cxxcompiler&gt;
++        &lt;f77compiler&gt;kdevg77options&lt;/f77compiler&gt;
++        &lt;ccompilerbinary&gt;&lt;/ccompilerbinary&gt;
++        &lt;cxxcompilerbinary&gt;&lt;/cxxcompilerbinary&gt;
++        &lt;f77compilerbinary&gt;&lt;/f77compilerbinary&gt;
++        &lt;cflags&gt;&lt;/cflags&gt;
++        &lt;cxxflags&gt;&lt;/cxxflags&gt;
++        &lt;f77flags&gt;&lt;/f77flags&gt;
++      &lt;/debug&gt;
++      &lt;release&gt;
++        &lt;envvars/&gt;
++        &lt;configargs&gt;&lt;/configargs&gt;
++        &lt;builddir&gt;release&lt;/builddir&gt;
++        &lt;topsourcedir&gt;&lt;/topsourcedir&gt;
++        &lt;cppflags&gt;&lt;/cppflags&gt;
++        &lt;ldflags&gt;&lt;/ldflags&gt;
++        &lt;ccompiler&gt;kdevgccoptions&lt;/ccompiler&gt;
++        &lt;cxxcompiler&gt;kdevgppoptions&lt;/cxxcompiler&gt;
++        &lt;f77compiler&gt;kdevg77options&lt;/f77compiler&gt;
++        &lt;ccompilerbinary&gt;&lt;/ccompilerbinary&gt;
++        &lt;cxxcompilerbinary&gt;&lt;/cxxcompilerbinary&gt;
++        &lt;f77compilerbinary&gt;&lt;/f77compilerbinary&gt;
++        &lt;cflags&gt;&lt;/cflags&gt;
++        &lt;cxxflags&gt;&lt;/cxxflags&gt;
++        &lt;f77flags&gt;&lt;/f77flags&gt;
++      &lt;/release&gt;
+     &lt;/configurations&gt;
+   &lt;/kdevautoproject&gt;
+   &lt;cppsupportpart&gt;
+@@ -167,12 +202,25 @@
+       &lt;headerCompletionDelay&gt;250&lt;/headerCompletionDelay&gt;
+     &lt;/codecompletion&gt;
+     &lt;references/&gt;
++    &lt;qt&gt;
++      &lt;used&gt;false&lt;/used&gt;
++      &lt;version&gt;3&lt;/version&gt;
++      &lt;root&gt;/usr/qt/3&lt;/root&gt;
++    &lt;/qt&gt;
++    &lt;creategettersetter&gt;
++      &lt;prefixGet&gt;&lt;/prefixGet&gt;
++      &lt;prefixSet&gt;set&lt;/prefixSet&gt;
++      &lt;prefixVariable&gt;m_,_&lt;/prefixVariable&gt;
++      &lt;parameterName&gt;theValue&lt;/parameterName&gt;
++      &lt;inlineGet&gt;true&lt;/inlineGet&gt;
++      &lt;inlineSet&gt;true&lt;/inlineSet&gt;
++    &lt;/creategettersetter&gt;
+   &lt;/kdevcppsupport&gt;
+   &lt;kdevdocumentation&gt;
+     &lt;projectdoc&gt;
+-      &lt;docsystem/&gt;
+-      &lt;docurl/&gt;
+-      &lt;usermanualurl/&gt;
++      &lt;docsystem&gt;&lt;/docsystem&gt;
++      &lt;docurl&gt;&lt;/docurl&gt;
++      &lt;usermanualurl&gt;&lt;/usermanualurl&gt;
+     &lt;/projectdoc&gt;
+   &lt;/kdevdocumentation&gt;
+   &lt;kdevcvsservice&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000223.html">[Schafkopf-devel] domseichter: Commit Report - Schafkopf fixed desktop file
+</A></li>
+	<LI>Next message: <A HREF="000225.html">[Schafkopf-devel] bloewe: Commit Report - Schafkopf unsere Karten werden jetzt auch auf Ubuntu
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#224">[ date ]</a>
+              <a href="thread.html#224">[ thread ]</a>
+              <a href="subject.html#224">[ subject ]</a>
+              <a href="author.html#224">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/schafkopf-devel">More information about the Schafkopf-devel
+mailing list</a><br>
+</body></html>
